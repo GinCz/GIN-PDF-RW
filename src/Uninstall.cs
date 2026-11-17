@@ -8,12 +8,12 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Win32;
 
-[assembly: AssemblyTitle("GIN-PDF-RW_v006_Uninstall")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v006_Uninstall")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v007_Uninstall")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v007_Uninstall")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.006.0.0")]
-[assembly: AssemblyVersion("0.006.0.0")]
+[assembly: AssemblyFileVersion("0.007.0.0")]
+[assembly: AssemblyVersion("0.007.0.0")]
 
 namespace GinPdfRwUninstall
 {

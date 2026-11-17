@@ -1,7 +1,7 @@
 # GIN-PDF-RW
 
 **High-Performance, Distraction-Free Open Source PDF Reader & Editor**  
-*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v006` | *Standard:* UTF-8
+*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v007` | *Standard:* UTF-8
 
 ---
 
@@ -11,8 +11,9 @@
 
 ---
 
-## ⚡ Highlights in `v006`
+## ⚡ Highlights in `v007`
 
+* **Embedded Payload Fix:** Resolved embedded binary stream resolution in the setup wizard, ensuring 100% reliable single-file extraction to `C:\Program Files\GIN-PDF-RW\`.
 * **Borderless Fullscreen by Default:** Documents automatically launch in maximum immersive reading mode (`F11`).
 * **Interactive Top Menu Flyout:** In fullscreen, left-clicking anywhere on the document or canvas immediately toggles the top navigation bar and status bar.
 * **Instant Windowed Restore (`Esc`):** Pressing `Esc` immediately restores the window to standard framed mode while automatically stretching the document to fill the entire window width (`FitWidth`).
@@ -25,7 +26,7 @@
 * **High-Contrast ComboBox Styling:** High-contrast text colors across all themes (no white text on white backgrounds).
 * **Real Native WinRT PDF Rendering Engine:** Integrated GPU-accelerated rendering using Windows 10/11 DirectX WinRT (`Windows.Data.Pdf`) for instant page rasterization.
 * **Dedicated Uninstaller (`Uninstall.exe`):** Integrated uninstaller deployed to `C:\Program Files\GIN-PDF-RW\`, accessible from Windows Control Panel.
-* **Standalone Setup Wizard (`GIN-PDF-RW_v006_Setup.exe`):**
+* **Standalone Setup Wizard (`GIN-PDF-RW_v007_Setup.exe`):**
   * Prompt in English: *"Do you want to install GIN-PDF-RW on this computer?"*.
   * 12 languages with radio buttons (English selected by default): English, Українська, Русский, Čeština, Deutsch, Français, Español, Italiano, Polski, Türkçe, 中文, 日本語.
   * Two intuitive buttons: **Cancel** and **Install**.
@@ -51,4 +52,4 @@
 ## 📦 Download
 
 Get the standalone installer directly from GitHub Releases:
-* ⚙️ **[GIN-PDF-RW_v006_Setup.exe (GitHub Release v006)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v006)**
+* ⚙️ **[GIN-PDF-RW_v007_Setup.exe (GitHub Release v007)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v007)**

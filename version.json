@@ -1,7 +1,7 @@
 {
   "name": "GIN-PDF-RW",
-  "current_version": "v006",
-  "release_name": "GIN-PDF-RW v006 - Fullscreen Default, Smooth Zoom & 3-Way Theme Switcher",
+  "current_version": "v007",
+  "release_name": "GIN-PDF-RW v007 - Embedded Resource Fix & Fullscreen Zen Reader",
   "author": "Vladimir Bulantsev (@GinCz)",
   "copyright": "VladiMIR+AI",
   "license": "MIT",

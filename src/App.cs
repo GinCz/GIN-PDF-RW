@@ -13,12 +13,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-[assembly: AssemblyTitle("GIN-PDF-RW_v006")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v006")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v007")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v007")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.006.0.0")]
-[assembly: AssemblyVersion("0.006.0.0")]
+[assembly: AssemblyFileVersion("0.007.0.0")]
+[assembly: AssemblyVersion("0.007.0.0")]
 
 namespace GinPdfRw
 {
@@ -241,7 +241,7 @@ namespace GinPdfRw
         private void InitLocalization()
         {
             var en = new Dictionary<string, string>();
-            en.Add("Title", "GIN-PDF-RW v006 — Zen PDF Reader & Editor");
+            en.Add("Title", "GIN-PDF-RW v007 — Zen PDF Reader & Editor");
             en.Add("Open", "📂 Open (Ctrl+O)");
             en.Add("Save", "💾 Save (Ctrl+S)");
             en.Add("Print", "🖨️ Print (Ctrl+P)");
@@ -265,7 +265,7 @@ namespace GinPdfRw
             loc.Add("en", en);
 
             var ru = new Dictionary<string, string>();
-            ru.Add("Title", "GIN-PDF-RW v006 — Просмотр и редактор PDF");
+            ru.Add("Title", "GIN-PDF-RW v007 — Просмотр и редактор PDF");
             ru.Add("Open", "📂 Открыть (Ctrl+O)");
             ru.Add("Save", "💾 Сохранить (Ctrl+S)");
             ru.Add("Print", "🖨️ Печать (Ctrl+P)");
@@ -289,7 +289,7 @@ namespace GinPdfRw
             loc.Add("ru", ru);
 
             var uk = new Dictionary<string, string>();
-            uk.Add("Title", "GIN-PDF-RW v006 — Перегляд і редактор PDF");
+            uk.Add("Title", "GIN-PDF-RW v007 — Перегляд і редактор PDF");
             uk.Add("Open", "📂 Відкрити (Ctrl+O)");
             uk.Add("Save", "💾 Зберегти (Ctrl+S)");
             uk.Add("Print", "🖨️ Друк (Ctrl+P)");
@@ -313,7 +313,7 @@ namespace GinPdfRw
             loc.Add("uk", uk);
 
             var cs = new Dictionary<string, string>();
-            cs.Add("Title", "GIN-PDF-RW v006 — Prohlížeč a editor PDF");
+            cs.Add("Title", "GIN-PDF-RW v007 — Prohlížeč a editor PDF");
             cs.Add("Open", "📂 Otevřít (Ctrl+O)");
             cs.Add("Save", "💾 Uložit (Ctrl+S)");
             cs.Add("Print", "🖨️ Tisk (Ctrl+P)");
@@ -369,7 +369,7 @@ namespace GinPdfRw
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v006";
+            Title = "GIN-PDF-RW v007";
             Width = 1240;
             Height = 880;
             MinWidth = 800;
@@ -584,7 +584,7 @@ namespace GinPdfRw
             sbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             statusText = new TextBlock { Text = "Ready", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
-            verText = new TextBlock { Text = "GIN-PDF-RW v006 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
+            verText = new TextBlock { Text = "GIN-PDF-RW v007 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
 
             Grid.SetColumn(statusText, 0);
             Grid.SetColumn(verText, 1);
@@ -928,7 +928,7 @@ namespace GinPdfRw
                     g.DrawLine(pen, 60, 160, 734, 160);
 
                     string welcome = 
-                        "Welcome to GIN-PDF-RW v006!\n\n" +
+                        "Welcome to GIN-PDF-RW v007!\n\n" +
                         "Key Features:\n" +
                         "• Fullscreen by Default (Press Esc to return to Window)\n" +
                         "• Left Click anywhere to toggle top menu flyout\n" +

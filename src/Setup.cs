@@ -10,12 +10,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
 
-[assembly: AssemblyTitle("GIN-PDF-RW_v006_Setup")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v006_Setup")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v007_Setup")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v007_Setup")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.006.0.0")]
-[assembly: AssemblyVersion("0.006.0.0")]
+[assembly: AssemblyFileVersion("0.007.0.0")]
+[assembly: AssemblyVersion("0.007.0.0")]
 
 namespace GinPdfRwSetup
 {
@@ -58,7 +58,7 @@ namespace GinPdfRwSetup
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v006 Setup";
+            Title = "GIN-PDF-RW v007 Setup";
             Width = 580;
             Height = 540;
             MinWidth = 580;
@@ -78,7 +78,7 @@ namespace GinPdfRwSetup
             // 1. Header in English
             var headerStack = new StackPanel { Margin = new Thickness(0, 0, 0, 16) };
             var txtTitle = new TextBlock {
-                Text = "Install GIN-PDF-RW v006?",
+                Text = "Install GIN-PDF-RW v007?",
                 FontSize = 22,
                 FontWeight = FontWeights.Bold,
                 Foreground = new SolidColorBrush(Color.FromRgb(137, 180, 250))
@@ -256,7 +256,7 @@ namespace GinPdfRwSetup
                 RegisterUninstall(targetUninstall, targetDir);
 
                 MessageBox.Show(
-                    "GIN-PDF-RW v006 has been successfully installed!\nDefault fullscreen & Fit-Width enabled.",
+                    "GIN-PDF-RW v007 has been successfully installed!\nDefault fullscreen & Fit-Width enabled.",
                     "GIN-PDF-RW Setup",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
@@ -273,27 +273,45 @@ namespace GinPdfRwSetup
 
         private void ExtractResource(string resName, string outPath)
         {
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resName))
+            var asm = Assembly.GetExecutingAssembly();
+            Stream stream = asm.GetManifestResourceStream(resName);
+            if (stream == null)
             {
-                if (stream != null)
+                // Fallback to underscore variant or case-insensitive search
+                foreach (string name in asm.GetManifestResourceNames())
                 {
-                    using (FileStream fs = new FileStream(outPath, FileMode.Create, FileAccess.Write))
+                    if (string.Equals(name, resName, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(name.Replace('_', '-'), resName.Replace('_', '-'), StringComparison.OrdinalIgnoreCase))
                     {
-                        byte[] buffer = new byte[81920];
-                        int read;
-                        while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
-                        {
-                            fs.Write(buffer, 0, read);
-                        }
+                        stream = asm.GetManifestResourceStream(name);
+                        break;
                     }
+                }
+            }
+
+            if (stream != null)
+            {
+                using (stream)
+                using (FileStream fs = new FileStream(outPath, FileMode.Create, FileAccess.Write))
+                {
+                    byte[] buffer = new byte[81920];
+                    int read;
+                    while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        fs.Write(buffer, 0, read);
+                    }
+                }
+            }
+            else
+            {
+                string localPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, resName);
+                if (File.Exists(localPath))
+                {
+                    File.Copy(localPath, outPath, true);
                 }
                 else
                 {
-                    string localPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, resName);
-                    if (File.Exists(localPath))
-                    {
-                        File.Copy(localPath, outPath, true);
-                    }
+                    throw new FileNotFoundException("Failed to locate embedded resource: " + resName);
                 }
             }
         }
@@ -356,8 +374,8 @@ namespace GinPdfRwSetup
                 {
                     if (key != null)
                     {
-                        key.SetValue("DisplayName", "GIN-PDF-RW v006 [VladiMIR+AI]");
-                        key.SetValue("DisplayVersion", "v006");
+                        key.SetValue("DisplayName", "GIN-PDF-RW v007 [VladiMIR+AI]");
+                        key.SetValue("DisplayVersion", "v007");
                         key.SetValue("Publisher", "VladiMIR+AI");
                         key.SetValue("DisplayIcon", Path.Combine(installDir, "GIN-PDF-RW.exe") + ",0");
                         key.SetValue("UninstallString", "\"" + uninstallExe + "\"");
