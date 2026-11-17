@@ -1,0 +1,355 @@
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using System.Security.Principal;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using System.Windows.Media;
+using Microsoft.Win32;
+
+[assembly: AssemblyTitle("GIN-PDF-RW Setup")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v003_Setup")]
+[assembly: AssemblyCompany("VladiMIR+AI")]
+[assembly: AssemblyCopyright("VladiMIR+AI")]
+[assembly: AssemblyFileVersion("0.003.0.0")]
+[assembly: AssemblyVersion("0.003.0.0")]
+
+namespace GinPdfRwSetup
+{
+    public class Program
+    {
+        [STAThread]
+        public static void Main(string[] args)
+        {
+            var app = new Application();
+            var window = new SetupWindow();
+            app.Run(window);
+        }
+    }
+
+    public class SetupWindow : Window
+    {
+        private RadioButton[] langRadios;
+        private readonly string[] langNames = new string[] {
+            "English (Default)",
+            "Русский (Russian)",
+            "Čeština (Czech)",
+            "Deutsch (German)",
+            "Français (French)",
+            "Español (Spanish)",
+            "Italiano (Italian)",
+            "Polski (Polish)",
+            "中文 (Chinese)",
+            "日本語 (Japanese)"
+        };
+        private readonly string[] langCodes = new string[] {
+            "en", "ru", "cs", "de", "fr", "es", "it", "pl", "zh", "ja"
+        };
+
+        public SetupWindow()
+        {
+            BuildUi();
+        }
+
+        private void BuildUi()
+        {
+            Title = "GIN-PDF-RW Setup";
+            Width = 560;
+            Height = 520;
+            MinWidth = 560;
+            MinHeight = 520;
+            ResizeMode = ResizeMode.NoResize;
+            WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            Background = new SolidColorBrush(Color.FromRgb(24, 24, 37));
+            Foreground = new SolidColorBrush(Color.FromRgb(205, 214, 244));
+            FontFamily = new FontFamily("Segoe UI, sans-serif");
+
+            var mainGrid = new Grid { Margin = new Thickness(24) };
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            // 1. Header in English
+            var headerStack = new StackPanel { Margin = new Thickness(0, 0, 0, 16) };
+            var txtTitle = new TextBlock {
+                Text = "Install GIN-PDF-RW v003?",
+                FontSize = 22,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush(Color.FromRgb(137, 180, 250))
+            };
+            var txtQuestion = new TextBlock {
+                Text = "Do you want to install GIN-PDF-RW on this computer?",
+                FontSize = 13,
+                Foreground = new SolidColorBrush(Color.FromRgb(186, 194, 222)),
+                Margin = new Thickness(0, 4, 0, 0)
+            };
+            headerStack.Children.Add(txtTitle);
+            headerStack.Children.Add(txtQuestion);
+            Grid.SetRow(headerStack, 0);
+            mainGrid.Children.Add(headerStack);
+
+            // Separator
+            var sep = new Border {
+                Height = 1,
+                Background = new SolidColorBrush(Color.FromRgb(49, 50, 68)),
+                Margin = new Thickness(0, 0, 0, 16)
+            };
+            Grid.SetRow(sep, 1);
+            mainGrid.Children.Add(sep);
+
+            // 2. Language Selection (10 languages with radio buttons, English checked by default)
+            var contentStack = new StackPanel();
+            var lblSelect = new TextBlock {
+                Text = "Select your preferred application language:",
+                FontSize = 12,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = new SolidColorBrush(Color.FromRgb(166, 173, 200)),
+                Margin = new Thickness(0, 0, 0, 12)
+            };
+            contentStack.Children.Add(lblSelect);
+
+            var radioGrid = new UniformGrid { Columns = 2, Margin = new Thickness(6, 0, 0, 16) };
+            langRadios = new RadioButton[10];
+
+            for (int i = 0; i < 10; i++)
+            {
+                var rb = new RadioButton {
+                    Content = langNames[i],
+                    Tag = langCodes[i],
+                    Foreground = new SolidColorBrush(Color.FromRgb(205, 214, 244)),
+                    FontSize = 12,
+                    Margin = new Thickness(0, 4, 0, 4),
+                    Cursor = Cursors.Hand,
+                    IsChecked = (i == 0) // English is checked by default!
+                };
+                langRadios[i] = rb;
+                radioGrid.Children.Add(rb);
+            }
+            contentStack.Children.Add(radioGrid);
+
+            // Path notice
+            var txtPath = new TextBlock {
+                Text = "Target folder: C:\\Program Files\\GIN-PDF-RW\nDefault reader for .PDF documents",
+                FontSize = 11,
+                Foreground = new SolidColorBrush(Color.FromRgb(108, 112, 134)),
+                Margin = new Thickness(0, 8, 0, 0)
+            };
+            contentStack.Children.Add(txtPath);
+
+            Grid.SetRow(contentStack, 2);
+            mainGrid.Children.Add(contentStack);
+
+            // 3. Two Action Buttons: Cancel and Install
+            var btnGrid = new StackPanel {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(0, 16, 0, 0)
+            };
+
+            var btnCancel = new Button {
+                Content = "Cancel",
+                Width = 110,
+                Height = 36,
+                Background = new SolidColorBrush(Color.FromRgb(49, 50, 68)),
+                Foreground = new SolidColorBrush(Color.FromRgb(205, 214, 244)),
+                FontWeight = FontWeights.SemiBold,
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                Margin = new Thickness(0, 0, 12, 0)
+            };
+            btnCancel.Click += delegate { Close(); };
+
+            var btnInstall = new Button {
+                Content = "Install",
+                Width = 130,
+                Height = 36,
+                Background = new SolidColorBrush(Color.FromRgb(137, 180, 250)),
+                Foreground = new SolidColorBrush(Color.FromRgb(17, 17, 27)),
+                FontWeight = FontWeights.Bold,
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand
+            };
+            btnInstall.Click += delegate { DoInstall(); };
+
+            btnGrid.Children.Add(btnCancel);
+            btnGrid.Children.Add(btnInstall);
+            Grid.SetRow(btnGrid, 3);
+            mainGrid.Children.Add(btnGrid);
+
+            Content = mainGrid;
+        }
+
+        private static bool IsAdministrator()
+        {
+            var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+
+        private void DoInstall()
+        {
+            if (!IsAdministrator())
+            {
+                try
+                {
+                    var psi = new ProcessStartInfo {
+                        FileName = Process.GetCurrentProcess().MainModule.FileName,
+                        Verb = "runas",
+                        UseShellExecute = true
+                    };
+                    Process.Start(psi);
+                    Close();
+                    return;
+                }
+                catch
+                {
+                    MessageBox.Show("Administrator privileges are required to install into Program Files.", "Permission Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+
+            try
+            {
+                string targetDir = @"C:\Program Files\GIN-PDF-RW";
+                if (!Directory.Exists(targetDir))
+                {
+                    Directory.CreateDirectory(targetDir);
+                }
+
+                string targetExe = Path.Combine(targetDir, "GIN-PDF-RW.exe");
+
+                // 1. Try extracting embedded GIN-PDF-RW.exe
+                bool extracted = false;
+                using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("GIN-PDF-RW.exe"))
+                {
+                    if (stream != null)
+                    {
+                        using (FileStream fs = new FileStream(targetExe, FileMode.Create, FileAccess.Write))
+                        {
+                            byte[] buffer = new byte[81920];
+                            int read;
+                            while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+                            {
+                                fs.Write(buffer, 0, read);
+                            }
+                        }
+                        extracted = true;
+                    }
+                }
+
+                if (!extracted)
+                {
+                    string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                    string sourceApp = Path.Combine(baseDir, "GIN-PDF-RW.exe");
+                    if (File.Exists(sourceApp))
+                    {
+                        File.Copy(sourceApp, targetExe, true);
+                    }
+                }
+
+                // 2. Extract or copy app.ico
+                using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("app.ico"))
+                {
+                    if (stream != null)
+                    {
+                        using (FileStream fs = new FileStream(Path.Combine(targetDir, "app.ico"), FileMode.Create, FileAccess.Write))
+                        {
+                            byte[] buffer = new byte[81920];
+                            int read;
+                            while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+                            {
+                                fs.Write(buffer, 0, read);
+                            }
+                        }
+                    }
+                }
+
+                // 3. Save chosen language
+                string selectedLang = "en";
+                foreach (var rb in langRadios)
+                {
+                    if (rb.IsChecked == true)
+                    {
+                        selectedLang = rb.Tag.ToString();
+                        break;
+                    }
+                }
+                File.WriteAllText(Path.Combine(targetDir, "language.cfg"), selectedLang);
+
+                // 4. Create Desktop Shortcuts
+                CreateShortcuts(targetExe, targetDir);
+
+                // 5. Associate .PDF
+                AssociatePdf(targetExe);
+
+                MessageBox.Show(
+                    "GIN-PDF-RW v003 has been successfully installed!\nDesktop shortcuts created.",
+                    "GIN-PDF-RW Setup",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
+                // Launch installed app
+                Process.Start(targetExe);
+                Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Installation error: " + ex.Message, "Setup Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CreateShortcuts(string targetExe, string workDir)
+        {
+            string[] desktopDirs = new string[] {
+                @"D:\MEGA\DOCS\desktop",
+                Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory)
+            };
+
+            foreach (var d in desktopDirs)
+            {
+                if (Directory.Exists(d))
+                {
+                    try
+                    {
+                        string linkPath = Path.Combine(d, "GIN-PDF-RW.lnk");
+                        CreateShortcutFile(linkPath, targetExe, workDir, "GIN-PDF-RW v003 by VladiMIR+AI");
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        private void CreateShortcutFile(string shortcutPath, string targetPath, string workDir, string description)
+        {
+            Type shellType = Type.GetTypeFromProgID("WScript.Shell");
+            dynamic shell = Activator.CreateInstance(shellType);
+            dynamic shortcut = shell.CreateShortcut(shortcutPath);
+            shortcut.TargetPath = targetPath;
+            shortcut.WorkingDirectory = workDir;
+            shortcut.Description = description;
+            shortcut.IconLocation = targetPath + ",0";
+            shortcut.Save();
+        }
+
+        private void AssociatePdf(string exePath)
+        {
+            try
+            {
+                using (var key = Registry.CurrentUser.CreateSubKey(@"Software\Classes\.pdf"))
+                {
+                    if (key != null) key.SetValue("", "GIN-PDF-RW.Document");
+                }
+                using (var key = Registry.CurrentUser.CreateSubKey(@"Software\Classes\GIN-PDF-RW.Document\shell\open\command"))
+                {
+                    if (key != null) key.SetValue("", "\"" + exePath + "\" \"%1\"");
+                }
+            }
+            catch { }
+        }
+    }
+}

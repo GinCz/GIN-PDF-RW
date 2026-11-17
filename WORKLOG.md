@@ -1,23 +1,25 @@
 # Worklog - GIN-PDF-RW
 
-## 2026-11-17 - v002 Core Engine & Zen UI Implementation
+## 2026-11-17 - v003 Native GUI Architecture & Standalone Setup
 
-- **Target:** Deliver complete v002 implementation of GIN-PDF-RW reader and editor.
+- **Target:** Completely eliminate console flashing, replace script launchers with native C# GUI executables (`winexe`), generate custom multi-resolution PDF icon, and build a standalone 10-language setup wizard.
 - **Repository:** `https://github.com/GinCz/GIN-PDF-RW`
 - **Actions:**
-  - Designed and implemented modern Zen WPF user interface in `src/GIN-PDF-RW.cmd`:
-    - Responsive dark theme with auto-collapsing toolbar.
-    - True Fullscreen mode on `F11` with borderless presentation and `Esc` recovery.
-    - Native Windows printing pipeline on `Ctrl + P`.
-    - Interactive AcroForms engine supporting text input fields and checkable checkboxes (`✓`).
-    - Dual-mode switch: "Reader & Forms" vs "Editor Mode" with in-place text and stamp tools.
-    - X.509 Cryptographic Digital Signatures integrated with Windows Certificate Store.
-  - Implemented universal UTF-8 localization manager (`EN`, `RU`, `CS`) with auto-detection and live runtime switching.
-  - Engineered multilingual installer `src/installer.cmd` (`Setup.cmd`):
-    - Windows locale auto-detection with language dropdown.
-    - Installation to `C:\Program Files\GIN-PDF-RW`.
-    - System `.pdf` file association.
-    - Automated desktop shortcuts (User Desktop and MEGA Desktop `D:\MEGA\DOCS\desktop\`).
-  - Created root launchers: `GIN-PDF-RW.cmd` and `Setup.cmd`.
-  - Delivered launch shortcut directly to Vladimir's MEGA Desktop (`D:\MEGA\DOCS\desktop\GIN-PDF-RW.lnk`).
-  - Updated `version.json` and documentation to `v002`.
+  - Designed and generated high-resolution multi-size `app.ico` (16x16 up to 256x256) with professional red-coral gradient and document fold.
+  - Rewrote core application into native C# WPF `src/App.cs`:
+    - Compiles to native Windows GUI binary `GIN-PDF-RW.exe` (`/target:winexe`).
+    - 0 black console window blinking, instant silent startup.
+    - Embedded `app.ico` and PE metadata (`VladiMIR+AI`, `v003`, `0.003.0.0`).
+    - Zen minimalist toolbar, Fullscreen F11, Print Ctrl+P.
+    - AcroForms with text fields and checkable checkboxes (`✓`).
+    - In-place Editor mode and X.509 cryptographic signatures.
+  - Engineered standalone setup wizard `src/Setup.cs` (`Setup.exe`):
+    - Clean English confirmation dialog: *"Do you want to install GIN-PDF-RW on this computer?"*.
+    - 10-language selection with radio buttons (English selected by default): English, Russian, Czech, German, French, Spanish, Italian, Polish, Chinese, Japanese.
+    - Two clean buttons: `Cancel` (Отказаться) and `Install` (Установить).
+    - Embedded payload: extracts `GIN-PDF-RW.exe` and `app.ico` directly from itself into `C:\Program Files\GIN-PDF-RW`.
+    - Auto-elevation to Administrator if needed.
+    - Automatic `.pdf` system file association.
+    - Automatic desktop shortcuts (User Desktop and MEGA Desktop `D:\MEGA\DOCS\desktop\`).
+  - Delivered `Setup.exe` directly to Vladimir's MEGA Desktop (`D:\MEGA\DOCS\desktop\GIN-PDF-RW_Setup.exe`).
+  - Removed portable zip requirement per user directive: single standalone installer release.
