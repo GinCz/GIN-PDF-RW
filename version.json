@@ -1,7 +1,7 @@
 {
   "name": "GIN-PDF-RW",
-  "current_version": "v003",
-  "release_name": "GIN-PDF-RW Native GUI & Standalone Setup",
+  "current_version": "v004",
+  "release_name": "GIN-PDF-RW Native WinRT PDF Rendering & Uninstaller",
   "author": "Vladimir Bulantsev (@GinCz)",
   "copyright": "VladiMIR+AI",
   "license": "MIT",

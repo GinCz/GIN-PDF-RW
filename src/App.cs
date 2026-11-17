@@ -14,11 +14,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 [assembly: AssemblyTitle("GIN-PDF-RW")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v003")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v004")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.003.0.0")]
-[assembly: AssemblyVersion("0.003.0.0")]
+[assembly: AssemblyFileVersion("0.004.0.0")]
+[assembly: AssemblyVersion("0.004.0.0")]
 
 namespace GinPdfRw
 {
@@ -31,6 +31,122 @@ namespace GinPdfRw
             string initialFile = (args.Length > 0 && File.Exists(args[0])) ? args[0] : null;
             var window = new MainWindow(initialFile);
             app.Run(window);
+        }
+    }
+
+    public static class NativePdfRenderer
+    {
+        public static int GetPageCount(string pdfPath)
+        {
+            try
+            {
+                Type storageFileType = Type.GetType("Windows.Storage.StorageFile, Windows.Storage, ContentType=WindowsRuntime");
+                Type pdfDocType = Type.GetType("Windows.Data.Pdf.PdfDocument, Windows.Data.Pdf, ContentType=WindowsRuntime");
+                if (storageFileType == null || pdfDocType == null) return 1;
+
+                MethodInfo getFileMethod = storageFileType.GetMethod("GetFileFromPathAsync", new Type[] { typeof(string) });
+                object asyncOpFile = getFileMethod.Invoke(null, new object[] { Path.GetFullPath(pdfPath) });
+                object storageFile = AwaitOp(asyncOpFile);
+
+                MethodInfo loadMethod = pdfDocType.GetMethod("LoadFromFileAsync", new Type[] { storageFileType });
+                object asyncOpDoc = loadMethod.Invoke(null, new object[] { storageFile });
+                object pdfDoc = AwaitOp(asyncOpDoc);
+
+                PropertyInfo countProp = pdfDocType.GetProperty("PageCount");
+                return (int)(uint)countProp.GetValue(pdfDoc, null);
+            }
+            catch
+            {
+                return 1;
+            }
+        }
+
+        public static byte[] RenderPage(string pdfPath, int pageIndex)
+        {
+            try
+            {
+                Type storageFileType = Type.GetType("Windows.Storage.StorageFile, Windows.Storage, ContentType=WindowsRuntime");
+                Type pdfDocType = Type.GetType("Windows.Data.Pdf.PdfDocument, Windows.Data.Pdf, ContentType=WindowsRuntime");
+                Type memStreamType = Type.GetType("Windows.Storage.Streams.InMemoryRandomAccessStream, Windows.Storage.Streams, ContentType=WindowsRuntime");
+                if (storageFileType == null || pdfDocType == null || memStreamType == null) return null;
+
+                MethodInfo getFileMethod = storageFileType.GetMethod("GetFileFromPathAsync", new Type[] { typeof(string) });
+                object asyncOpFile = getFileMethod.Invoke(null, new object[] { Path.GetFullPath(pdfPath) });
+                object storageFile = AwaitOp(asyncOpFile);
+
+                MethodInfo loadMethod = pdfDocType.GetMethod("LoadFromFileAsync", new Type[] { storageFileType });
+                object asyncOpDoc = loadMethod.Invoke(null, new object[] { storageFile });
+                object pdfDoc = AwaitOp(asyncOpDoc);
+
+                MethodInfo getPageMethod = pdfDocType.GetMethod("GetPage");
+                object page = getPageMethod.Invoke(pdfDoc, new object[] { (uint)pageIndex });
+
+                object memStream = Activator.CreateInstance(memStreamType);
+
+                Type iRandomAccess = Type.GetType("Windows.Storage.Streams.IRandomAccessStream, Windows.Storage.Streams, ContentType=WindowsRuntime");
+                MethodInfo renderMethod = page.GetType().GetMethod("RenderToStreamAsync", new Type[] { iRandomAccess });
+                object asyncAction = renderMethod.Invoke(page, new object[] { memStream });
+                AwaitAct(asyncAction);
+
+                PropertyInfo sizeProp = memStreamType.GetProperty("Size");
+                ulong size = (ulong)sizeProp.GetValue(memStream, null);
+
+                Type dataReaderType = Type.GetType("Windows.Storage.Streams.DataReader, Windows.Storage.Streams, ContentType=WindowsRuntime");
+                Type iInputStreamType = Type.GetType("Windows.Storage.Streams.IInputStream, Windows.Storage.Streams, ContentType=WindowsRuntime");
+                MethodInfo getInputStreamMethod = memStreamType.GetMethod("GetInputStreamAt");
+                object inputStream = getInputStreamMethod.Invoke(memStream, new object[] { (ulong)0 });
+
+                object dataReader = Activator.CreateInstance(dataReaderType, new object[] { inputStream });
+                MethodInfo loadAsyncMethod = dataReaderType.GetMethod("LoadAsync");
+                object loadOp = loadAsyncMethod.Invoke(dataReader, new object[] { (uint)size });
+                AwaitOp(loadOp);
+
+                byte[] bytes = new byte[(int)size];
+                MethodInfo readBytesMethod = dataReaderType.GetMethod("ReadBytes");
+                readBytesMethod.Invoke(dataReader, new object[] { bytes });
+
+                return bytes;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static object AwaitOp(object asyncOp)
+        {
+            Type extType = Type.GetType("System.WindowsRuntimeSystemExtensions, System.Runtime.WindowsRuntime, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
+            if (extType == null) return null;
+            MethodInfo asTaskGeneric = null;
+            foreach (var m in extType.GetMethods())
+            {
+                if (m.Name == "AsTask" && m.IsGenericMethod && m.GetParameters().Length == 1)
+                {
+                    asTaskGeneric = m;
+                    break;
+                }
+            }
+            Type returnType = asyncOp.GetType().GetInterfaces()[0].GetGenericArguments()[0];
+            MethodInfo asTask = asTaskGeneric.MakeGenericMethod(returnType);
+            dynamic task = asTask.Invoke(null, new object[] { asyncOp });
+            task.Wait();
+            return task.Result;
+        }
+
+        private static void AwaitAct(object asyncAction)
+        {
+            Type extType = Type.GetType("System.WindowsRuntimeSystemExtensions, System.Runtime.WindowsRuntime, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
+            MethodInfo asTask = null;
+            foreach (var m in extType.GetMethods())
+            {
+                if (m.Name == "AsTask" && !m.IsGenericMethod && m.GetParameters().Length == 1 && m.GetParameters()[0].ParameterType.Name == "IAsyncAction")
+                {
+                    asTask = m;
+                    break;
+                }
+            }
+            dynamic task = asTask.Invoke(null, new object[] { asyncAction });
+            task.Wait();
         }
     }
 
@@ -51,8 +167,8 @@ namespace GinPdfRw
         private Button btnOpen;
         private Button btnSave;
         private Button btnPrint;
-        private System.Windows.Controls.Primitives.ToggleButton tglReader;
-        private System.Windows.Controls.Primitives.ToggleButton tglEditor;
+        private Button btnModeReader;
+        private Button btnModeEditor;
         private Button btnPrev;
         private Button btnNext;
         private TextBlock txtPage;
@@ -62,8 +178,8 @@ namespace GinPdfRw
         private Button btnFit;
         private Button btnFullscreen;
         private ComboBox cmbLang;
-        private System.Windows.Controls.Primitives.ToggleButton toolText;
-        private System.Windows.Controls.Primitives.ToggleButton toolCheck;
+        private Button toolText;
+        private Button toolCheck;
         private Button toolImage;
         private Button toolSign;
         private Button toolCert;
@@ -83,18 +199,21 @@ namespace GinPdfRw
             DetectDefaultLanguage();
             BuildUi();
             UpdateStrings();
-            RenderDocument();
 
             if (!string.IsNullOrEmpty(initialFile) && File.Exists(initialFile))
             {
                 OpenPdf(initialFile);
+            }
+            else
+            {
+                RenderWelcomeSheet();
             }
         }
 
         private void InitLocalization()
         {
             var en = new Dictionary<string, string>();
-            en.Add("Title", "GIN-PDF-RW v003 — Zen PDF Reader & Editor");
+            en.Add("Title", "GIN-PDF-RW v004 — Zen PDF Reader & Editor");
             en.Add("Open", "📂 Open (Ctrl+O)");
             en.Add("Save", "💾 Save (Ctrl+S)");
             en.Add("Print", "🖨️ Print (Ctrl+P)");
@@ -118,7 +237,7 @@ namespace GinPdfRw
             loc.Add("en", en);
 
             var ru = new Dictionary<string, string>();
-            ru.Add("Title", "GIN-PDF-RW v003 — Просмотр и редактор PDF");
+            ru.Add("Title", "GIN-PDF-RW v004 — Просмотр и редактор PDF");
             ru.Add("Open", "📂 Открыть (Ctrl+O)");
             ru.Add("Save", "💾 Сохранить (Ctrl+S)");
             ru.Add("Print", "🖨️ Печать (Ctrl+P)");
@@ -141,8 +260,32 @@ namespace GinPdfRw
             ru.Add("Signed", "Документ подписан сертификатом: {0}");
             loc.Add("ru", ru);
 
+            var uk = new Dictionary<string, string>();
+            uk.Add("Title", "GIN-PDF-RW v004 — Перегляд і редактор PDF");
+            uk.Add("Open", "📂 Відкрити (Ctrl+O)");
+            uk.Add("Save", "💾 Зберегти (Ctrl+S)");
+            uk.Add("Print", "🖨️ Друк (Ctrl+P)");
+            uk.Add("ModeReader", "📖 Читання та форми");
+            uk.Add("ModeEditor", "✏️ Редагувати");
+            uk.Add("Fullscreen", "⛶ На весь екран (F11)");
+            uk.Add("Restore", "⛶ У вікно (F11)");
+            uk.Add("FitWidth", "По ширині");
+            uk.Add("ToolText", "🔤 Текст");
+            uk.Add("ToolCheck", "☑ Галочка (✓)");
+            uk.Add("ToolImage", "🖼 Штамп / Зображення");
+            uk.Add("ToolSign", "✍ Підпис");
+            uk.Add("ToolCert", "🔏 КЕП Сертифікат");
+            uk.Add("Ready", "Готово");
+            uk.Add("ClickToPlace", "Клікніть у будь-яке місце документа для вставки.");
+            uk.Add("PageOf", "Стор. {0} з {1}");
+            uk.Add("Opened", "Відкрито документ: {0} ({1} стор.)");
+            uk.Add("Saved", "Успішно збережено: {0}");
+            uk.Add("NoCert", "У сховищі сертифікатів Windows не знайдено відповідних сертифікатів.");
+            uk.Add("Signed", "Документ підписано сертифікатом: {0}");
+            loc.Add("uk", uk);
+
             var cs = new Dictionary<string, string>();
-            cs.Add("Title", "GIN-PDF-RW v003 — Prohlížeč a editor PDF");
+            cs.Add("Title", "GIN-PDF-RW v004 — Prohlížeč a editor PDF");
             cs.Add("Open", "📂 Otevřít (Ctrl+O)");
             cs.Add("Save", "💾 Uložit (Ctrl+S)");
             cs.Add("Print", "🖨️ Tisk (Ctrl+P)");
@@ -168,17 +311,20 @@ namespace GinPdfRw
 
         private void DetectDefaultLanguage()
         {
-            // Check if language.cfg exists
-            try {
+            try
+            {
                 string cfg = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "language.cfg");
-                if (File.Exists(cfg)) {
+                if (File.Exists(cfg))
+                {
                     string saved = File.ReadAllText(cfg).Trim().ToLowerInvariant();
-                    if (loc.ContainsKey(saved)) {
+                    if (loc.ContainsKey(saved))
+                    {
                         currentLang = saved;
                         return;
                     }
                 }
-            } catch {}
+            }
+            catch {}
 
             string code = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLowerInvariant();
             if (loc.ContainsKey(code)) currentLang = code;
@@ -195,9 +341,9 @@ namespace GinPdfRw
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v003";
-            Width = 1200;
-            Height = 850;
+            Title = "GIN-PDF-RW v004";
+            Width = 1240;
+            Height = 880;
             MinWidth = 800;
             MinHeight = 550;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -205,7 +351,6 @@ namespace GinPdfRw
             Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244));
             FontFamily = new System.Windows.Media.FontFamily("Segoe UI, Segoe UI Variable, sans-serif");
 
-            // Main Grid
             var mainGrid = new Grid();
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -238,29 +383,21 @@ namespace GinPdfRw
             Grid.SetColumn(leftGroup, 0);
             tbGrid.Children.Add(leftGroup);
 
-            // Mode Selector
+            // High-Contrast Mode Selector (Tab design)
             var modeGroup = new StackPanel { Orientation = Orientation.Horizontal };
-            tglReader = CreateToggle("📖 Reader & Forms", true);
-            tglEditor = CreateToggle("✏️ Editor", false);
+            btnModeReader = CreateTabBtn("📖 Reader & Forms", true);
+            btnModeEditor = CreateTabBtn("✏️ Editor", false);
 
-            tglReader.Click += delegate {
-                tglReader.IsChecked = true;
-                tglEditor.IsChecked = false;
-                editorBar.Visibility = Visibility.Collapsed;
-                currentMode = "Reader";
-                statusText.Text = "Reader & Forms mode active.";
+            btnModeReader.Click += delegate {
+                SetMode("Reader");
             };
 
-            tglEditor.Click += delegate {
-                tglReader.IsChecked = false;
-                tglEditor.IsChecked = true;
-                editorBar.Visibility = Visibility.Visible;
-                currentMode = "Editor";
-                statusText.Text = "Editor mode active. Choose an editing tool.";
+            btnModeEditor.Click += delegate {
+                SetMode("Editor");
             };
 
-            modeGroup.Children.Add(tglReader);
-            modeGroup.Children.Add(tglEditor);
+            modeGroup.Children.Add(btnModeReader);
+            modeGroup.Children.Add(btnModeEditor);
             modeGroup.Children.Add(CreateSep());
             Grid.SetColumn(modeGroup, 1);
             tbGrid.Children.Add(modeGroup);
@@ -273,7 +410,7 @@ namespace GinPdfRw
             btnZoomOut = CreateBtn("➖", delegate { AdjustZoom(-0.15); });
             txtZoom = new TextBlock { Text = "100%", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 6, 0), Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(186, 194, 222)) };
             btnZoomIn = CreateBtn("➕", delegate { AdjustZoom(0.15); });
-            btnFit = CreateBtn("Fit Width", delegate { zoom = 1.0; txtZoom.Text = "100%"; RenderDocument(); });
+            btnFit = CreateBtn("Fit Width", delegate { zoom = 1.0; txtZoom.Text = "100%"; RefreshView(); });
 
             centerGroup.Children.Add(btnPrev);
             centerGroup.Children.Add(txtPage);
@@ -291,11 +428,16 @@ namespace GinPdfRw
             btnFullscreen = CreateBtn("⛶ Fullscreen", delegate { ToggleFullscreen(); });
             btnFullscreen.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(69, 71, 90));
 
-            cmbLang = new ComboBox { Width = 70, Margin = new Thickness(6, 0, 0, 0), Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68)), Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244)), FontSize = 11, VerticalContentAlignment = VerticalAlignment.Center };
+            cmbLang = new ComboBox { Width = 74, Margin = new Thickness(6, 0, 0, 0), Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68)), Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244)), FontSize = 11, VerticalContentAlignment = VerticalAlignment.Center };
             cmbLang.Items.Add(new ComboBoxItem { Content = "EN" });
             cmbLang.Items.Add(new ComboBoxItem { Content = "RU" });
+            cmbLang.Items.Add(new ComboBoxItem { Content = "UK" });
             cmbLang.Items.Add(new ComboBoxItem { Content = "CS" });
-            cmbLang.SelectedIndex = (currentLang == "ru") ? 1 : (currentLang == "cs" ? 2 : 0);
+
+            if (currentLang == "ru") cmbLang.SelectedIndex = 1;
+            else if (currentLang == "uk") cmbLang.SelectedIndex = 2;
+            else if (currentLang == "cs") cmbLang.SelectedIndex = 3;
+            else cmbLang.SelectedIndex = 0;
 
             cmbLang.SelectionChanged += delegate {
                 var item = cmbLang.SelectedItem as ComboBoxItem;
@@ -324,25 +466,13 @@ namespace GinPdfRw
             };
 
             var ebStack = new StackPanel { Orientation = Orientation.Horizontal };
-            toolText = CreateToggle("🔤 Add Text", false);
-            toolCheck = CreateToggle("☑ Checkmark (✓)", false);
+            toolText = CreateBtn("🔤 Add Text", delegate { SelectTool("Text"); });
+            toolCheck = CreateBtn("☑ Checkmark (✓)", delegate { SelectTool("Checkmark"); });
             toolImage = CreateBtn("🖼 Stamp / Image", delegate { InsertImageDialog(); });
             toolSign = CreateBtn("✍ Draw Sign", delegate { DrawSignDialog(); });
             toolCert = CreateBtn("🔏 X.509 Sign", delegate { ExecuteDigitalSign(); });
             toolCert.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(166, 227, 161));
             toolCert.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(17, 17, 27));
-
-            toolText.Click += delegate {
-                activeTool = (toolText.IsChecked == true) ? "Text" : "None";
-                toolCheck.IsChecked = false;
-                txtToolTip.Text = (activeTool == "Text") ? T("ClickToPlace") : "";
-            };
-
-            toolCheck.Click += delegate {
-                activeTool = (toolCheck.IsChecked == true) ? "Checkmark" : "None";
-                toolText.IsChecked = false;
-                txtToolTip.Text = (activeTool == "Checkmark") ? T("ClickToPlace") : "";
-            };
 
             txtToolTip = new TextBlock { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 0, 0), Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(249, 226, 175)), FontStyle = FontStyles.Italic };
 
@@ -397,7 +527,7 @@ namespace GinPdfRw
             sbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             statusText = new TextBlock { Text = "Ready", FontSize = 11, Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(166, 173, 200)), VerticalAlignment = VerticalAlignment.Center };
-            var verText = new TextBlock { Text = "GIN-PDF-RW v003 [VladiMIR+AI] | UTF-8", FontSize = 11, Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(88, 91, 112)), VerticalAlignment = VerticalAlignment.Center };
+            var verText = new TextBlock { Text = "GIN-PDF-RW v004 [VladiMIR+AI] | UTF-8", FontSize = 11, Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(88, 91, 112)), VerticalAlignment = VerticalAlignment.Center };
 
             Grid.SetColumn(statusText, 0);
             Grid.SetColumn(verText, 1);
@@ -427,6 +557,87 @@ namespace GinPdfRw
             };
         }
 
+        private void SetMode(string mode)
+        {
+            currentMode = mode;
+            if (mode == "Reader")
+            {
+                btnModeReader.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(69, 71, 90));
+                btnModeReader.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250));
+                btnModeReader.BorderThickness = new Thickness(1);
+                btnModeReader.BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250));
+
+                btnModeEditor.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
+                btnModeEditor.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(186, 194, 222));
+                btnModeEditor.BorderThickness = new Thickness(0);
+
+                editorBar.Visibility = Visibility.Collapsed;
+                statusText.Text = "Reader & Forms mode active.";
+            }
+            else
+            {
+                btnModeEditor.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(69, 71, 90));
+                btnModeEditor.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250));
+                btnModeEditor.BorderThickness = new Thickness(1);
+                btnModeEditor.BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250));
+
+                btnModeReader.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
+                btnModeReader.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(186, 194, 222));
+                btnModeReader.BorderThickness = new Thickness(0);
+
+                editorBar.Visibility = Visibility.Visible;
+                statusText.Text = "Editor mode active. Choose an editing tool.";
+            }
+        }
+
+        private void SelectTool(string tool)
+        {
+            if (activeTool == tool)
+            {
+                activeTool = "None";
+                toolText.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
+                toolCheck.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
+                txtToolTip.Text = "";
+            }
+            else
+            {
+                activeTool = tool;
+                if (tool == "Text")
+                {
+                    toolText.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250));
+                    toolText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(17, 17, 27));
+                    toolCheck.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
+                    toolCheck.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244));
+                    txtToolTip.Text = T("ClickToPlace");
+                }
+                else if (tool == "Checkmark")
+                {
+                    toolCheck.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250));
+                    toolCheck.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(17, 17, 27));
+                    toolText.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
+                    toolText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244));
+                    txtToolTip.Text = T("ClickToPlace");
+                }
+            }
+        }
+
+        private Button CreateTabBtn(string label, bool isActive)
+        {
+            var btn = new Button {
+                Content = label,
+                Background = isActive ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(69, 71, 90)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68)),
+                Foreground = isActive ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(186, 194, 222)),
+                FontSize = 12,
+                FontWeight = FontWeights.Bold,
+                BorderThickness = isActive ? new Thickness(1) : new Thickness(0),
+                BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250)),
+                Padding = new Thickness(14, 6, 14, 6),
+                Margin = new Thickness(3, 0, 3, 0),
+                Cursor = System.Windows.Input.Cursors.Hand
+            };
+            return btn;
+        }
+
         private Button CreateBtn(string label, Action onClick)
         {
             var btn = new Button {
@@ -444,22 +655,6 @@ namespace GinPdfRw
             return btn;
         }
 
-        private System.Windows.Controls.Primitives.ToggleButton CreateToggle(string label, bool isChecked)
-        {
-            return new System.Windows.Controls.Primitives.ToggleButton {
-                Content = label,
-                IsChecked = isChecked,
-                Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68)),
-                Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244)),
-                FontSize = 12,
-                FontWeight = FontWeights.Bold,
-                BorderThickness = new Thickness(0),
-                Padding = new Thickness(12, 5, 12, 5),
-                Margin = new Thickness(4, 0, 4, 0),
-                Cursor = System.Windows.Input.Cursors.Hand
-            };
-        }
-
         private Border CreateSep()
         {
             return new Border { Width = 1, Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(69, 71, 90)), Margin = new Thickness(6, 2, 6, 2) };
@@ -472,8 +667,8 @@ namespace GinPdfRw
             btnSave.Content = T("Save");
             btnPrint.Content = T("Print");
             btnFullscreen.Content = isFullscreen ? T("Restore") : T("Fullscreen");
-            tglReader.Content = T("ModeReader");
-            tglEditor.Content = T("ModeEditor");
+            btnModeReader.Content = T("ModeReader");
+            btnModeEditor.Content = T("ModeEditor");
             toolText.Content = T("ToolText");
             toolCheck.Content = T("ToolCheck");
             toolImage.Content = T("ToolImage");
@@ -484,7 +679,31 @@ namespace GinPdfRw
             if (string.IsNullOrEmpty(docPath)) statusText.Text = T("Ready");
         }
 
-        private void RenderDocument()
+        private void RefreshView()
+        {
+            if (!string.IsNullOrEmpty(docPath) && File.Exists(docPath))
+            {
+                byte[] bytes = NativePdfRenderer.RenderPage(docPath, currentPage - 1);
+                if (bytes != null && bytes.Length > 0)
+                {
+                    var ms = new MemoryStream(bytes);
+                    var bi = new BitmapImage();
+                    bi.BeginInit();
+                    bi.StreamSource = ms;
+                    bi.CacheOption = BitmapCacheOption.OnLoad;
+                    bi.EndInit();
+                    bi.Freeze();
+
+                    pdfView.Source = bi;
+                    pageBorder.Width = bi.PixelWidth * (zoom / 1.5);
+                    pageBorder.Height = bi.PixelHeight * (zoom / 1.5);
+                    return;
+                }
+            }
+            RenderWelcomeSheet();
+        }
+
+        private void RenderWelcomeSheet()
         {
             int w = 794;
             int h = 1123;
@@ -504,14 +723,14 @@ namespace GinPdfRw
                     g.DrawLine(pen, 60, 160, 734, 160);
 
                     string welcome = 
-                        "Welcome to GIN-PDF-RW v003!\n\n" +
+                        "Welcome to GIN-PDF-RW v004!\n\n" +
                         "Key Features:\n" +
                         "• Instant Start (< 0.2s) & 95%+ Viewport Space\n" +
                         "• F11: Fullscreen borderless reading mode\n" +
                         "• Ctrl+P: Fast native Windows printing\n" +
                         "• AcroForms: Click fields to enter text, click checkboxes to tick ✓\n" +
                         "• Editor Mode: In-place text editing, stamp insertion, and signatures\n" +
-                        "• Strict UTF-8: Full support for Czech (ě, š, č, ř, ž), Russian, and global alphabets\n" +
+                        "• Strict UTF-8: Full support for Czech, Ukrainian, Russian, and global alphabets\n" +
                         "• PAdES X.509 Cryptographic digital signatures\n\n" +
                         "Click 'Open (Ctrl+O)' to open your PDF documents.";
                     g.DrawString(welcome, fontBody, brushDark, new RectangleF(60, 190, 674, 500));
@@ -624,17 +843,14 @@ namespace GinPdfRw
         private void OpenPdf(string path)
         {
             docPath = path;
+            currentPage = 1;
+            totalPages = Math.Max(1, NativePdfRenderer.GetPageCount(docPath));
             string fileName = System.IO.Path.GetFileName(docPath);
             statusText.Text = T("Opened", fileName, totalPages);
             Title = fileName + " — " + T("Title");
+            txtPage.Text = T("PageOf", currentPage, totalPages);
             overlayCanvas.Children.Clear();
-
-            // Populate AcroForms demonstrator
-            AddInteractiveField("NameField", 150, 250, 250, 24, "Text", "Vladimir Bulantsev", false);
-            AddInteractiveField("BirthDateField", 450, 250, 180, 24, "Text", "17.11.1985", false);
-            AddInteractiveField("AddressField", 150, 290, 480, 24, "Text", "Praha, Czech Republic", false);
-            AddInteractiveField("CheckEndContract", 60, 380, 20, 20, "CheckBox", "", true);
-            AddInteractiveField("CheckPortNumber", 60, 430, 20, 20, "CheckBox", "", false);
+            RefreshView();
         }
 
         private void SaveFileDialog()
@@ -704,17 +920,25 @@ namespace GinPdfRw
         {
             zoom = Math.Max(0.5, Math.Min(3.0, zoom + delta));
             txtZoom.Text = string.Format("{0:P0}", zoom);
-            RenderDocument();
+            RefreshView();
         }
 
         private void PrevPage()
         {
-            if (currentPage > 1) { currentPage--; txtPage.Text = T("PageOf", currentPage, totalPages); }
+            if (currentPage > 1) {
+                currentPage--;
+                txtPage.Text = T("PageOf", currentPage, totalPages);
+                RefreshView();
+            }
         }
 
         private void NextPage()
         {
-            if (currentPage < totalPages) { currentPage++; txtPage.Text = T("PageOf", currentPage, totalPages); }
+            if (currentPage < totalPages) {
+                currentPage++;
+                txtPage.Text = T("PageOf", currentPage, totalPages);
+                RefreshView();
+            }
         }
     }
 }

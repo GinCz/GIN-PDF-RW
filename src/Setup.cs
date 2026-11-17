@@ -11,11 +11,11 @@ using System.Windows.Media;
 using Microsoft.Win32;
 
 [assembly: AssemblyTitle("GIN-PDF-RW Setup")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v003_Setup")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v004_Setup")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.003.0.0")]
-[assembly: AssemblyVersion("0.003.0.0")]
+[assembly: AssemblyFileVersion("0.004.0.0")]
+[assembly: AssemblyVersion("0.004.0.0")]
 
 namespace GinPdfRwSetup
 {
@@ -35,6 +35,7 @@ namespace GinPdfRwSetup
         private RadioButton[] langRadios;
         private readonly string[] langNames = new string[] {
             "English (Default)",
+            "Українська (Ukrainian)",
             "Русский (Russian)",
             "Čeština (Czech)",
             "Deutsch (German)",
@@ -42,11 +43,12 @@ namespace GinPdfRwSetup
             "Español (Spanish)",
             "Italiano (Italian)",
             "Polski (Polish)",
+            "Türkçe (Turkish)",
             "中文 (Chinese)",
             "日本語 (Japanese)"
         };
         private readonly string[] langCodes = new string[] {
-            "en", "ru", "cs", "de", "fr", "es", "it", "pl", "zh", "ja"
+            "en", "uk", "ru", "cs", "de", "fr", "es", "it", "pl", "tr", "zh", "ja"
         };
 
         public SetupWindow()
@@ -56,11 +58,11 @@ namespace GinPdfRwSetup
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW Setup";
-            Width = 560;
-            Height = 520;
-            MinWidth = 560;
-            MinHeight = 520;
+            Title = "GIN-PDF-RW v004 Setup";
+            Width = 580;
+            Height = 540;
+            MinWidth = 580;
+            MinHeight = 540;
             ResizeMode = ResizeMode.NoResize;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             Background = new SolidColorBrush(Color.FromRgb(24, 24, 37));
@@ -76,7 +78,7 @@ namespace GinPdfRwSetup
             // 1. Header in English
             var headerStack = new StackPanel { Margin = new Thickness(0, 0, 0, 16) };
             var txtTitle = new TextBlock {
-                Text = "Install GIN-PDF-RW v003?",
+                Text = "Install GIN-PDF-RW v004?",
                 FontSize = 22,
                 FontWeight = FontWeights.Bold,
                 Foreground = new SolidColorBrush(Color.FromRgb(137, 180, 250))
@@ -101,7 +103,7 @@ namespace GinPdfRwSetup
             Grid.SetRow(sep, 1);
             mainGrid.Children.Add(sep);
 
-            // 2. Language Selection (10 languages with radio buttons, English checked by default)
+            // 2. Language Selection (12 languages)
             var contentStack = new StackPanel();
             var lblSelect = new TextBlock {
                 Text = "Select your preferred application language:",
@@ -113,9 +115,9 @@ namespace GinPdfRwSetup
             contentStack.Children.Add(lblSelect);
 
             var radioGrid = new UniformGrid { Columns = 2, Margin = new Thickness(6, 0, 0, 16) };
-            langRadios = new RadioButton[10];
+            langRadios = new RadioButton[langNames.Length];
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < langNames.Length; i++)
             {
                 var rb = new RadioButton {
                     Content = langNames[i],
@@ -131,7 +133,7 @@ namespace GinPdfRwSetup
             }
             contentStack.Children.Add(radioGrid);
 
-            // Path notice
+            // Target folder notice
             var txtPath = new TextBlock {
                 Text = "Target folder: C:\\Program Files\\GIN-PDF-RW\nDefault reader for .PDF documents",
                 FontSize = 11,
@@ -143,7 +145,7 @@ namespace GinPdfRwSetup
             Grid.SetRow(contentStack, 2);
             mainGrid.Children.Add(contentStack);
 
-            // 3. Two Action Buttons: Cancel and Install
+            // 3. Two Action Buttons: Cancel (Отказаться) and Install (Установить)
             var btnGrid = new StackPanel {
                 Orientation = Orientation.Horizontal,
                 HorizontalAlignment = HorizontalAlignment.Right,
@@ -221,54 +223,18 @@ namespace GinPdfRwSetup
                 }
 
                 string targetExe = Path.Combine(targetDir, "GIN-PDF-RW.exe");
+                string targetUninstall = Path.Combine(targetDir, "Uninstall.exe");
 
-                // 1. Try extracting embedded GIN-PDF-RW.exe
-                bool extracted = false;
-                using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("GIN-PDF-RW.exe"))
-                {
-                    if (stream != null)
-                    {
-                        using (FileStream fs = new FileStream(targetExe, FileMode.Create, FileAccess.Write))
-                        {
-                            byte[] buffer = new byte[81920];
-                            int read;
-                            while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
-                            {
-                                fs.Write(buffer, 0, read);
-                            }
-                        }
-                        extracted = true;
-                    }
-                }
+                // 1. Extract embedded GIN-PDF-RW.exe
+                ExtractResource("GIN-PDF-RW.exe", targetExe);
 
-                if (!extracted)
-                {
-                    string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                    string sourceApp = Path.Combine(baseDir, "GIN-PDF-RW.exe");
-                    if (File.Exists(sourceApp))
-                    {
-                        File.Copy(sourceApp, targetExe, true);
-                    }
-                }
+                // 2. Extract embedded Uninstall.exe
+                ExtractResource("Uninstall.exe", targetUninstall);
 
-                // 2. Extract or copy app.ico
-                using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("app.ico"))
-                {
-                    if (stream != null)
-                    {
-                        using (FileStream fs = new FileStream(Path.Combine(targetDir, "app.ico"), FileMode.Create, FileAccess.Write))
-                        {
-                            byte[] buffer = new byte[81920];
-                            int read;
-                            while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
-                            {
-                                fs.Write(buffer, 0, read);
-                            }
-                        }
-                    }
-                }
+                // 3. Extract embedded app.ico
+                ExtractResource("app.ico", Path.Combine(targetDir, "app.ico"));
 
-                // 3. Save chosen language
+                // 4. Save chosen language
                 string selectedLang = "en";
                 foreach (var rb in langRadios)
                 {
@@ -280,14 +246,17 @@ namespace GinPdfRwSetup
                 }
                 File.WriteAllText(Path.Combine(targetDir, "language.cfg"), selectedLang);
 
-                // 4. Create Desktop Shortcuts
+                // 5. Create Desktop Shortcuts
                 CreateShortcuts(targetExe, targetDir);
 
-                // 5. Associate .PDF
+                // 6. Associate .PDF
                 AssociatePdf(targetExe);
 
+                // 7. Register Uninstall in Windows Programs & Features
+                RegisterUninstall(targetUninstall, targetDir);
+
                 MessageBox.Show(
-                    "GIN-PDF-RW v003 has been successfully installed!\nDesktop shortcuts created.",
+                    "GIN-PDF-RW v004 has been successfully installed!\nUninstall.exe created in application folder.",
                     "GIN-PDF-RW Setup",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
@@ -299,6 +268,33 @@ namespace GinPdfRwSetup
             catch (Exception ex)
             {
                 MessageBox.Show("Installation error: " + ex.Message, "Setup Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ExtractResource(string resName, string outPath)
+        {
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resName))
+            {
+                if (stream != null)
+                {
+                    using (FileStream fs = new FileStream(outPath, FileMode.Create, FileAccess.Write))
+                    {
+                        byte[] buffer = new byte[81920];
+                        int read;
+                        while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            fs.Write(buffer, 0, read);
+                        }
+                    }
+                }
+                else
+                {
+                    string localPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, resName);
+                    if (File.Exists(localPath))
+                    {
+                        File.Copy(localPath, outPath, true);
+                    }
+                }
             }
         }
 
@@ -317,7 +313,7 @@ namespace GinPdfRwSetup
                     try
                     {
                         string linkPath = Path.Combine(d, "GIN-PDF-RW.lnk");
-                        CreateShortcutFile(linkPath, targetExe, workDir, "GIN-PDF-RW v003 by VladiMIR+AI");
+                        CreateShortcutFile(linkPath, targetExe, workDir, "GIN-PDF-RW v004 by VladiMIR+AI");
                     }
                     catch { }
                 }
@@ -347,6 +343,26 @@ namespace GinPdfRwSetup
                 using (var key = Registry.CurrentUser.CreateSubKey(@"Software\Classes\GIN-PDF-RW.Document\shell\open\command"))
                 {
                     if (key != null) key.SetValue("", "\"" + exePath + "\" \"%1\"");
+                }
+            }
+            catch { }
+        }
+
+        private void RegisterUninstall(string uninstallExe, string installDir)
+        {
+            try
+            {
+                using (var key = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall\GIN-PDF-RW"))
+                {
+                    if (key != null)
+                    {
+                        key.SetValue("DisplayName", "GIN-PDF-RW v004 [VladiMIR+AI]");
+                        key.SetValue("DisplayVersion", "v004");
+                        key.SetValue("Publisher", "VladiMIR+AI");
+                        key.SetValue("DisplayIcon", Path.Combine(installDir, "GIN-PDF-RW.exe") + ",0");
+                        key.SetValue("UninstallString", "\"" + uninstallExe + "\"");
+                        key.SetValue("InstallLocation", installDir);
+                    }
                 }
             }
             catch { }

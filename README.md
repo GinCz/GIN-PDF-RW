@@ -1,7 +1,7 @@
 # GIN-PDF-RW
 
 **High-Performance, Distraction-Free Open Source PDF Reader & Editor**  
-*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v003` | *Standard:* UTF-8
+*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v004` | *Standard:* UTF-8
 
 ---
 
@@ -11,15 +11,17 @@
 
 ---
 
-## ⚡ Highlights in `v003`
+## ⚡ Highlights in `v004`
 
-* **Native Windows GUI Executable:** Compiled directly as Win32 GUI (`winexe`) with embedded high-resolution `app.ico` and PE metadata (`VladiMIR+AI`).
-* **Zero Console Flashing:** Completely silent launch with zero black terminal windows or console flicker.
-* **Standalone Setup Wizard (`Setup.exe`):**
-  * Clean confirmation prompt in English: *"Do you want to install GIN-PDF-RW on this computer?"*.
-  * 10 language choices via radio buttons with English selected by default (English, Russian, Czech, German, French, Spanish, Italian, Polish, Chinese, Japanese).
+* **Real Native PDF Rendering Engine:** Integrated GPU-accelerated rendering using Windows 10/11 DirectX WinRT (`Windows.Data.Pdf`) for instant page rasterization and zoom.
+* **High-Contrast Modern UI:** Fixed toolbar readability with sleek Catppuccin Mocha tabs and high-contrast text.
+* **Dedicated Uninstaller (`Uninstall.exe`):** Integrated uninstaller deployed to `C:\Program Files\GIN-PDF-RW\`, accessible from Windows Control Panel.
+* **Standalone Setup Wizard (`GIN-PDF-RW_v004_Setup.exe`):**
+  * Prompt in English: *"Do you want to install GIN-PDF-RW on this computer?"*.
+  * 12 languages with radio buttons (English selected by default): English, Українська, Русский, Čeština, Deutsch, Français, Español, Italiano, Polski, Türkçe, 中文, 日本語.
   * Two intuitive buttons: **Cancel** and **Install**.
-  * Auto-extracts into `C:\Program Files\GIN-PDF-RW`, associates `.pdf` files, and places Desktop shortcuts.
+  * Self-extracts `GIN-PDF-RW.exe`, `Uninstall.exe`, and `app.ico` into `C:\Program Files\GIN-PDF-RW\`.
+  * Auto-associates `.pdf` files and creates Desktop shortcuts.
 * **Interactive AcroForms Engine:** Clickable checkboxes with instant `✓` ticks and editable text fields.
 * **Dual-Mode Workflow:**
   * **Reader & Forms Mode (Default):** Rapid rendering, search, and form completion.
@@ -27,7 +29,7 @@
 * **Electronic & Cryptographic Signatures:**
   * Visual hand-drawn signature canvas.
   * X.509 PAdES digital signing via Windows Certificate Store.
-* **Universal UTF-8 Encoding:** Full support for Czech diacritics (`ě, š, č, ř, ž`), Cyrillic, and Asian alphabets.
+* **Universal UTF-8 Encoding:** Full support for Czech, Ukrainian, Russian, and all global alphabets.
 * **Hotkeys:**
   * `F11` — True borderless fullscreen mode.
   * `Ctrl + P` — Windows print dialog.
@@ -39,4 +41,4 @@
 ## 📦 Download
 
 Get the standalone installer directly from GitHub Releases:
-* ⚙️ **[Setup.exe (GitHub Release v003)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v003)**
+* ⚙️ **[GIN-PDF-RW_v004_Setup.exe (GitHub Release v004)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v004)**
