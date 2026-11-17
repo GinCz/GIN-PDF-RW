@@ -1,0 +1,17 @@
+# Build and output artifacts
+bin/
+obj/
+dist/
+out/
+build/
+*.exe
+*.dll
+*.pdb
+
+# Local environment and temp files
+.vs/
+.idea/
+*.user
+*.log
+temp/
+*.tmp

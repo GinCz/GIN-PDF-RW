@@ -1,0 +1,10 @@
+{
+  "name": "GIN-PDF-RW",
+  "current_version": "v001",
+  "release_name": "GIN-PDF-RW Genesis",
+  "author": "Vladimir Bulantsev (@GinCz)",
+  "copyright": "VladiMIR+AI",
+  "license": "MIT",
+  "encoding": "UTF-8",
+  "repository": "https://github.com/GinCz/GIN-PDF-RW"
+}
