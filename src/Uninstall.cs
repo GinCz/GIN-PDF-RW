@@ -8,12 +8,12 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Win32;
 
-[assembly: AssemblyTitle("GIN-PDF-RW Uninstall")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v005_Uninstall")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v006_Uninstall")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v006_Uninstall")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.005.0.0")]
-[assembly: AssemblyVersion("0.005.0.0")]
+[assembly: AssemblyFileVersion("0.006.0.0")]
+[assembly: AssemblyVersion("0.006.0.0")]
 
 namespace GinPdfRwUninstall
 {
@@ -49,7 +49,7 @@ namespace GinPdfRwUninstall
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
             var title = new TextBlock {
-                Text = "Uninstall GIN-PDF-RW v005?",
+                Text = "Uninstall GIN-PDF-RW v006?",
                 FontSize = 20,
                 FontWeight = FontWeights.Bold,
                 Foreground = new SolidColorBrush(Color.FromRgb(243, 139, 168))

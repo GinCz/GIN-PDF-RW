@@ -1,7 +1,7 @@
 {
   "name": "GIN-PDF-RW",
-  "current_version": "v005",
-  "release_name": "GIN-PDF-RW Complete WinRT Rendering & Standalone Setup",
+  "current_version": "v006",
+  "release_name": "GIN-PDF-RW v006 - Fullscreen Default, Smooth Zoom & 3-Way Theme Switcher",
   "author": "Vladimir Bulantsev (@GinCz)",
   "copyright": "VladiMIR+AI",
   "license": "MIT",

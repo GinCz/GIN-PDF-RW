@@ -1,7 +1,7 @@
 # GIN-PDF-RW
 
 **High-Performance, Distraction-Free Open Source PDF Reader & Editor**  
-*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v005` | *Standard:* UTF-8
+*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v006` | *Standard:* UTF-8
 
 ---
 
@@ -11,12 +11,21 @@
 
 ---
 
-## ⚡ Highlights in `v005`
+## ⚡ Highlights in `v006`
 
-* **Real Native PDF Rendering Engine:** Integrated GPU-accelerated rendering using Windows 10/11 DirectX WinRT (`Windows.Data.Pdf`) for instant page rasterization and zoom.
-* **High-Contrast Modern UI:** Redesigned toolbar tabs with high-contrast readable text in Catppuccin Mocha style.
+* **Borderless Fullscreen by Default:** Documents automatically launch in maximum immersive reading mode (`F11`).
+* **Interactive Top Menu Flyout:** In fullscreen, left-clicking anywhere on the document or canvas immediately toggles the top navigation bar and status bar.
+* **Instant Windowed Restore (`Esc`):** Pressing `Esc` immediately restores the window to standard framed mode while automatically stretching the document to fill the entire window width (`FitWidth`).
+* **Ultra-Smooth 5% Zoom:** Precise `0.05` zoom steps on `+`, `-`, and mouse wheel.
+* **Auto Fit-to-Width:** `Fit Width` button and window resizing dynamically stretch the document to fill 100% of available viewport width without horizontal scrollbars.
+* **3-Way Theme Switcher:** 
+  * ☀️ **Day Mode:** Clean white/light-gray background with dark high-contrast typography.
+  * ☁️ **Neutral Cloud Mode (Center):** Soft balanced slate-gray theme for reduced eye strain.
+  * 🌙 **Night Mode:** Deep Catppuccin Mocha dark theme for night reading.
+* **High-Contrast ComboBox Styling:** High-contrast text colors across all themes (no white text on white backgrounds).
+* **Real Native WinRT PDF Rendering Engine:** Integrated GPU-accelerated rendering using Windows 10/11 DirectX WinRT (`Windows.Data.Pdf`) for instant page rasterization.
 * **Dedicated Uninstaller (`Uninstall.exe`):** Integrated uninstaller deployed to `C:\Program Files\GIN-PDF-RW\`, accessible from Windows Control Panel.
-* **Standalone Setup Wizard (`GIN-PDF-RW_v005_Setup.exe`):**
+* **Standalone Setup Wizard (`GIN-PDF-RW_v006_Setup.exe`):**
   * Prompt in English: *"Do you want to install GIN-PDF-RW on this computer?"*.
   * 12 languages with radio buttons (English selected by default): English, Українська, Русский, Čeština, Deutsch, Français, Español, Italiano, Polski, Türkçe, 中文, 日本語.
   * Two intuitive buttons: **Cancel** and **Install**.
@@ -32,6 +41,7 @@
 * **Universal UTF-8 Encoding:** Full support for Czech, Ukrainian, Russian, and all global alphabets.
 * **Hotkeys:**
   * `F11` — True borderless fullscreen mode.
+  * `Esc` — Restore to windowed mode with auto Fit Width.
   * `Ctrl + P` — Windows print dialog.
   * `Ctrl + S` — Fast Save.
   * `Ctrl + O` — Open file.
@@ -41,4 +51,4 @@
 ## 📦 Download
 
 Get the standalone installer directly from GitHub Releases:
-* ⚙️ **[GIN-PDF-RW_v005_Setup.exe (GitHub Release v005)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v005)**
+* ⚙️ **[GIN-PDF-RW_v006_Setup.exe (GitHub Release v006)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v006)**

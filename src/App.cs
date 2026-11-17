@@ -13,12 +13,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-[assembly: AssemblyTitle("GIN-PDF-RW")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v005")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v006")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v006")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.005.0.0")]
-[assembly: AssemblyVersion("0.005.0.0")]
+[assembly: AssemblyFileVersion("0.006.0.0")]
+[assembly: AssemblyVersion("0.006.0.0")]
 
 namespace GinPdfRw
 {
@@ -161,12 +161,18 @@ namespace GinPdfRw
         private int currentPage = 1;
         private int totalPages = 1;
         private double zoom = 1.0;
-        private bool isFullscreen = false;
+        private bool isFullscreen = true; // Fullscreen by default!
+        private bool isFitWidth = true;   // Fit to width by default!
         private string currentMode = "Reader";
         private string activeTool = "None";
         private string currentLang = "en";
+        private string currentTheme = "Night"; // "Day", "Cloud", "Night"
+
+        private double baseDocWidth = 794;
+        private double baseDocHeight = 1123;
 
         // UI Controls
+        private Grid rootGrid;
         private Border toolbar;
         private Border editorBar;
         private Button btnOpen;
@@ -182,6 +188,9 @@ namespace GinPdfRw
         private Button btnZoomIn;
         private Button btnFit;
         private Button btnFullscreen;
+        private Button btnThemeDay;
+        private Button btnThemeCloud;
+        private Button btnThemeNight;
         private ComboBox cmbLang;
         private Button toolText;
         private Button toolCheck;
@@ -193,7 +202,9 @@ namespace GinPdfRw
         private Border pageBorder;
         private System.Windows.Controls.Image pdfView;
         private Canvas overlayCanvas;
+        private Border statusBar;
         private TextBlock statusText;
+        private TextBlock verText;
 
         private readonly Dictionary<string, Dictionary<string, string>> loc = 
             new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
@@ -203,7 +214,11 @@ namespace GinPdfRw
             InitLocalization();
             DetectDefaultLanguage();
             BuildUi();
+            ApplyTheme("Night"); // Default Night theme
             UpdateStrings();
+
+            // Set Fullscreen by default as requested
+            EnterFullscreen();
 
             if (!string.IsNullOrEmpty(initialFile) && File.Exists(initialFile))
             {
@@ -213,19 +228,27 @@ namespace GinPdfRw
             {
                 RenderWelcomeSheet();
             }
+
+            Loaded += delegate {
+                DoFitWidth();
+            };
+
+            SizeChanged += delegate {
+                if (isFitWidth) DoFitWidth();
+            };
         }
 
         private void InitLocalization()
         {
             var en = new Dictionary<string, string>();
-            en.Add("Title", "GIN-PDF-RW v005 — Zen PDF Reader & Editor");
+            en.Add("Title", "GIN-PDF-RW v006 — Zen PDF Reader & Editor");
             en.Add("Open", "📂 Open (Ctrl+O)");
             en.Add("Save", "💾 Save (Ctrl+S)");
             en.Add("Print", "🖨️ Print (Ctrl+P)");
             en.Add("ModeReader", "📖 Reader & Forms");
             en.Add("ModeEditor", "✏️ Editor");
             en.Add("Fullscreen", "⛶ Fullscreen (F11)");
-            en.Add("Restore", "⛶ Window (F11)");
+            en.Add("Restore", "⛶ Window (Esc)");
             en.Add("FitWidth", "Fit Width");
             en.Add("ToolText", "🔤 Add Text");
             en.Add("ToolCheck", "☑ Checkmark (✓)");
@@ -242,14 +265,14 @@ namespace GinPdfRw
             loc.Add("en", en);
 
             var ru = new Dictionary<string, string>();
-            ru.Add("Title", "GIN-PDF-RW v005 — Просмотр и редактор PDF");
+            ru.Add("Title", "GIN-PDF-RW v006 — Просмотр и редактор PDF");
             ru.Add("Open", "📂 Открыть (Ctrl+O)");
             ru.Add("Save", "💾 Сохранить (Ctrl+S)");
             ru.Add("Print", "🖨️ Печать (Ctrl+P)");
             ru.Add("ModeReader", "📖 Чтение и формы");
             ru.Add("ModeEditor", "✏️ Редактировать");
             ru.Add("Fullscreen", "⛶ Во весь экран (F11)");
-            ru.Add("Restore", "⛶ В окно (F11)");
+            ru.Add("Restore", "⛶ В окно (Esc)");
             ru.Add("FitWidth", "По ширине");
             ru.Add("ToolText", "🔤 Текст");
             ru.Add("ToolCheck", "☑ Галочка (✓)");
@@ -266,14 +289,14 @@ namespace GinPdfRw
             loc.Add("ru", ru);
 
             var uk = new Dictionary<string, string>();
-            uk.Add("Title", "GIN-PDF-RW v005 — Перегляд і редактор PDF");
+            uk.Add("Title", "GIN-PDF-RW v006 — Перегляд і редактор PDF");
             uk.Add("Open", "📂 Відкрити (Ctrl+O)");
             uk.Add("Save", "💾 Зберегти (Ctrl+S)");
             uk.Add("Print", "🖨️ Друк (Ctrl+P)");
             uk.Add("ModeReader", "📖 Читання та форми");
             uk.Add("ModeEditor", "✏️ Редагувати");
             uk.Add("Fullscreen", "⛶ На весь екран (F11)");
-            uk.Add("Restore", "⛶ У вікно (F11)");
+            uk.Add("Restore", "⛶ У вікно (Esc)");
             uk.Add("FitWidth", "По ширині");
             uk.Add("ToolText", "🔤 Текст");
             uk.Add("ToolCheck", "☑ Галочка (✓)");
@@ -290,14 +313,14 @@ namespace GinPdfRw
             loc.Add("uk", uk);
 
             var cs = new Dictionary<string, string>();
-            cs.Add("Title", "GIN-PDF-RW v005 — Prohlížeč a editor PDF");
+            cs.Add("Title", "GIN-PDF-RW v006 — Prohlížeč a editor PDF");
             cs.Add("Open", "📂 Otevřít (Ctrl+O)");
             cs.Add("Save", "💾 Uložit (Ctrl+S)");
             cs.Add("Print", "🖨️ Tisk (Ctrl+P)");
             cs.Add("ModeReader", "📖 Čtení a formuláře");
             cs.Add("ModeEditor", "✏️ Upravit");
             cs.Add("Fullscreen", "⛶ Celá obrazovka (F11)");
-            cs.Add("Restore", "⛶ Do okna (F11)");
+            cs.Add("Restore", "⛶ Do okna (Esc)");
             cs.Add("FitWidth", "Na šířku");
             cs.Add("ToolText", "🔤 Text");
             cs.Add("ToolCheck", "☑ Zatržítko (✓)");
@@ -346,26 +369,22 @@ namespace GinPdfRw
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v005";
+            Title = "GIN-PDF-RW v006";
             Width = 1240;
             Height = 880;
             MinWidth = 800;
             MinHeight = 550;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(24, 24, 37));
-            Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244));
             FontFamily = new System.Windows.Media.FontFamily("Segoe UI, Segoe UI Variable, sans-serif");
 
-            var mainGrid = new Grid();
-            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-            mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(26) });
+            rootGrid = new Grid();
+            rootGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            rootGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            rootGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(26) });
 
             // 1. Slim Zen Toolbar
             toolbar = new Border {
-                Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(30, 30, 46)),
-                BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68)),
                 BorderThickness = new Thickness(0, 0, 0, 1),
                 Padding = new Thickness(8, 6, 8, 6)
             };
@@ -393,13 +412,8 @@ namespace GinPdfRw
             btnModeReader = CreateTabBtn("📖 Reader & Forms", true);
             btnModeEditor = CreateTabBtn("✏️ Editor", false);
 
-            btnModeReader.Click += delegate {
-                SetMode("Reader");
-            };
-
-            btnModeEditor.Click += delegate {
-                SetMode("Editor");
-            };
+            btnModeReader.Click += delegate { SetMode("Reader"); };
+            btnModeEditor.Click += delegate { SetMode("Editor"); };
 
             modeGroup.Children.Add(btnModeReader);
             modeGroup.Children.Add(btnModeEditor);
@@ -410,12 +424,12 @@ namespace GinPdfRw
             // Center Group
             var centerGroup = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };
             btnPrev = CreateBtn("◀", delegate { PrevPage(); });
-            txtPage = new TextBlock { Text = "Page 1 / 1", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 8, 0), FontWeight = FontWeights.SemiBold, Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(186, 194, 222)) };
+            txtPage = new TextBlock { Text = "Page 1 / 1", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 8, 0), FontWeight = FontWeights.SemiBold };
             btnNext = CreateBtn("▶", delegate { NextPage(); });
-            btnZoomOut = CreateBtn("➖", delegate { AdjustZoom(-0.15); });
-            txtZoom = new TextBlock { Text = "100%", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 6, 0), Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(186, 194, 222)) };
-            btnZoomIn = CreateBtn("➕", delegate { AdjustZoom(0.15); });
-            btnFit = CreateBtn("Fit Width", delegate { zoom = 1.0; txtZoom.Text = "100%"; RefreshView(); });
+            btnZoomOut = CreateBtn("➖", delegate { AdjustZoom(-0.05); }); // 5% step!
+            txtZoom = new TextBlock { Text = "100%", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 6, 0) };
+            btnZoomIn = CreateBtn("➕", delegate { AdjustZoom(0.05); });  // 5% step!
+            btnFit = CreateBtn("Fit Width", delegate { DoFitWidth(); });
 
             centerGroup.Children.Add(btnPrev);
             centerGroup.Children.Add(txtPage);
@@ -428,12 +442,35 @@ namespace GinPdfRw
             Grid.SetColumn(centerGroup, 2);
             tbGrid.Children.Add(centerGroup);
 
-            // Right Group
+            // Right Group: Themes (Day, Cloud, Night), Fullscreen, Language
             var rightGroup = new StackPanel { Orientation = Orientation.Horizontal };
-            btnFullscreen = CreateBtn("⛶ Fullscreen", delegate { ToggleFullscreen(); });
-            btnFullscreen.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(69, 71, 90));
 
-            cmbLang = new ComboBox { Width = 74, Margin = new Thickness(6, 0, 0, 0), Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68)), Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244)), FontSize = 11, VerticalContentAlignment = VerticalAlignment.Center };
+            // 3-way Theme Switcher: Day (☀️), Cloud (☁️ in middle), Night (🌙)
+            var themeGroup = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 6, 0) };
+            btnThemeDay = CreateBtn("☀️", delegate { ApplyTheme("Day"); });
+            btnThemeCloud = CreateBtn("☁️", delegate { ApplyTheme("Cloud"); });
+            btnThemeNight = CreateBtn("🌙", delegate { ApplyTheme("Night"); });
+            btnThemeDay.ToolTip = "Day (Light theme)";
+            btnThemeCloud.ToolTip = "Neutral Cloud (Gray theme)";
+            btnThemeNight.ToolTip = "Night (Dark theme)";
+            btnThemeDay.Padding = new Thickness(6, 4, 6, 4);
+            btnThemeCloud.Padding = new Thickness(6, 4, 6, 4);
+            btnThemeNight.Padding = new Thickness(6, 4, 6, 4);
+            themeGroup.Children.Add(btnThemeDay);
+            themeGroup.Children.Add(btnThemeCloud);
+            themeGroup.Children.Add(btnThemeNight);
+            rightGroup.Children.Add(themeGroup);
+
+            btnFullscreen = CreateBtn("⛶ Fullscreen", delegate { ToggleFullscreen(); });
+
+            // Language ComboBox
+            cmbLang = new ComboBox {
+                Width = 76,
+                Margin = new Thickness(6, 0, 0, 0),
+                FontSize = 11,
+                FontWeight = FontWeights.Bold,
+                VerticalContentAlignment = VerticalAlignment.Center
+            };
             cmbLang.Items.Add(new ComboBoxItem { Content = "EN" });
             cmbLang.Items.Add(new ComboBoxItem { Content = "RU" });
             cmbLang.Items.Add(new ComboBoxItem { Content = "UK" });
@@ -459,12 +496,10 @@ namespace GinPdfRw
 
             toolbar.Child = tbGrid;
             Grid.SetRow(toolbar, 0);
-            mainGrid.Children.Add(toolbar);
+            rootGrid.Children.Add(toolbar);
 
             // 2. Editor Bar
             editorBar = new Border {
-                Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(24, 24, 37)),
-                BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68)),
                 BorderThickness = new Thickness(0, 0, 0, 1),
                 Padding = new Thickness(8, 4, 8, 4),
                 Visibility = Visibility.Collapsed
@@ -476,10 +511,8 @@ namespace GinPdfRw
             toolImage = CreateBtn("🖼 Stamp / Image", delegate { InsertImageDialog(); });
             toolSign = CreateBtn("✍ Draw Sign", delegate { DrawSignDialog(); });
             toolCert = CreateBtn("🔏 X.509 Sign", delegate { ExecuteDigitalSign(); });
-            toolCert.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(166, 227, 161));
-            toolCert.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(17, 17, 27));
 
-            txtToolTip = new TextBlock { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 0, 0), Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(249, 226, 175)), FontStyle = FontStyles.Italic };
+            txtToolTip = new TextBlock { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 0, 0), FontStyle = FontStyles.Italic };
 
             ebStack.Children.Add(toolText);
             ebStack.Children.Add(toolCheck);
@@ -489,13 +522,19 @@ namespace GinPdfRw
             ebStack.Children.Add(txtToolTip);
             editorBar.Child = ebStack;
             Grid.SetRow(editorBar, 1);
-            mainGrid.Children.Add(editorBar);
+            rootGrid.Children.Add(editorBar);
 
             // 3. Document Canvas
-            docScroll = new ScrollViewer { HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(17, 17, 27)) };
-            var container = new Grid { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(20) };
+            docScroll = new ScrollViewer {
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+            };
+            var container = new Grid { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(15) };
 
-            pageBorder = new Border { Background = System.Windows.Media.Brushes.White, CornerRadius = new CornerRadius(2) };
+            pageBorder = new Border {
+                Background = System.Windows.Media.Brushes.White,
+                CornerRadius = new CornerRadius(2)
+            };
             var pageGrid = new Grid();
 
             pdfView = new System.Windows.Controls.Image { Stretch = Stretch.Uniform };
@@ -512,18 +551,31 @@ namespace GinPdfRw
                 }
             };
 
+            // Left click anywhere in fullscreen (outside active text/buttons) toggles top menu flyout
+            docScroll.PreviewMouseLeftButtonDown += delegate(object s, MouseButtonEventArgs e) {
+                if (isFullscreen && activeTool == "None") {
+                    if (!(e.OriginalSource is System.Windows.Controls.TextBox) && 
+                        !(e.OriginalSource is System.Windows.Controls.Button) &&
+                        !(e.OriginalSource is System.Windows.Controls.Primitives.ToggleButton)) {
+                        ToggleToolbarPopup();
+                    }
+                }
+            };
+
+            docScroll.SizeChanged += delegate {
+                if (isFitWidth) DoFitWidth();
+            };
+
             pageGrid.Children.Add(pdfView);
             pageGrid.Children.Add(overlayCanvas);
             pageBorder.Child = pageGrid;
             container.Children.Add(pageBorder);
             docScroll.Content = container;
             Grid.SetRow(docScroll, 2);
-            mainGrid.Children.Add(docScroll);
+            rootGrid.Children.Add(docScroll);
 
             // 4. Status Bar
-            var statusBar = new Border {
-                Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(17, 17, 27)),
-                BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68)),
+            statusBar = new Border {
                 BorderThickness = new Thickness(0, 1, 0, 0),
                 Padding = new Thickness(12, 2, 12, 2)
             };
@@ -531,8 +583,8 @@ namespace GinPdfRw
             sbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             sbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-            statusText = new TextBlock { Text = "Ready", FontSize = 11, Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(166, 173, 200)), VerticalAlignment = VerticalAlignment.Center };
-            var verText = new TextBlock { Text = "GIN-PDF-RW v005 [VladiMIR+AI] | UTF-8", FontSize = 11, Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(88, 91, 112)), VerticalAlignment = VerticalAlignment.Center };
+            statusText = new TextBlock { Text = "Ready", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
+            verText = new TextBlock { Text = "GIN-PDF-RW v006 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
 
             Grid.SetColumn(statusText, 0);
             Grid.SetColumn(verText, 1);
@@ -540,26 +592,177 @@ namespace GinPdfRw
             sbGrid.Children.Add(verText);
             statusBar.Child = sbGrid;
             Grid.SetRow(statusBar, 3);
-            mainGrid.Children.Add(statusBar);
+            rootGrid.Children.Add(statusBar);
 
-            Content = mainGrid;
+            Content = rootGrid;
 
             // Hotkeys
             KeyDown += delegate(object s, KeyEventArgs e) {
                 if (e.Key == Key.F11) {
                     ToggleFullscreen();
                     e.Handled = true;
-                } else if (e.Key == Key.Escape && isFullscreen) {
-                    ToggleFullscreen();
+                } else if (e.Key == Key.Escape) {
+                    // ESC: Exit fullscreen to normal window, stretched to full width
+                    ExitFullscreenToWindow();
                     e.Handled = true;
                 } else if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
                     if (e.Key == Key.O) { OpenFileDialog(); e.Handled = true; }
                     else if (e.Key == Key.S) { SaveFileDialog(); e.Handled = true; }
                     else if (e.Key == Key.P) { ExecutePrint(); e.Handled = true; }
-                    else if (e.Key == Key.OemPlus || e.Key == Key.Add) { AdjustZoom(0.15); e.Handled = true; }
-                    else if (e.Key == Key.OemMinus || e.Key == Key.Subtract) { AdjustZoom(-0.15); e.Handled = true; }
+                    else if (e.Key == Key.OemPlus || e.Key == Key.Add) { AdjustZoom(0.05); e.Handled = true; }
+                    else if (e.Key == Key.OemMinus || e.Key == Key.Subtract) { AdjustZoom(-0.05); e.Handled = true; }
                 }
             };
+        }
+
+        private void ApplyTheme(string theme)
+        {
+            currentTheme = theme;
+            System.Windows.Media.Color bgWin, bgView, bgTool, brdTool, fgText, fgSub, bgBtn, fgBtn, bgTabAct, fgTabAct;
+
+            if (theme == "Day")
+            {
+                // Day (Light theme)
+                bgWin = System.Windows.Media.Color.FromRgb(242, 244, 248);
+                bgView = System.Windows.Media.Color.FromRgb(225, 229, 238);
+                bgTool = System.Windows.Media.Color.FromRgb(255, 255, 255);
+                brdTool = System.Windows.Media.Color.FromRgb(216, 222, 233);
+                fgText = System.Windows.Media.Color.FromRgb(24, 24, 37);
+                fgSub = System.Windows.Media.Color.FromRgb(76, 86, 106);
+                bgBtn = System.Windows.Media.Color.FromRgb(230, 234, 242);
+                fgBtn = System.Windows.Media.Color.FromRgb(24, 24, 37);
+                bgTabAct = System.Windows.Media.Color.FromRgb(210, 225, 255);
+                fgTabAct = System.Windows.Media.Color.FromRgb(0, 70, 180);
+            }
+            else if (theme == "Cloud")
+            {
+                // Cloud (Neutral Gray theme)
+                bgWin = System.Windows.Media.Color.FromRgb(46, 52, 64);
+                bgView = System.Windows.Media.Color.FromRgb(36, 41, 51);
+                bgTool = System.Windows.Media.Color.FromRgb(59, 66, 82);
+                brdTool = System.Windows.Media.Color.FromRgb(67, 76, 94);
+                fgText = System.Windows.Media.Color.FromRgb(236, 239, 244);
+                fgSub = System.Windows.Media.Color.FromRgb(216, 222, 233);
+                bgBtn = System.Windows.Media.Color.FromRgb(67, 76, 94);
+                fgBtn = System.Windows.Media.Color.FromRgb(236, 239, 244);
+                bgTabAct = System.Windows.Media.Color.FromRgb(94, 129, 172);
+                fgTabAct = System.Windows.Media.Color.FromRgb(255, 255, 255);
+            }
+            else
+            {
+                // Night (Dark theme - Default)
+                bgWin = System.Windows.Media.Color.FromRgb(24, 24, 37);
+                bgView = System.Windows.Media.Color.FromRgb(17, 17, 27);
+                bgTool = System.Windows.Media.Color.FromRgb(30, 30, 46);
+                brdTool = System.Windows.Media.Color.FromRgb(49, 50, 68);
+                fgText = System.Windows.Media.Color.FromRgb(205, 214, 244);
+                fgSub = System.Windows.Media.Color.FromRgb(186, 194, 222);
+                bgBtn = System.Windows.Media.Color.FromRgb(49, 50, 68);
+                fgBtn = System.Windows.Media.Color.FromRgb(205, 214, 244);
+                bgTabAct = System.Windows.Media.Color.FromRgb(69, 71, 90);
+                fgTabAct = System.Windows.Media.Color.FromRgb(137, 180, 250);
+            }
+
+            Background = new SolidColorBrush(bgWin);
+            Foreground = new SolidColorBrush(fgText);
+            docScroll.Background = new SolidColorBrush(bgView);
+            toolbar.Background = new SolidColorBrush(bgTool);
+            toolbar.BorderBrush = new SolidColorBrush(brdTool);
+            editorBar.Background = new SolidColorBrush(bgTool);
+            editorBar.BorderBrush = new SolidColorBrush(brdTool);
+            statusBar.Background = new SolidColorBrush(bgTool);
+            statusBar.BorderBrush = new SolidColorBrush(brdTool);
+            statusText.Foreground = new SolidColorBrush(fgSub);
+            verText.Foreground = new SolidColorBrush(fgSub);
+            txtPage.Foreground = new SolidColorBrush(fgSub);
+            txtZoom.Foreground = new SolidColorBrush(fgSub);
+
+            // Style all standard buttons
+            Button[] btns = new Button[] { btnOpen, btnSave, btnPrint, btnPrev, btnNext, btnZoomOut, btnZoomIn, btnFit, btnFullscreen, btnThemeDay, btnThemeCloud, btnThemeNight, toolText, toolCheck, toolImage, toolSign };
+            foreach (var b in btns) {
+                if (b != null) {
+                    b.Background = new SolidColorBrush(bgBtn);
+                    b.Foreground = new SolidColorBrush(fgBtn);
+                }
+            }
+
+            // High contrast ComboBox styling (Fixing white text on white background)
+            cmbLang.Background = new SolidColorBrush(bgBtn);
+            cmbLang.Foreground = new SolidColorBrush(fgBtn);
+            foreach (var item in cmbLang.Items) {
+                var cbi = item as ComboBoxItem;
+                if (cbi != null) {
+                    cbi.Background = new SolidColorBrush(bgTool);
+                    cbi.Foreground = new SolidColorBrush(fgText);
+                }
+            }
+
+            // Update Tab states
+            SetMode(currentMode);
+        }
+
+        private void EnterFullscreen()
+        {
+            isFullscreen = true;
+            WindowStyle = WindowStyle.None;
+            WindowState = WindowState.Maximized;
+            btnFullscreen.Content = T("Restore");
+            toolbar.Visibility = Visibility.Collapsed; // Hidden initially in fullscreen!
+            statusBar.Visibility = Visibility.Collapsed;
+            Dispatcher.BeginInvoke(new Action(DoFitWidth), System.Windows.Threading.DispatcherPriority.Background);
+        }
+
+        private void ExitFullscreenToWindow()
+        {
+            isFullscreen = false;
+            WindowStyle = WindowStyle.SingleBorderWindow;
+            WindowState = WindowState.Normal;
+            btnFullscreen.Content = T("Fullscreen");
+            toolbar.Visibility = Visibility.Visible;
+            statusBar.Visibility = Visibility.Visible;
+            Dispatcher.BeginInvoke(new Action(DoFitWidth), System.Windows.Threading.DispatcherPriority.Background);
+        }
+
+        private void ToggleFullscreen()
+        {
+            if (isFullscreen) ExitFullscreenToWindow();
+            else EnterFullscreen();
+        }
+
+        private void ToggleToolbarPopup()
+        {
+            toolbar.Visibility = (toolbar.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
+            statusBar.Visibility = toolbar.Visibility;
+        }
+
+        private void DoFitWidth()
+        {
+            isFitWidth = true;
+            double availWidth = docScroll.ViewportWidth;
+            if (availWidth <= 50) availWidth = docScroll.ActualWidth;
+            if (availWidth <= 50) availWidth = ActualWidth - 50;
+            if (availWidth <= 50) availWidth = SystemParameters.PrimaryScreenWidth - 50;
+
+            if (availWidth > 100 && baseDocWidth > 0)
+            {
+                zoom = Math.Max(0.2, (availWidth - 30) / baseDocWidth);
+                txtZoom.Text = string.Format("{0:P0}", zoom);
+                ApplyZoomToPage();
+            }
+        }
+
+        private void ApplyZoomToPage()
+        {
+            pageBorder.Width = baseDocWidth * zoom;
+            pageBorder.Height = baseDocHeight * zoom;
+        }
+
+        private void AdjustZoom(double delta)
+        {
+            isFitWidth = false; // User manually zooming
+            zoom = Math.Max(0.2, Math.Min(5.0, zoom + delta));
+            txtZoom.Text = string.Format("{0:P0}", zoom);
+            ApplyZoomToPage();
         }
 
         private void SetMode(string mode)
@@ -572,8 +775,8 @@ namespace GinPdfRw
                 btnModeReader.BorderThickness = new Thickness(1);
                 btnModeReader.BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250));
 
-                btnModeEditor.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
-                btnModeEditor.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(186, 194, 222));
+                btnModeEditor.Background = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(230, 234, 242)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
+                btnModeEditor.Foreground = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(76, 86, 106)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(186, 194, 222));
                 btnModeEditor.BorderThickness = new Thickness(0);
 
                 editorBar.Visibility = Visibility.Collapsed;
@@ -586,8 +789,8 @@ namespace GinPdfRw
                 btnModeEditor.BorderThickness = new Thickness(1);
                 btnModeEditor.BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250));
 
-                btnModeReader.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
-                btnModeReader.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(186, 194, 222));
+                btnModeReader.Background = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(230, 234, 242)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
+                btnModeReader.Foreground = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(76, 86, 106)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(186, 194, 222));
                 btnModeReader.BorderThickness = new Thickness(0);
 
                 editorBar.Visibility = Visibility.Visible;
@@ -600,8 +803,8 @@ namespace GinPdfRw
             if (activeTool == tool)
             {
                 activeTool = "None";
-                toolText.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
-                toolCheck.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
+                toolText.Background = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(230, 234, 242)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
+                toolCheck.Background = toolText.Background;
                 txtToolTip.Text = "";
             }
             else
@@ -611,16 +814,16 @@ namespace GinPdfRw
                 {
                     toolText.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250));
                     toolText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(17, 17, 27));
-                    toolCheck.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
-                    toolCheck.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244));
+                    toolCheck.Background = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(230, 234, 242)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
+                    toolCheck.Foreground = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(24, 24, 37)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244));
                     txtToolTip.Text = T("ClickToPlace");
                 }
                 else if (tool == "Checkmark")
                 {
                     toolCheck.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250));
                     toolCheck.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(17, 17, 27));
-                    toolText.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
-                    toolText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244));
+                    toolText.Background = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(230, 234, 242)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
+                    toolText.Foreground = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(24, 24, 37)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244));
                     txtToolTip.Text = T("ClickToPlace");
                 }
             }
@@ -630,12 +833,8 @@ namespace GinPdfRw
         {
             var btn = new Button {
                 Content = label,
-                Background = isActive ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(69, 71, 90)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68)),
-                Foreground = isActive ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(186, 194, 222)),
                 FontSize = 12,
                 FontWeight = FontWeights.Bold,
-                BorderThickness = isActive ? new Thickness(1) : new Thickness(0),
-                BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250)),
                 Padding = new Thickness(14, 6, 14, 6),
                 Margin = new Thickness(3, 0, 3, 0),
                 Cursor = System.Windows.Input.Cursors.Hand
@@ -647,8 +846,6 @@ namespace GinPdfRw
         {
             var btn = new Button {
                 Content = label,
-                Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68)),
-                Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244)),
                 FontSize = 12,
                 FontWeight = FontWeights.SemiBold,
                 BorderThickness = new Thickness(0),
@@ -700,8 +897,11 @@ namespace GinPdfRw
                     bi.Freeze();
 
                     pdfView.Source = bi;
-                    pageBorder.Width = bi.PixelWidth * (zoom / 1.5);
-                    pageBorder.Height = bi.PixelHeight * (zoom / 1.5);
+                    baseDocWidth = bi.PixelWidth;
+                    baseDocHeight = bi.PixelHeight;
+
+                    if (isFitWidth) DoFitWidth();
+                    else ApplyZoomToPage();
                     return;
                 }
             }
@@ -710,9 +910,9 @@ namespace GinPdfRw
 
         private void RenderWelcomeSheet()
         {
-            int w = 794;
-            int h = 1123;
-            var bmp = new Bitmap(w, h);
+            baseDocWidth = 794;
+            baseDocHeight = 1123;
+            var bmp = new Bitmap((int)baseDocWidth, (int)baseDocHeight);
             using (var g = Graphics.FromImage(bmp))
             {
                 g.Clear(System.Drawing.Color.White);
@@ -728,15 +928,15 @@ namespace GinPdfRw
                     g.DrawLine(pen, 60, 160, 734, 160);
 
                     string welcome = 
-                        "Welcome to GIN-PDF-RW v005!\n\n" +
+                        "Welcome to GIN-PDF-RW v006!\n\n" +
                         "Key Features:\n" +
-                        "• Instant Start (< 0.2s) & 95%+ Viewport Space\n" +
-                        "• F11: Fullscreen borderless reading mode\n" +
-                        "• Ctrl+P: Fast native Windows printing\n" +
-                        "• AcroForms: Click fields to enter text, click checkboxes to tick ✓\n" +
-                        "• Editor Mode: In-place text editing, stamp insertion, and signatures\n" +
-                        "• Strict UTF-8: Full support for Czech, Ukrainian, Russian, and global alphabets\n" +
-                        "• PAdES X.509 Cryptographic digital signatures\n\n" +
+                        "• Fullscreen by Default (Press Esc to return to Window)\n" +
+                        "• Left Click anywhere to toggle top menu flyout\n" +
+                        "• Smooth 5% Zoom on +/- and Auto Fit to Width\n" +
+                        "• 3-Way Theme Switcher: Day ☀️, Neutral Cloud ☁️, Night 🌙\n" +
+                        "• High-Contrast UI & Multilingual Localization (EN, RU, UK, CS)\n" +
+                        "• Native Windows WinRT PDF Hardware Rendering\n" +
+                        "• AcroForms Interactive Fill & Sign + X.509 PAdES Signatures\n\n" +
                         "Click 'Open (Ctrl+O)' to open your PDF documents.";
                     g.DrawString(welcome, fontBody, brushDark, new RectangleF(60, 190, 674, 500));
                 }
@@ -754,8 +954,8 @@ namespace GinPdfRw
             bmp.Dispose();
 
             pdfView.Source = bi;
-            pageBorder.Width = w * zoom;
-            pageBorder.Height = h * zoom;
+            if (isFitWidth) DoFitWidth();
+            else ApplyZoomToPage();
         }
 
         private void AddInteractiveField(string name, double x, double y, double w, double h, string type, string val, bool isChecked)
@@ -793,25 +993,6 @@ namespace GinPdfRw
                 Canvas.SetLeft(tb, x * zoom);
                 Canvas.SetTop(tb, y * zoom);
                 overlayCanvas.Children.Add(tb);
-            }
-        }
-
-        private void ToggleFullscreen()
-        {
-            isFullscreen = !isFullscreen;
-            if (isFullscreen)
-            {
-                WindowStyle = WindowStyle.None;
-                WindowState = WindowState.Maximized;
-                btnFullscreen.Content = T("Restore");
-                statusText.Text = "Fullscreen Mode (Press F11 or Esc to exit)";
-            }
-            else
-            {
-                WindowStyle = WindowStyle.SingleBorderWindow;
-                WindowState = WindowState.Normal;
-                btnFullscreen.Content = T("Fullscreen");
-                statusText.Text = T("Ready");
             }
         }
 
@@ -855,6 +1036,7 @@ namespace GinPdfRw
             Title = fileName + " — " + T("Title");
             txtPage.Text = T("PageOf", currentPage, totalPages);
             overlayCanvas.Children.Clear();
+            isFitWidth = true; // Automatically fit to width!
             RefreshView();
         }
 
@@ -919,13 +1101,6 @@ namespace GinPdfRw
         private void DrawSignDialog()
         {
             MessageBox.Show("Signature canvas ready! Draw your signature on document.", "GIN-PDF-RW", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        private void AdjustZoom(double delta)
-        {
-            zoom = Math.Max(0.5, Math.Min(3.0, zoom + delta));
-            txtZoom.Text = string.Format("{0:P0}", zoom);
-            RefreshView();
         }
 
         private void PrevPage()
