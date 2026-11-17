@@ -1,7 +1,7 @@
 {
   "name": "GIN-PDF-RW",
-  "current_version": "v001",
-  "release_name": "GIN-PDF-RW Genesis",
+  "current_version": "v002",
+  "release_name": "GIN-PDF-RW Core Engine & Zen UI",
   "author": "Vladimir Bulantsev (@GinCz)",
   "copyright": "VladiMIR+AI",
   "license": "MIT",
