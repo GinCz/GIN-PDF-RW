@@ -9,11 +9,11 @@ using System.Windows.Media;
 using Microsoft.Win32;
 
 [assembly: AssemblyTitle("GIN-PDF-RW Uninstall")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v004_Uninstall")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v005_Uninstall")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.004.0.0")]
-[assembly: AssemblyVersion("0.004.0.0")]
+[assembly: AssemblyFileVersion("0.005.0.0")]
+[assembly: AssemblyVersion("0.005.0.0")]
 
 namespace GinPdfRwUninstall
 {
@@ -49,7 +49,7 @@ namespace GinPdfRwUninstall
             mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
             var title = new TextBlock {
-                Text = "Uninstall GIN-PDF-RW?",
+                Text = "Uninstall GIN-PDF-RW v005?",
                 FontSize = 20,
                 FontWeight = FontWeights.Bold,
                 Foreground = new SolidColorBrush(Color.FromRgb(243, 139, 168))
@@ -173,7 +173,6 @@ namespace GinPdfRwUninstall
 
                 // 3. Self-deletion script for C:\Program Files\GIN-PDF-RW
                 string targetDir = @"C:\Program Files\GIN-PDF-RW";
-                string selfExe = Process.GetCurrentProcess().MainModule.FileName;
 
                 string batchCmd = string.Format(
                     "/c ping 127.0.0.1 -n 2 > nul & rmdir /s /q \"{0}\"", targetDir);

@@ -14,11 +14,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 [assembly: AssemblyTitle("GIN-PDF-RW")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v004")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v005")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.004.0.0")]
-[assembly: AssemblyVersion("0.004.0.0")]
+[assembly: AssemblyFileVersion("0.005.0.0")]
+[assembly: AssemblyVersion("0.005.0.0")]
 
 namespace GinPdfRw
 {
@@ -28,7 +28,11 @@ namespace GinPdfRw
         public static void Main(string[] args)
         {
             var app = new Application();
-            string initialFile = (args.Length > 0 && File.Exists(args[0])) ? args[0] : null;
+            string initialFile = null;
+            if (args != null && args.Length > 0 && File.Exists(args[0]))
+            {
+                initialFile = args[0];
+            }
             var window = new MainWindow(initialFile);
             app.Run(window);
         }
@@ -46,11 +50,11 @@ namespace GinPdfRw
 
                 MethodInfo getFileMethod = storageFileType.GetMethod("GetFileFromPathAsync", new Type[] { typeof(string) });
                 object asyncOpFile = getFileMethod.Invoke(null, new object[] { Path.GetFullPath(pdfPath) });
-                object storageFile = AwaitOp(asyncOpFile);
+                object storageFile = AwaitOp(asyncOpFile, storageFileType);
 
                 MethodInfo loadMethod = pdfDocType.GetMethod("LoadFromFileAsync", new Type[] { storageFileType });
                 object asyncOpDoc = loadMethod.Invoke(null, new object[] { storageFile });
-                object pdfDoc = AwaitOp(asyncOpDoc);
+                object pdfDoc = AwaitOp(asyncOpDoc, pdfDocType);
 
                 PropertyInfo countProp = pdfDocType.GetProperty("PageCount");
                 return (int)(uint)countProp.GetValue(pdfDoc, null);
@@ -72,11 +76,11 @@ namespace GinPdfRw
 
                 MethodInfo getFileMethod = storageFileType.GetMethod("GetFileFromPathAsync", new Type[] { typeof(string) });
                 object asyncOpFile = getFileMethod.Invoke(null, new object[] { Path.GetFullPath(pdfPath) });
-                object storageFile = AwaitOp(asyncOpFile);
+                object storageFile = AwaitOp(asyncOpFile, storageFileType);
 
                 MethodInfo loadMethod = pdfDocType.GetMethod("LoadFromFileAsync", new Type[] { storageFileType });
                 object asyncOpDoc = loadMethod.Invoke(null, new object[] { storageFile });
-                object pdfDoc = AwaitOp(asyncOpDoc);
+                object pdfDoc = AwaitOp(asyncOpDoc, pdfDocType);
 
                 MethodInfo getPageMethod = pdfDocType.GetMethod("GetPage");
                 object page = getPageMethod.Invoke(pdfDoc, new object[] { (uint)pageIndex });
@@ -92,14 +96,13 @@ namespace GinPdfRw
                 ulong size = (ulong)sizeProp.GetValue(memStream, null);
 
                 Type dataReaderType = Type.GetType("Windows.Storage.Streams.DataReader, Windows.Storage.Streams, ContentType=WindowsRuntime");
-                Type iInputStreamType = Type.GetType("Windows.Storage.Streams.IInputStream, Windows.Storage.Streams, ContentType=WindowsRuntime");
                 MethodInfo getInputStreamMethod = memStreamType.GetMethod("GetInputStreamAt");
                 object inputStream = getInputStreamMethod.Invoke(memStream, new object[] { (ulong)0 });
 
                 object dataReader = Activator.CreateInstance(dataReaderType, new object[] { inputStream });
                 MethodInfo loadAsyncMethod = dataReaderType.GetMethod("LoadAsync");
                 object loadOp = loadAsyncMethod.Invoke(dataReader, new object[] { (uint)size });
-                AwaitOp(loadOp);
+                AwaitOp(loadOp, typeof(uint));
 
                 byte[] bytes = new byte[(int)size];
                 MethodInfo readBytesMethod = dataReaderType.GetMethod("ReadBytes");
@@ -113,7 +116,7 @@ namespace GinPdfRw
             }
         }
 
-        private static object AwaitOp(object asyncOp)
+        private static object AwaitOp(object asyncOp, Type returnType)
         {
             Type extType = Type.GetType("System.WindowsRuntimeSystemExtensions, System.Runtime.WindowsRuntime, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
             if (extType == null) return null;
@@ -126,11 +129,12 @@ namespace GinPdfRw
                     break;
                 }
             }
-            Type returnType = asyncOp.GetType().GetInterfaces()[0].GetGenericArguments()[0];
             MethodInfo asTask = asTaskGeneric.MakeGenericMethod(returnType);
-            dynamic task = asTask.Invoke(null, new object[] { asyncOp });
-            task.Wait();
-            return task.Result;
+            object task = asTask.Invoke(null, new object[] { asyncOp });
+            MethodInfo waitMethod = task.GetType().GetMethod("Wait", Type.EmptyTypes);
+            waitMethod.Invoke(task, null);
+            PropertyInfo resultProp = task.GetType().GetProperty("Result");
+            return resultProp.GetValue(task, null);
         }
 
         private static void AwaitAct(object asyncAction)
@@ -145,8 +149,9 @@ namespace GinPdfRw
                     break;
                 }
             }
-            dynamic task = asTask.Invoke(null, new object[] { asyncAction });
-            task.Wait();
+            object task = asTask.Invoke(null, new object[] { asyncAction });
+            MethodInfo waitMethod = task.GetType().GetMethod("Wait", Type.EmptyTypes);
+            waitMethod.Invoke(task, null);
         }
     }
 
@@ -213,7 +218,7 @@ namespace GinPdfRw
         private void InitLocalization()
         {
             var en = new Dictionary<string, string>();
-            en.Add("Title", "GIN-PDF-RW v004 — Zen PDF Reader & Editor");
+            en.Add("Title", "GIN-PDF-RW v005 — Zen PDF Reader & Editor");
             en.Add("Open", "📂 Open (Ctrl+O)");
             en.Add("Save", "💾 Save (Ctrl+S)");
             en.Add("Print", "🖨️ Print (Ctrl+P)");
@@ -237,7 +242,7 @@ namespace GinPdfRw
             loc.Add("en", en);
 
             var ru = new Dictionary<string, string>();
-            ru.Add("Title", "GIN-PDF-RW v004 — Просмотр и редактор PDF");
+            ru.Add("Title", "GIN-PDF-RW v005 — Просмотр и редактор PDF");
             ru.Add("Open", "📂 Открыть (Ctrl+O)");
             ru.Add("Save", "💾 Сохранить (Ctrl+S)");
             ru.Add("Print", "🖨️ Печать (Ctrl+P)");
@@ -261,7 +266,7 @@ namespace GinPdfRw
             loc.Add("ru", ru);
 
             var uk = new Dictionary<string, string>();
-            uk.Add("Title", "GIN-PDF-RW v004 — Перегляд і редактор PDF");
+            uk.Add("Title", "GIN-PDF-RW v005 — Перегляд і редактор PDF");
             uk.Add("Open", "📂 Відкрити (Ctrl+O)");
             uk.Add("Save", "💾 Зберегти (Ctrl+S)");
             uk.Add("Print", "🖨️ Друк (Ctrl+P)");
@@ -285,7 +290,7 @@ namespace GinPdfRw
             loc.Add("uk", uk);
 
             var cs = new Dictionary<string, string>();
-            cs.Add("Title", "GIN-PDF-RW v004 — Prohlížeč a editor PDF");
+            cs.Add("Title", "GIN-PDF-RW v005 — Prohlížeč a editor PDF");
             cs.Add("Open", "📂 Otevřít (Ctrl+O)");
             cs.Add("Save", "💾 Uložit (Ctrl+S)");
             cs.Add("Print", "🖨️ Tisk (Ctrl+P)");
@@ -341,7 +346,7 @@ namespace GinPdfRw
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v004";
+            Title = "GIN-PDF-RW v005";
             Width = 1240;
             Height = 880;
             MinWidth = 800;
@@ -527,7 +532,7 @@ namespace GinPdfRw
             sbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             statusText = new TextBlock { Text = "Ready", FontSize = 11, Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(166, 173, 200)), VerticalAlignment = VerticalAlignment.Center };
-            var verText = new TextBlock { Text = "GIN-PDF-RW v004 [VladiMIR+AI] | UTF-8", FontSize = 11, Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(88, 91, 112)), VerticalAlignment = VerticalAlignment.Center };
+            var verText = new TextBlock { Text = "GIN-PDF-RW v005 [VladiMIR+AI] | UTF-8", FontSize = 11, Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(88, 91, 112)), VerticalAlignment = VerticalAlignment.Center };
 
             Grid.SetColumn(statusText, 0);
             Grid.SetColumn(verText, 1);
@@ -723,7 +728,7 @@ namespace GinPdfRw
                     g.DrawLine(pen, 60, 160, 734, 160);
 
                     string welcome = 
-                        "Welcome to GIN-PDF-RW v004!\n\n" +
+                        "Welcome to GIN-PDF-RW v005!\n\n" +
                         "Key Features:\n" +
                         "• Instant Start (< 0.2s) & 95%+ Viewport Space\n" +
                         "• F11: Fullscreen borderless reading mode\n" +

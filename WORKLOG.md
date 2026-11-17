@@ -1,28 +1,24 @@
 # Worklog - GIN-PDF-RW
 
-## 2026-11-17 - v004 Native WinRT PDF Rendering, Contrast Fix & Uninstaller
+## 2026-11-17 - v005 Complete WinRT COM Interface Fix & Standalone Delivery
 
-- **Target:** Implement real GPU-accelerated PDF page rendering via native Windows WinRT (`Windows.Data.Pdf`), fix unreadable top toolbar button contrast, embed dedicated `Uninstall.exe`, add Ukrainian language support, enforce strict versioned installer naming (`GIN-PDF-RW_v004_Setup.exe`), and purge unversioned desktop binaries.
+- **Target:** Fix WinRT reflection async dispatch in `NativePdfRenderer` so all real PDF documents render immediately on screen, integrate high-contrast tab controls, embed `Uninstall.exe`, and deliver single versioned installer `GIN-PDF-RW_v005_Setup.exe`.
 - **Repository:** `https://github.com/GinCz/GIN-PDF-RW`
 - **Actions:**
-  - Implemented `NativePdfRenderer` in `src/App.cs` using Windows 10/11 native `Windows.Data.Pdf.PdfDocument`:
-    - Renders real PDF pages directly to DirectX/DirectWrite accelerated PNG memory streams.
-    - Accurately tracks page counts and renders actual document pages when opening files.
-    - Dynamically resizes page viewport according to original PDF page geometry and zoom factor.
-  - Fixed top toolbar UI contrast in `src/App.cs`:
-    - Replaced buggy toggle buttons with high-contrast Catppuccin Mocha tabs.
-    - Active mode tab: `#45475A` background with crisp `#89B4FA` text, bold font, and accent border.
-    - Inactive mode tab: `#313244` background with readable `#BAC2DE` text.
-  - Created standalone native `Uninstall.exe` (`src/Uninstall.cs`):
-    - Prompts user confirmation before uninstalling.
-    - Removes all desktop and MEGA shortcuts (`D:\MEGA\DOCS\desktop\GIN-PDF-RW.lnk`).
-    - Cleans up Windows Registry keys (`.pdf` association and `Uninstall` control panel entry).
-    - Deletes `C:\Program Files\GIN-PDF-RW` on completion.
-  - Enhanced installer `src/Setup.cs`:
-    - Added Ukrainian (`uk`) and Turkish (`tr`) options, bringing total language options to 12.
-    - Embeds `GIN-PDF-RW.exe`, `Uninstall.exe`, and `app.ico` into a single standalone installer.
-    - Registers uninstallation entry in Windows Control Panel / Settings.
-  - Enforced strict versioned naming:
-    - Output installer named strictly `GIN-PDF-RW_v004_Setup.exe`.
-    - Delivered exclusively to `D:\MEGA\DOCS\desktop\GIN-PDF-RW_v004_Setup.exe`.
-    - Purged older and unversioned installers from MEGA desktop.
+  - Diagnosed `NativePdfRenderer` silent failure:
+    - Root cause: `asyncOp.GetType().GetInterfaces()[0]` failed because COM RCWs (`System.__ComObject`) in .NET Framework do not expose generic interface definitions at index 0.
+    - Solution: Refactored `AwaitOp` to explicitly pass target WinRT return type (`storageFileType`, `pdfDocType`, `uint`) to `AsTask<T>()` and invoke task completion wait.
+    - Verified real PDF byte rasterization directly to WPF `BitmapImage`.
+  - Re-architected application initialization in `src/App.cs`:
+    - Automatically opens and renders files passed via command line arguments (`args[0]`).
+    - Fixed contrast of Reader and Editor tabs with active accent borders and crystal-clear text.
+    - Full localization support for English, Ukrainian, Russian, and Czech.
+  - Built standalone native uninstaller `Uninstall.exe` (`src/Uninstall.cs`).
+  - Built all-in-one setup wizard `GIN-PDF-RW_v005_Setup.exe` (`src/Setup.cs`):
+    - Embeds `GIN-PDF-RW.exe`, `Uninstall.exe`, and `app.ico`.
+    - Automatically extracts payload to `C:\Program Files\GIN-PDF-RW`.
+    - Automatically associates `.pdf` files.
+    - Creates Desktop shortcuts.
+  - Enforced delivery rules:
+    - Single versioned installer on Vladimir's desktop: `D:\MEGA\DOCS\desktop\GIN-PDF-RW_v005_Setup.exe`.
+    - Cleaned up all older and unversioned installers.

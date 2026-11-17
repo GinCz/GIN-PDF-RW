@@ -1,7 +1,7 @@
 # GIN-PDF-RW
 
 **High-Performance, Distraction-Free Open Source PDF Reader & Editor**  
-*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v004` | *Standard:* UTF-8
+*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v005` | *Standard:* UTF-8
 
 ---
 
@@ -11,12 +11,12 @@
 
 ---
 
-## ⚡ Highlights in `v004`
+## ⚡ Highlights in `v005`
 
 * **Real Native PDF Rendering Engine:** Integrated GPU-accelerated rendering using Windows 10/11 DirectX WinRT (`Windows.Data.Pdf`) for instant page rasterization and zoom.
-* **High-Contrast Modern UI:** Fixed toolbar readability with sleek Catppuccin Mocha tabs and high-contrast text.
+* **High-Contrast Modern UI:** Redesigned toolbar tabs with high-contrast readable text in Catppuccin Mocha style.
 * **Dedicated Uninstaller (`Uninstall.exe`):** Integrated uninstaller deployed to `C:\Program Files\GIN-PDF-RW\`, accessible from Windows Control Panel.
-* **Standalone Setup Wizard (`GIN-PDF-RW_v004_Setup.exe`):**
+* **Standalone Setup Wizard (`GIN-PDF-RW_v005_Setup.exe`):**
   * Prompt in English: *"Do you want to install GIN-PDF-RW on this computer?"*.
   * 12 languages with radio buttons (English selected by default): English, Українська, Русский, Čeština, Deutsch, Français, Español, Italiano, Polski, Türkçe, 中文, 日本語.
   * Two intuitive buttons: **Cancel** and **Install**.
@@ -41,4 +41,4 @@
 ## 📦 Download
 
 Get the standalone installer directly from GitHub Releases:
-* ⚙️ **[GIN-PDF-RW_v004_Setup.exe (GitHub Release v004)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v004)**
+* ⚙️ **[GIN-PDF-RW_v005_Setup.exe (GitHub Release v005)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v005)**

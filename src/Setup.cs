@@ -11,11 +11,11 @@ using System.Windows.Media;
 using Microsoft.Win32;
 
 [assembly: AssemblyTitle("GIN-PDF-RW Setup")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v004_Setup")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v005_Setup")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.004.0.0")]
-[assembly: AssemblyVersion("0.004.0.0")]
+[assembly: AssemblyFileVersion("0.005.0.0")]
+[assembly: AssemblyVersion("0.005.0.0")]
 
 namespace GinPdfRwSetup
 {
@@ -58,7 +58,7 @@ namespace GinPdfRwSetup
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v004 Setup";
+            Title = "GIN-PDF-RW v005 Setup";
             Width = 580;
             Height = 540;
             MinWidth = 580;
@@ -78,7 +78,7 @@ namespace GinPdfRwSetup
             // 1. Header in English
             var headerStack = new StackPanel { Margin = new Thickness(0, 0, 0, 16) };
             var txtTitle = new TextBlock {
-                Text = "Install GIN-PDF-RW v004?",
+                Text = "Install GIN-PDF-RW v005?",
                 FontSize = 22,
                 FontWeight = FontWeights.Bold,
                 Foreground = new SolidColorBrush(Color.FromRgb(137, 180, 250))
@@ -256,7 +256,7 @@ namespace GinPdfRwSetup
                 RegisterUninstall(targetUninstall, targetDir);
 
                 MessageBox.Show(
-                    "GIN-PDF-RW v004 has been successfully installed!\nUninstall.exe created in application folder.",
+                    "GIN-PDF-RW v005 has been successfully installed!\nUninstall.exe created in application folder.",
                     "GIN-PDF-RW Setup",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
@@ -313,7 +313,7 @@ namespace GinPdfRwSetup
                     try
                     {
                         string linkPath = Path.Combine(d, "GIN-PDF-RW.lnk");
-                        CreateShortcutFile(linkPath, targetExe, workDir, "GIN-PDF-RW v004 by VladiMIR+AI");
+                        CreateShortcutFile(linkPath, targetExe, workDir, "GIN-PDF-RW v005 by VladiMIR+AI");
                     }
                     catch { }
                 }
@@ -356,8 +356,8 @@ namespace GinPdfRwSetup
                 {
                     if (key != null)
                     {
-                        key.SetValue("DisplayName", "GIN-PDF-RW v004 [VladiMIR+AI]");
-                        key.SetValue("DisplayVersion", "v004");
+                        key.SetValue("DisplayName", "GIN-PDF-RW v005 [VladiMIR+AI]");
+                        key.SetValue("DisplayVersion", "v005");
                         key.SetValue("Publisher", "VladiMIR+AI");
                         key.SetValue("DisplayIcon", Path.Combine(installDir, "GIN-PDF-RW.exe") + ",0");
                         key.SetValue("UninstallString", "\"" + uninstallExe + "\"");
