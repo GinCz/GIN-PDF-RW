@@ -13,12 +13,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-[assembly: AssemblyTitle("GIN-PDF-RW_v007")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v007")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v008")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v008")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.007.0.0")]
-[assembly: AssemblyVersion("0.007.0.0")]
+[assembly: AssemblyFileVersion("0.008.0.0")]
+[assembly: AssemblyVersion("0.008.0.0")]
 
 namespace GinPdfRw
 {
@@ -29,11 +29,25 @@ namespace GinPdfRw
         {
             var app = new Application();
             string initialFile = null;
-            if (args != null && args.Length > 0 && File.Exists(args[0]))
+            string explicitLang = null;
+
+            if (args != null)
             {
-                initialFile = args[0];
+                for (int i = 0; i < args.Length; i++)
+                {
+                    if ((args[i] == "-lang" || args[i] == "--lang" || args[i] == "/lang") && i + 1 < args.Length)
+                    {
+                        explicitLang = args[i + 1].ToLowerInvariant();
+                        i++;
+                    }
+                    else if (File.Exists(args[i]))
+                    {
+                        initialFile = args[i];
+                    }
+                }
             }
-            var window = new MainWindow(initialFile);
+
+            var window = new MainWindow(initialFile, explicitLang);
             app.Run(window);
         }
     }
@@ -209,12 +223,12 @@ namespace GinPdfRw
         private readonly Dictionary<string, Dictionary<string, string>> loc = 
             new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
 
-        public MainWindow(string initialFile)
+        public MainWindow(string initialFile, string explicitLang = null)
         {
             InitLocalization();
-            DetectDefaultLanguage();
+            DetectDefaultLanguage(explicitLang);
             BuildUi();
-            ApplyTheme("Night"); // Default Night theme
+            ApplyTheme("Day"); // Default Day (Light) theme as requested!
             UpdateStrings();
 
             // Set Fullscreen by default as requested
@@ -241,7 +255,7 @@ namespace GinPdfRw
         private void InitLocalization()
         {
             var en = new Dictionary<string, string>();
-            en.Add("Title", "GIN-PDF-RW v007 — Zen PDF Reader & Editor");
+            en.Add("Title", "GIN-PDF-RW v008 — Zen PDF Reader & Editor");
             en.Add("Open", "📂 Open (Ctrl+O)");
             en.Add("Save", "💾 Save (Ctrl+S)");
             en.Add("Print", "🖨️ Print (Ctrl+P)");
@@ -265,7 +279,7 @@ namespace GinPdfRw
             loc.Add("en", en);
 
             var ru = new Dictionary<string, string>();
-            ru.Add("Title", "GIN-PDF-RW v007 — Просмотр и редактор PDF");
+            ru.Add("Title", "GIN-PDF-RW v008 — Просмотр и редактор PDF");
             ru.Add("Open", "📂 Открыть (Ctrl+O)");
             ru.Add("Save", "💾 Сохранить (Ctrl+S)");
             ru.Add("Print", "🖨️ Печать (Ctrl+P)");
@@ -289,7 +303,7 @@ namespace GinPdfRw
             loc.Add("ru", ru);
 
             var uk = new Dictionary<string, string>();
-            uk.Add("Title", "GIN-PDF-RW v007 — Перегляд і редактор PDF");
+            uk.Add("Title", "GIN-PDF-RW v008 — Перегляд і редактор PDF");
             uk.Add("Open", "📂 Відкрити (Ctrl+O)");
             uk.Add("Save", "💾 Зберегти (Ctrl+S)");
             uk.Add("Print", "🖨️ Друк (Ctrl+P)");
@@ -313,7 +327,7 @@ namespace GinPdfRw
             loc.Add("uk", uk);
 
             var cs = new Dictionary<string, string>();
-            cs.Add("Title", "GIN-PDF-RW v007 — Prohlížeč a editor PDF");
+            cs.Add("Title", "GIN-PDF-RW v008 — Prohlížeč a editor PDF");
             cs.Add("Open", "📂 Otevřít (Ctrl+O)");
             cs.Add("Save", "💾 Uložit (Ctrl+S)");
             cs.Add("Print", "🖨️ Tisk (Ctrl+P)");
@@ -337,8 +351,33 @@ namespace GinPdfRw
             loc.Add("cs", cs);
         }
 
-        private void DetectDefaultLanguage()
+        private void DetectDefaultLanguage(string explicitLang)
         {
+            if (!string.IsNullOrEmpty(explicitLang) && loc.ContainsKey(explicitLang))
+            {
+                currentLang = explicitLang;
+                return;
+            }
+
+            // 1. Registry HKCU\Software\GIN-PDF-RW\Language
+            try
+            {
+                using (var k = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\GIN-PDF-RW"))
+                {
+                    if (k != null)
+                    {
+                        string regLang = (k.GetValue("Language") as string ?? "").Trim().ToLowerInvariant();
+                        if (loc.ContainsKey(regLang))
+                        {
+                            currentLang = regLang;
+                            return;
+                        }
+                    }
+                }
+            }
+            catch {}
+
+            // 2. Base directory language.cfg
             try
             {
                 string cfg = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "language.cfg");
@@ -354,6 +393,25 @@ namespace GinPdfRw
             }
             catch {}
 
+            // 3. %APPDATA%\GIN-PDF-RW\language.cfg
+            try
+            {
+                string appDataCfg = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), 
+                    "GIN-PDF-RW", "language.cfg");
+                if (File.Exists(appDataCfg))
+                {
+                    string saved = File.ReadAllText(appDataCfg).Trim().ToLowerInvariant();
+                    if (loc.ContainsKey(saved))
+                    {
+                        currentLang = saved;
+                        return;
+                    }
+                }
+            }
+            catch {}
+
+            // 4. System UI culture
             string code = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLowerInvariant();
             if (loc.ContainsKey(code)) currentLang = code;
             else currentLang = "en";
@@ -369,7 +427,7 @@ namespace GinPdfRw
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v007";
+            Title = "GIN-PDF-RW v008";
             Width = 1240;
             Height = 880;
             MinWidth = 800;
@@ -486,6 +544,7 @@ namespace GinPdfRw
                 if (item != null) {
                     currentLang = item.Content.ToString().ToLowerInvariant();
                     UpdateStrings();
+                    if (string.IsNullOrEmpty(docPath)) RenderWelcomeSheet();
                 }
             };
 
@@ -551,13 +610,13 @@ namespace GinPdfRw
                 }
             };
 
-            // Left click anywhere in fullscreen (outside active text/buttons) toggles top menu flyout
+            // Left click anywhere in fullscreen (outside active text/buttons) exits fullscreen to maximized view
             docScroll.PreviewMouseLeftButtonDown += delegate(object s, MouseButtonEventArgs e) {
                 if (isFullscreen && activeTool == "None") {
                     if (!(e.OriginalSource is System.Windows.Controls.TextBox) && 
                         !(e.OriginalSource is System.Windows.Controls.Button) &&
                         !(e.OriginalSource is System.Windows.Controls.Primitives.ToggleButton)) {
-                        ToggleToolbarPopup();
+                        ExitFullscreenToWindow();
                     }
                 }
             };
@@ -584,7 +643,7 @@ namespace GinPdfRw
             sbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             statusText = new TextBlock { Text = "Ready", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
-            verText = new TextBlock { Text = "GIN-PDF-RW v007 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
+            verText = new TextBlock { Text = "GIN-PDF-RW v008 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
 
             Grid.SetColumn(statusText, 0);
             Grid.SetColumn(verText, 1);
@@ -598,11 +657,26 @@ namespace GinPdfRw
 
             // Hotkeys
             KeyDown += delegate(object s, KeyEventArgs e) {
+                if (isFullscreen) {
+                    if (e.Key == Key.F11) {
+                        ToggleFullscreen();
+                        e.Handled = true;
+                        return;
+                    } else if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control && 
+                               (e.Key == Key.O || e.Key == Key.S || e.Key == Key.P)) {
+                        // Allow file open / save / print shortcuts to execute directly
+                    } else {
+                        // ANY KEY (Escape, Space, Enter, arrows, etc.) exits fullscreen to maximized view!
+                        ExitFullscreenToWindow();
+                        e.Handled = true;
+                        return;
+                    }
+                }
+
                 if (e.Key == Key.F11) {
                     ToggleFullscreen();
                     e.Handled = true;
                 } else if (e.Key == Key.Escape) {
-                    // ESC: Exit fullscreen to normal window, stretched to full width
                     ExitFullscreenToWindow();
                     e.Handled = true;
                 } else if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
@@ -716,7 +790,7 @@ namespace GinPdfRw
         {
             isFullscreen = false;
             WindowStyle = WindowStyle.SingleBorderWindow;
-            WindowState = WindowState.Normal;
+            WindowState = WindowState.Maximized; // Maximized window view as requested!
             btnFullscreen.Content = T("Fullscreen");
             toolbar.Visibility = Visibility.Visible;
             statusBar.Visibility = Visibility.Visible;
@@ -923,21 +997,71 @@ namespace GinPdfRw
                 using (var fontBody = new System.Drawing.Font("Segoe UI", 11, System.Drawing.FontStyle.Regular))
                 using (var pen = new System.Drawing.Pen(System.Drawing.Color.FromArgb(200, 200, 215), 1))
                 {
-                    g.DrawString("GIN-PDF-RW", fontHeader, brushDark, 60, 80);
-                    g.DrawString("High-Performance Open Source PDF Reader & Editor", fontSub, brushGray, 60, 125);
-                    g.DrawLine(pen, 60, 160, 734, 160);
+                    string subTitle, welcome;
+                    if (currentLang == "ru")
+                    {
+                        subTitle = "Быстрый просмотр и редактор PDF с открытым исходным кодом";
+                        welcome = 
+                            "Добро пожаловать в GIN-PDF-RW v008!\n\n" +
+                            "Основные возможности:\n" +
+                            "• Полноэкранный режим по умолчанию (любая клавиша или клик мыши — переход в окно)\n" +
+                            "• Развернутое на весь экран окно со стандартными кнопками и меню\n" +
+                            "• Плавный зум с шагом 5% (+/-) и автоматическое растягивание по ширине\n" +
+                            "• 3 темы оформления: Светлая [День], Нейтральная [Облако], Тёмная [Ночь]\n" +
+                            "• Высококонтрастный интерфейс и полная поддержка UTF-8\n" +
+                            "• Аппаратный движок рендеринга PDF WinRT (Windows.Data.Pdf)\n" +
+                            "• Интерактивные AcroForms (галочки и текстовые поля) и цифровая подпись\n\n" +
+                            "Нажмите «Открыть (Ctrl+O)» для выбора вашего PDF-документа.";
+                    }
+                    else if (currentLang == "uk")
+                    {
+                        subTitle = "Швидкий перегляд та редактор PDF з відкритим кодом";
+                        welcome = 
+                            "Ласкаво просимо до GIN-PDF-RW v008!\n\n" +
+                            "Основні можливості:\n" +
+                            "• Повноекранний режим за замовчуванням (будь-яка клавіша або клік миші — перехід у вікно)\n" +
+                            "• Розгорнуте на весь екран вікно зі стандартними кнопками та меню\n" +
+                            "• Плавний зум з кроком 5% (+/-) та автоматичне розтягування по ширині\n" +
+                            "• 3 теми оформлення: Світла [День], Нейтральна [Хмара], Темна [Ніч]\n" +
+                            "• Висококонтрастний інтерфейс і повна підтримка UTF-8\n" +
+                            "• Апаратний рушій рендерингу PDF WinRT (Windows.Data.Pdf)\n" +
+                            "• Інтерактивні AcroForms (позначки та текстові поля) і цифровий підпис\n\n" +
+                            "Натисніть «Відкрити (Ctrl+O)» для вибору вашого PDF-документа.";
+                    }
+                    else if (currentLang == "cs")
+                    {
+                        subTitle = "Rychlý prohlížeč a editor PDF s otevřeným zdrojovým kódem";
+                        welcome = 
+                            "Vítejte v GIN-PDF-RW v008!\n\n" +
+                            "Klíčové funkce:\n" +
+                            "• Režim celé obrazovky jako výchozí (stisknutí libovolné klávesy přejde do okna)\n" +
+                            "• Maximalizované okno se standardními tlačítky a panelem nabídek\n" +
+                            "• Plynulé přiblížení po 5 % (+/-) a automatické přizpůsobení na celou šířku\n" +
+                            "• 3 motivy vzhledu: Světlý [Den], Neutrální šedý [Oblak], Tmavý [Noc]\n" +
+                            "• Vysoce kontrastní rozhraní a plná podpora UTF-8\n" +
+                            "• Hardwarově akcelerované vykreslování PDF WinRT\n" +
+                            "• Interaktivní AcroForms (zaškrtávací pole a text) a digitální podpis\n\n" +
+                            "Klikněte na «Otevřít (Ctrl+O)» pro otevření PDF dokumentu.";
+                    }
+                    else
+                    {
+                        subTitle = "High-Performance Open Source PDF Reader & Editor";
+                        welcome = 
+                            "Welcome to GIN-PDF-RW v008!\n\n" +
+                            "Key Features:\n" +
+                            "• Fullscreen by Default (Press Any Key or Left Click to restore Maximized View)\n" +
+                            "• Maximized Window with Standard Title Bar & Accessible Top/Bottom Toolbars\n" +
+                            "• Smooth 5% Zoom on +/- and Auto Fit to Width\n" +
+                            "• 3 Themes: Day [Light], Neutral Cloud [Gray], Night [Dark]\n" +
+                            "• High-Contrast UI & Multilingual Localization (EN, RU, UK, CS, DE, FR, ES, IT, PL, TR, ZH, JA)\n" +
+                            "• Native Windows WinRT PDF Hardware Rendering Engine\n" +
+                            "• AcroForms Interactive Fill & Sign + X.509 Cryptographic Signatures\n\n" +
+                            "Click 'Open (Ctrl+O)' to open your PDF documents.";
+                    }
 
-                    string welcome = 
-                        "Welcome to GIN-PDF-RW v007!\n\n" +
-                        "Key Features:\n" +
-                        "• Fullscreen by Default (Press Esc to return to Window)\n" +
-                        "• Left Click anywhere to toggle top menu flyout\n" +
-                        "• Smooth 5% Zoom on +/- and Auto Fit to Width\n" +
-                        "• 3-Way Theme Switcher: Day ☀️, Neutral Cloud ☁️, Night 🌙\n" +
-                        "• High-Contrast UI & Multilingual Localization (EN, RU, UK, CS)\n" +
-                        "• Native Windows WinRT PDF Hardware Rendering\n" +
-                        "• AcroForms Interactive Fill & Sign + X.509 PAdES Signatures\n\n" +
-                        "Click 'Open (Ctrl+O)' to open your PDF documents.";
+                    g.DrawString("GIN-PDF-RW", fontHeader, brushDark, 60, 80);
+                    g.DrawString(subTitle, fontSub, brushGray, 60, 125);
+                    g.DrawLine(pen, 60, 160, 734, 160);
                     g.DrawString(welcome, fontBody, brushDark, new RectangleF(60, 190, 674, 500));
                 }
             }

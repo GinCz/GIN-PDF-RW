@@ -10,12 +10,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
 
-[assembly: AssemblyTitle("GIN-PDF-RW_v007_Setup")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v007_Setup")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v008_Setup")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v008_Setup")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.007.0.0")]
-[assembly: AssemblyVersion("0.007.0.0")]
+[assembly: AssemblyFileVersion("0.008.0.0")]
+[assembly: AssemblyVersion("0.008.0.0")]
 
 namespace GinPdfRwSetup
 {
@@ -24,8 +24,24 @@ namespace GinPdfRwSetup
         [STAThread]
         public static void Main(string[] args)
         {
+            string lang = "en";
+            bool auto = false;
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                if ((args[i] == "--lang" || args[i] == "-lang") && i + 1 < args.Length)
+                {
+                    lang = args[i + 1].ToLowerInvariant();
+                    i++;
+                }
+                else if (args[i] == "--auto" || args[i] == "-auto")
+                {
+                    auto = true;
+                }
+            }
+
             var app = new Application();
-            var window = new SetupWindow();
+            var window = new SetupWindow(lang, auto);
             app.Run(window);
         }
     }
@@ -33,6 +49,9 @@ namespace GinPdfRwSetup
     public class SetupWindow : Window
     {
         private RadioButton[] langRadios;
+        private readonly string initialLang;
+        private readonly bool autoInstall;
+
         private readonly string[] langNames = new string[] {
             "English (Default)",
             "Українська (Ukrainian)",
@@ -51,14 +70,21 @@ namespace GinPdfRwSetup
             "en", "uk", "ru", "cs", "de", "fr", "es", "it", "pl", "tr", "zh", "ja"
         };
 
-        public SetupWindow()
+        public SetupWindow(string lang, bool auto)
         {
+            this.initialLang = string.IsNullOrEmpty(lang) ? "en" : lang.ToLowerInvariant();
+            this.autoInstall = auto;
             BuildUi();
+
+            if (autoInstall)
+            {
+                Loaded += delegate { DoInstall(); };
+            }
         }
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v007 Setup";
+            Title = "GIN-PDF-RW v008 Setup";
             Width = 580;
             Height = 540;
             MinWidth = 580;
@@ -78,7 +104,7 @@ namespace GinPdfRwSetup
             // 1. Header in English
             var headerStack = new StackPanel { Margin = new Thickness(0, 0, 0, 16) };
             var txtTitle = new TextBlock {
-                Text = "Install GIN-PDF-RW v007?",
+                Text = "Install GIN-PDF-RW v008?",
                 FontSize = 22,
                 FontWeight = FontWeights.Bold,
                 Foreground = new SolidColorBrush(Color.FromRgb(137, 180, 250))
@@ -103,7 +129,7 @@ namespace GinPdfRwSetup
             Grid.SetRow(sep, 1);
             mainGrid.Children.Add(sep);
 
-            // 2. Language Selection (12 languages)
+            // 2. Language Selection Grid
             var contentStack = new StackPanel();
             var lblSelect = new TextBlock {
                 Text = "Select your preferred application language:",
@@ -119,6 +145,7 @@ namespace GinPdfRwSetup
 
             for (int i = 0; i < langNames.Length; i++)
             {
+                bool isTarget = string.Equals(langCodes[i], initialLang, StringComparison.OrdinalIgnoreCase);
                 var rb = new RadioButton {
                     Content = langNames[i],
                     Tag = langCodes[i],
@@ -126,7 +153,7 @@ namespace GinPdfRwSetup
                     FontSize = 12,
                     Margin = new Thickness(0, 4, 0, 4),
                     Cursor = Cursors.Hand,
-                    IsChecked = (i == 0) // English is checked by default!
+                    IsChecked = isTarget
                 };
                 langRadios[i] = rb;
                 radioGrid.Children.Add(rb);
@@ -194,12 +221,23 @@ namespace GinPdfRwSetup
 
         private void DoInstall()
         {
+            string selectedLang = "en";
+            foreach (var rb in langRadios)
+            {
+                if (rb.IsChecked == true && rb.Tag != null)
+                {
+                    selectedLang = rb.Tag.ToString();
+                    break;
+                }
+            }
+
             if (!IsAdministrator())
             {
                 try
                 {
                     var psi = new ProcessStartInfo {
                         FileName = Process.GetCurrentProcess().MainModule.FileName,
+                        Arguments = "--lang " + selectedLang + " --auto",
                         Verb = "runas",
                         UseShellExecute = true
                     };
@@ -234,17 +272,18 @@ namespace GinPdfRwSetup
                 // 3. Extract embedded app.ico
                 ExtractResource("app.ico", Path.Combine(targetDir, "app.ico"));
 
-                // 4. Save chosen language
-                string selectedLang = "en";
-                foreach (var rb in langRadios)
-                {
-                    if (rb.IsChecked == true)
-                    {
-                        selectedLang = rb.Tag.ToString();
-                        break;
-                    }
-                }
+                // 4. Save chosen language to install dir, appdata, and registry
                 File.WriteAllText(Path.Combine(targetDir, "language.cfg"), selectedLang);
+                try {
+                    string appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GIN-PDF-RW");
+                    if (!Directory.Exists(appData)) Directory.CreateDirectory(appData);
+                    File.WriteAllText(Path.Combine(appData, "language.cfg"), selectedLang);
+                } catch {}
+                try {
+                    using (var k = Registry.CurrentUser.CreateSubKey(@"Software\GIN-PDF-RW")) {
+                        if (k != null) k.SetValue("Language", selectedLang);
+                    }
+                } catch {}
 
                 // 5. Create Desktop Shortcuts
                 CreateShortcuts(targetExe, targetDir);
@@ -255,14 +294,16 @@ namespace GinPdfRwSetup
                 // 7. Register Uninstall in Windows Programs & Features
                 RegisterUninstall(targetUninstall, targetDir);
 
-                MessageBox.Show(
-                    "GIN-PDF-RW v007 has been successfully installed!\nDefault fullscreen & Fit-Width enabled.",
-                    "GIN-PDF-RW Setup",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                string successMsg;
+                if (selectedLang == "ru") successMsg = "GIN-PDF-RW v008 успешно установлен на ваш компьютер!\nПолноэкранный режим и режим по ширине активированы.";
+                else if (selectedLang == "uk") successMsg = "GIN-PDF-RW v008 успішно встановлено на ваш комп'ютер!\nПовноекранний режим та режим по ширині активовано.";
+                else if (selectedLang == "cs") successMsg = "GIN-PDF-RW v008 byl úspěšně nainstalován na váš počítač!\nRežim celé obrazovky a na šířku byl aktivován.";
+                else successMsg = "GIN-PDF-RW v008 has been successfully installed!\nDefault fullscreen & Fit-Width enabled.";
 
-                // Launch installed app
-                Process.Start(targetExe);
+                MessageBox.Show(successMsg, "GIN-PDF-RW Setup", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Launch installed app with language passed directly
+                Process.Start(targetExe, "-lang " + selectedLang);
                 Close();
             }
             catch (Exception ex)
@@ -277,7 +318,6 @@ namespace GinPdfRwSetup
             Stream stream = asm.GetManifestResourceStream(resName);
             if (stream == null)
             {
-                // Fallback to underscore variant or case-insensitive search
                 foreach (string name in asm.GetManifestResourceNames())
                 {
                     if (string.Equals(name, resName, StringComparison.OrdinalIgnoreCase) ||
@@ -331,7 +371,7 @@ namespace GinPdfRwSetup
                     try
                     {
                         string linkPath = Path.Combine(d, "GIN-PDF-RW.lnk");
-                        CreateShortcutFile(linkPath, targetExe, workDir, "GIN-PDF-RW v006 by VladiMIR+AI");
+                        CreateShortcutFile(linkPath, targetExe, workDir, "GIN-PDF-RW v008 by VladiMIR+AI");
                     }
                     catch { }
                 }
@@ -374,8 +414,8 @@ namespace GinPdfRwSetup
                 {
                     if (key != null)
                     {
-                        key.SetValue("DisplayName", "GIN-PDF-RW v007 [VladiMIR+AI]");
-                        key.SetValue("DisplayVersion", "v007");
+                        key.SetValue("DisplayName", "GIN-PDF-RW v008 [VladiMIR+AI]");
+                        key.SetValue("DisplayVersion", "v008");
                         key.SetValue("Publisher", "VladiMIR+AI");
                         key.SetValue("DisplayIcon", Path.Combine(installDir, "GIN-PDF-RW.exe") + ",0");
                         key.SetValue("UninstallString", "\"" + uninstallExe + "\"");
