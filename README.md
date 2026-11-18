@@ -1,7 +1,7 @@
 # GIN-PDF-RW
 
 **High-Performance, Distraction-Free Open Source PDF Reader & Editor**  
-*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v009` | *Standard:* UTF-8
+*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v010` | *Standard:* UTF-8
 
 ---
 
@@ -11,15 +11,21 @@
 
 ---
 
-## ⚡ Highlights in `v009`
+## ⚡ Highlights in `v010`
 
+* **Left-Click Drag Panning (Hand Tool):** When zoomed in or when document content exceeds the viewport, click and drag with the left mouse button to smoothly pan and glide across the document up, down, left, and right.
+* **Scroll Wheel Click (Middle Click) & Enter Cyclical Fullscreen Toggle:**
+  * Clicking down on the mouse wheel button itself (middle click) or pressing `Enter` cyclically switches between borderless fullscreen reading mode and normal maximized window mode with full toolbar menu visible.
+  * Preserves user manual zoom level and viewport state when toggling.
+* **Natural Mouse Wheel Scrolling & Page Navigation:**
+  * Rolling the mouse wheel scrolls the document up and down naturally.
+  * When reaching the bottom of the page, continuing to scroll down flips to the next page from the top; scrolling up at the top flips to the previous page.
+* **Keyboard Hotkeys & Zoom Controls:**
+  * **Page Navigation / File Switching:** `PageUp` switches to previous PDF file in the folder, `PageDown` switches to next PDF file.
+  * **Quick Zoom:** Pressing `+` or `-` (on the numeric keypad or top-right of main keyboard near Backspace) smoothly zooms in/out by 5%, with or without `Ctrl`.
+  * **Precision Wheel Zoom:** Holding `Ctrl` while rolling the mouse wheel provides instant 5% incremental zoom.
+  * **Escape Key:** Exits fullscreen into maximized window with full toolbars.
 * **Fit Page (Zero Clipping / Zero Distortion):** Automatically scales the PDF document to fit both width and height completely inside the viewport, ensuring 100% of the page is visible on the screen.
-* **Rapid File Browsing in Folder:**
-  * **Mouse Wheel:** Scroll up/down to flip immediately to the previous/next PDF file in the folder.
-  * **Hotkeys:** Press `PageUp` for previous file, `PageDown` or `Space` for next file.
-* **Fullscreen & Smooth Window Restoration:**
-  * Documents launch in borderless fullscreen by default (`F11`).
-  * Pressing `Escape` or `Enter` restores the app to a fully **MAXIMIZED** window (`WindowState.Maximized`) with complete standard window controls, top toolbar, and bottom status bar.
 * **High-Definition, Razor-Sharp Welcome Sheet:**
   * High-resolution 200 DPI canvas (1588x2246) with ClearType anti-aliasing for crystal-clear readability without any blur or fuzziness.
   * Localized in Russian, Ukrainian, Czech, and English.
@@ -27,13 +33,12 @@
 * **Fully Localized Uninstaller (`Uninstall.exe`):**
   * Automatically detects installation language from Windows Registry (`HKCU\Software\GIN-PDF-RW\Language`) or configuration files.
   * Displays prompts, dialogs, buttons, and confirmations in the user's language across 12 languages.
-* **Ultra-Smooth 5% Zoom:** Precise `0.05` zoom steps on `+`, `-`, and mouse wheel (with `Ctrl`).
 * **3-Way Theme Switcher:** 
   * ☀️ **Day Mode (Default):** Clean white/light-gray background with dark high-contrast typography.
   * ☁️ **Neutral Cloud Mode (Center):** Soft balanced slate-gray theme for reduced eye strain.
   * 🌙 **Night Mode:** Deep Catppuccin Mocha dark theme for night reading.
 * **Real Native WinRT PDF Rendering Engine:** Integrated GPU-accelerated rendering using Windows 10/11 DirectX WinRT (`Windows.Data.Pdf`) for instant page rasterization.
-* **Standalone Setup Wizard (`GIN-PDF-RW_v009_Setup.exe`):**
+* **Standalone Setup Wizard (`GIN-PDF-RW_v010_Setup.exe`):**
   * Self-extracts `GIN-PDF-RW.exe`, `Uninstall.exe`, and `app.ico` into `C:\Program Files\GIN-PDF-RW\`.
   * Auto-associates `.pdf` files and creates Desktop shortcuts.
 * **Interactive AcroForms Engine:** Clickable checkboxes with instant `✓` ticks and editable text fields.
@@ -47,4 +52,4 @@
 ## 📦 Download
 
 Get the standalone installer directly from GitHub Releases:
-* ⚙️ **[GIN-PDF-RW_v009_Setup.exe (GitHub Release v009)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v009)**
+* ⚙️ **[GIN-PDF-RW_v010_Setup.exe (GitHub Release v010)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v010)**

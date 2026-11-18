@@ -1,7 +1,7 @@
 {
   "name": "GIN-PDF-RW",
-  "current_version": "v009",
-  "release_name": "GIN-PDF-RW v009 - Fit Page, Mouse Wheel Folder Navigation & Crisp Welcome",
+  "current_version": "v010",
+  "release_name": "GIN-PDF-RW v010 - Left Drag Panning & Mouse Wheel Fullscreen Toggle",
   "author": "Vladimir Bulantsev (@GinCz)",
   "copyright": "VladiMIR+AI",
   "license": "MIT",
