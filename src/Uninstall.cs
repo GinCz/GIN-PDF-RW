@@ -10,12 +10,12 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Win32;
 
-[assembly: AssemblyTitle("GIN-PDF-RW_v008_Uninstall")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v008_Uninstall")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v009_Uninstall")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v009_Uninstall")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.008.0.0")]
-[assembly: AssemblyVersion("0.008.0.0")]
+[assembly: AssemblyFileVersion("0.009.0.0")]
+[assembly: AssemblyVersion("0.009.0.0")]
 
 namespace GinPdfRwUninstall
 {
@@ -46,8 +46,8 @@ namespace GinPdfRwUninstall
         private void InitLocalization()
         {
             var en = new Dictionary<string, string>();
-            en["Title"] = "Uninstall GIN-PDF-RW v008";
-            en["Header"] = "Uninstall GIN-PDF-RW v008?";
+            en["Title"] = "Uninstall GIN-PDF-RW v009";
+            en["Header"] = "Uninstall GIN-PDF-RW v009?";
             en["Desc"] = "Are you sure you want to completely remove GIN-PDF-RW and all its components from this computer?";
             en["Cancel"] = "Cancel";
             en["Uninstall"] = "Uninstall";
@@ -57,8 +57,8 @@ namespace GinPdfRwUninstall
             loc["en"] = en;
 
             var ru = new Dictionary<string, string>();
-            ru["Title"] = "Удаление GIN-PDF-RW v008";
-            ru["Header"] = "Удалить GIN-PDF-RW v008?";
+            ru["Title"] = "Удаление GIN-PDF-RW v009";
+            ru["Header"] = "Удалить GIN-PDF-RW v009?";
             ru["Desc"] = "Вы уверены, что хотите полностью удалить GIN-PDF-RW и все его компоненты с этого компьютера?";
             ru["Cancel"] = "Отмена";
             ru["Uninstall"] = "Удалить";
@@ -68,8 +68,8 @@ namespace GinPdfRwUninstall
             loc["ru"] = ru;
 
             var uk = new Dictionary<string, string>();
-            uk["Title"] = "Видалення GIN-PDF-RW v008";
-            uk["Header"] = "Видалити GIN-PDF-RW v008?";
+            uk["Title"] = "Видалення GIN-PDF-RW v009";
+            uk["Header"] = "Видалити GIN-PDF-RW v009?";
             uk["Desc"] = "Ви впевнені, що хочете повністю видалити GIN-PDF-RW та всі його компоненти з цього комп'ютера?";
             uk["Cancel"] = "Скасувати";
             uk["Uninstall"] = "Видалити";
@@ -79,8 +79,8 @@ namespace GinPdfRwUninstall
             loc["uk"] = uk;
 
             var cs = new Dictionary<string, string>();
-            cs["Title"] = "Odinstalace GIN-PDF-RW v008";
-            cs["Header"] = "Odinstalovat GIN-PDF-RW v008?";
+            cs["Title"] = "Odinstalace GIN-PDF-RW v009";
+            cs["Header"] = "Odinstalovat GIN-PDF-RW v009?";
             cs["Desc"] = "Opravdu chcete zcela odebrat GIN-PDF-RW a všechny jeho součásti z tohoto počítače?";
             cs["Cancel"] = "Zrušit";
             cs["Uninstall"] = "Odinstalovat";
@@ -90,8 +90,8 @@ namespace GinPdfRwUninstall
             loc["cs"] = cs;
 
             var de = new Dictionary<string, string>();
-            de["Title"] = "GIN-PDF-RW v008 Deinstallation";
-            de["Header"] = "GIN-PDF-RW v008 deinstallieren?";
+            de["Title"] = "GIN-PDF-RW v009 Deinstallation";
+            de["Header"] = "GIN-PDF-RW v009 deinstallieren?";
             de["Desc"] = "Möchten Sie GIN-PDF-RW und alle Komponenten wirklich vollständig von diesem Computer entfernen?";
             de["Cancel"] = "Abbrechen";
             de["Uninstall"] = "Deinstallieren";
@@ -101,8 +101,8 @@ namespace GinPdfRwUninstall
             loc["de"] = de;
 
             var fr = new Dictionary<string, string>();
-            fr["Title"] = "Désinstallation de GIN-PDF-RW v008";
-            fr["Header"] = "Désinstaller GIN-PDF-RW v008 ?";
+            fr["Title"] = "Désinstallation de GIN-PDF-RW v009";
+            fr["Header"] = "Désinstaller GIN-PDF-RW v009 ?";
             fr["Desc"] = "Voulez-vous vraiment supprimer complètement GIN-PDF-RW de cet ordinateur ?";
             fr["Cancel"] = "Annuler";
             fr["Uninstall"] = "Désinstaller";
@@ -112,8 +112,8 @@ namespace GinPdfRwUninstall
             loc["fr"] = fr;
 
             var es = new Dictionary<string, string>();
-            es["Title"] = "Desinstalación de GIN-PDF-RW v008";
-            es["Header"] = "¿Desinstalar GIN-PDF-RW v008?";
+            es["Title"] = "Desinstalación de GIN-PDF-RW v009";
+            es["Header"] = "¿Desinstalar GIN-PDF-RW v009?";
             es["Desc"] = "¿Está seguro de que desea eliminar completamente GIN-PDF-RW de este equipo?";
             es["Cancel"] = "Cancelar";
             es["Uninstall"] = "Desinstalar";
@@ -123,8 +123,8 @@ namespace GinPdfRwUninstall
             loc["es"] = es;
 
             var it = new Dictionary<string, string>();
-            it["Title"] = "Disinstallazione GIN-PDF-RW v008";
-            it["Header"] = "Disinstallare GIN-PDF-RW v008?";
+            it["Title"] = "Disinstallazione GIN-PDF-RW v009";
+            it["Header"] = "Disinstallare GIN-PDF-RW v009?";
             it["Desc"] = "Sei sicuro di voler rimuovere completamente GIN-PDF-RW da questo computer?";
             it["Cancel"] = "Annulla";
             it["Uninstall"] = "Disinstalla";
@@ -134,8 +134,8 @@ namespace GinPdfRwUninstall
             loc["it"] = it;
 
             var pl = new Dictionary<string, string>();
-            pl["Title"] = "Odinstalowanie GIN-PDF-RW v008";
-            pl["Header"] = "Odinstalować GIN-PDF-RW v008?";
+            pl["Title"] = "Odinstalowanie GIN-PDF-RW v009";
+            pl["Header"] = "Odinstalować GIN-PDF-RW v009?";
             pl["Desc"] = "Czy na pewno chcesz całkowicie usunąć GIN-PDF-RW z tego komputera?";
             pl["Cancel"] = "Anuluj";
             pl["Uninstall"] = "Odinstaluj";
@@ -145,8 +145,8 @@ namespace GinPdfRwUninstall
             loc["pl"] = pl;
 
             var tr = new Dictionary<string, string>();
-            tr["Title"] = "GIN-PDF-RW v008 Kaldır";
-            tr["Header"] = "GIN-PDF-RW v008 Kaldırılsın mı?";
+            tr["Title"] = "GIN-PDF-RW v009 Kaldır";
+            tr["Header"] = "GIN-PDF-RW v009 Kaldırılsın mı?";
             tr["Desc"] = "GIN-PDF-RW uygulamasını bu bilgisayardan tamamen kaldırmak istediğinizden emin misiniz?";
             tr["Cancel"] = "İptal";
             tr["Uninstall"] = "Kaldır";
@@ -156,8 +156,8 @@ namespace GinPdfRwUninstall
             loc["tr"] = tr;
 
             var zh = new Dictionary<string, string>();
-            zh["Title"] = "卸载 GIN-PDF-RW v008";
-            zh["Header"] = "卸载 GIN-PDF-RW v008？";
+            zh["Title"] = "卸载 GIN-PDF-RW v009";
+            zh["Header"] = "卸载 GIN-PDF-RW v009？";
             zh["Desc"] = "您确定要从这台电脑中彻底删除 GIN-PDF-RW 及其所有组件吗？";
             zh["Cancel"] = "取消";
             zh["Uninstall"] = "卸载";
@@ -167,8 +167,8 @@ namespace GinPdfRwUninstall
             loc["zh"] = zh;
 
             var ja = new Dictionary<string, string>();
-            ja["Title"] = "GIN-PDF-RW v008 のアンインストール";
-            ja["Header"] = "GIN-PDF-RW v008 をアンインストールしますか？";
+            ja["Title"] = "GIN-PDF-RW v009 のアンインストール";
+            ja["Header"] = "GIN-PDF-RW v009 をアンインストールしますか？";
             ja["Desc"] = "このコンピューターから GIN-PDF-RW を完全に削除してもよろしいですか？";
             ja["Cancel"] = "キャンセル";
             ja["Uninstall"] = "アンインストール";

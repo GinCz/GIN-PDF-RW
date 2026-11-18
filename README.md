@@ -1,7 +1,7 @@
 # GIN-PDF-RW
 
 **High-Performance, Distraction-Free Open Source PDF Reader & Editor**  
-*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v008` | *Standard:* UTF-8
+*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v009` | *Standard:* UTF-8
 
 ---
 
@@ -11,35 +11,32 @@
 
 ---
 
-## ⚡ Highlights in `v008`
+## ⚡ Highlights in `v009`
 
+* **Fit Page (Zero Clipping / Zero Distortion):** Automatically scales the PDF document to fit both width and height completely inside the viewport, ensuring 100% of the page is visible on the screen.
+* **Rapid File Browsing in Folder:**
+  * **Mouse Wheel:** Scroll up/down to flip immediately to the previous/next PDF file in the folder.
+  * **Hotkeys:** Press `PageUp` for previous file, `PageDown` or `Space` for next file.
+* **Fullscreen & Smooth Window Restoration:**
+  * Documents launch in borderless fullscreen by default (`F11`).
+  * Pressing `Escape` or `Enter` restores the app to a fully **MAXIMIZED** window (`WindowState.Maximized`) with complete standard window controls, top toolbar, and bottom status bar.
+* **High-Definition, Razor-Sharp Welcome Sheet:**
+  * High-resolution 200 DPI canvas (1588x2246) with ClearType anti-aliasing for crystal-clear readability without any blur or fuzziness.
+  * Localized in Russian, Ukrainian, Czech, and English.
 * **Day Mode by Default:** Clean, high-contrast light theme enabled by default for optimal readability.
-* **Smart Fullscreen & Any-Key Exit to Maximized View:** 
-  * Documents launch in immersive borderless fullscreen mode (`F11`).
-  * Pressing **ANY key** (Escape, Space, Enter, arrows, etc.) or **Left-Clicking** immediately exits fullscreen into a fully **MAXIMIZED** window (`WindowState.Maximized`) with standard title bar and accessible top/bottom toolbars.
-  * PDF document is maximally stretched to 100% of the available window width without distortion (`FitWidth`).
-* **Multilingual Welcome Screen & Clean Typography:**
-  * Welcome sheet text rendered in the user's chosen installation language (English, Русский, Українська, Čeština, etc.).
-  * Eliminated GDI+ emoji rendering artifacts (no tofu boxes ``).
 * **Fully Localized Uninstaller (`Uninstall.exe`):**
   * Automatically detects installation language from Windows Registry (`HKCU\Software\GIN-PDF-RW\Language`) or configuration files.
   * Displays prompts, dialogs, buttons, and confirmations in the user's language across 12 languages.
-* **Persistent Language Architecture:**
-  * Selected language is retained across UAC elevation, written to Registry, local directory, and `%APPDATA%`.
-* **Ultra-Smooth 5% Zoom:** Precise `0.05` zoom steps on `+`, `-`, and mouse wheel.
+* **Ultra-Smooth 5% Zoom:** Precise `0.05` zoom steps on `+`, `-`, and mouse wheel (with `Ctrl`).
 * **3-Way Theme Switcher:** 
   * ☀️ **Day Mode (Default):** Clean white/light-gray background with dark high-contrast typography.
   * ☁️ **Neutral Cloud Mode (Center):** Soft balanced slate-gray theme for reduced eye strain.
   * 🌙 **Night Mode:** Deep Catppuccin Mocha dark theme for night reading.
-* **High-Contrast ComboBox Styling:** High-contrast text colors across all themes (no white text on white backgrounds).
 * **Real Native WinRT PDF Rendering Engine:** Integrated GPU-accelerated rendering using Windows 10/11 DirectX WinRT (`Windows.Data.Pdf`) for instant page rasterization.
-* **Standalone Setup Wizard (`GIN-PDF-RW_v008_Setup.exe`):**
+* **Standalone Setup Wizard (`GIN-PDF-RW_v009_Setup.exe`):**
   * Self-extracts `GIN-PDF-RW.exe`, `Uninstall.exe`, and `app.ico` into `C:\Program Files\GIN-PDF-RW\`.
   * Auto-associates `.pdf` files and creates Desktop shortcuts.
 * **Interactive AcroForms Engine:** Clickable checkboxes with instant `✓` ticks and editable text fields.
-* **Dual-Mode Workflow:**
-  * **Reader & Forms Mode (Default):** Rapid rendering, search, and form completion.
-  * **Editor Mode:** In-place text modification, transparent PNG stamp/image insertion, and freeform annotations.
 * **Electronic & Cryptographic Signatures:**
   * Visual hand-drawn signature canvas.
   * X.509 PAdES digital signing via Windows Certificate Store.
@@ -50,4 +47,4 @@
 ## 📦 Download
 
 Get the standalone installer directly from GitHub Releases:
-* ⚙️ **[GIN-PDF-RW_v008_Setup.exe (GitHub Release v008)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v008)**
+* ⚙️ **[GIN-PDF-RW_v009_Setup.exe (GitHub Release v009)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v009)**

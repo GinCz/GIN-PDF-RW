@@ -13,12 +13,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-[assembly: AssemblyTitle("GIN-PDF-RW_v008")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v008")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v009")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v009")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.008.0.0")]
-[assembly: AssemblyVersion("0.008.0.0")]
+[assembly: AssemblyFileVersion("0.009.0.0")]
+[assembly: AssemblyVersion("0.009.0.0")]
 
 namespace GinPdfRw
 {
@@ -176,7 +176,7 @@ namespace GinPdfRw
         private int totalPages = 1;
         private double zoom = 1.0;
         private bool isFullscreen = true; // Fullscreen by default!
-        private bool isFitWidth = true;   // Fit to width by default!
+        private bool isFitMode = true;    // Fit page completely in screen by default!
         private string currentMode = "Reader";
         private string activeTool = "None";
         private string currentLang = "en";
@@ -244,18 +244,18 @@ namespace GinPdfRw
             }
 
             Loaded += delegate {
-                DoFitWidth();
+                DoFitPage();
             };
 
             SizeChanged += delegate {
-                if (isFitWidth) DoFitWidth();
+                if (isFitMode) DoFitPage();
             };
         }
 
         private void InitLocalization()
         {
             var en = new Dictionary<string, string>();
-            en.Add("Title", "GIN-PDF-RW v008 — Zen PDF Reader & Editor");
+            en.Add("Title", "GIN-PDF-RW v009 — Zen PDF Reader & Editor");
             en.Add("Open", "📂 Open (Ctrl+O)");
             en.Add("Save", "💾 Save (Ctrl+S)");
             en.Add("Print", "🖨️ Print (Ctrl+P)");
@@ -263,7 +263,7 @@ namespace GinPdfRw
             en.Add("ModeEditor", "✏️ Editor");
             en.Add("Fullscreen", "⛶ Fullscreen (F11)");
             en.Add("Restore", "⛶ Window (Esc)");
-            en.Add("FitWidth", "Fit Width");
+            en.Add("FitWidth", "Fit Page");
             en.Add("ToolText", "🔤 Add Text");
             en.Add("ToolCheck", "☑ Checkmark (✓)");
             en.Add("ToolImage", "🖼 Stamp / Image");
@@ -279,7 +279,7 @@ namespace GinPdfRw
             loc.Add("en", en);
 
             var ru = new Dictionary<string, string>();
-            ru.Add("Title", "GIN-PDF-RW v008 — Просмотр и редактор PDF");
+            ru.Add("Title", "GIN-PDF-RW v009 — Просмотр и редактор PDF");
             ru.Add("Open", "📂 Открыть (Ctrl+O)");
             ru.Add("Save", "💾 Сохранить (Ctrl+S)");
             ru.Add("Print", "🖨️ Печать (Ctrl+P)");
@@ -287,7 +287,7 @@ namespace GinPdfRw
             ru.Add("ModeEditor", "✏️ Редактировать");
             ru.Add("Fullscreen", "⛶ Во весь экран (F11)");
             ru.Add("Restore", "⛶ В окно (Esc)");
-            ru.Add("FitWidth", "По ширине");
+            ru.Add("FitWidth", "По размеру");
             ru.Add("ToolText", "🔤 Текст");
             ru.Add("ToolCheck", "☑ Галочка (✓)");
             ru.Add("ToolImage", "🖼 Печать / Картинка");
@@ -303,7 +303,7 @@ namespace GinPdfRw
             loc.Add("ru", ru);
 
             var uk = new Dictionary<string, string>();
-            uk.Add("Title", "GIN-PDF-RW v008 — Перегляд і редактор PDF");
+            uk.Add("Title", "GIN-PDF-RW v009 — Перегляд і редактор PDF");
             uk.Add("Open", "📂 Відкрити (Ctrl+O)");
             uk.Add("Save", "💾 Зберегти (Ctrl+S)");
             uk.Add("Print", "🖨️ Друк (Ctrl+P)");
@@ -311,7 +311,7 @@ namespace GinPdfRw
             uk.Add("ModeEditor", "✏️ Редагувати");
             uk.Add("Fullscreen", "⛶ На весь екран (F11)");
             uk.Add("Restore", "⛶ У вікно (Esc)");
-            uk.Add("FitWidth", "По ширині");
+            uk.Add("FitWidth", "За розміром");
             uk.Add("ToolText", "🔤 Текст");
             uk.Add("ToolCheck", "☑ Галочка (✓)");
             uk.Add("ToolImage", "🖼 Штамп / Зображення");
@@ -327,7 +327,7 @@ namespace GinPdfRw
             loc.Add("uk", uk);
 
             var cs = new Dictionary<string, string>();
-            cs.Add("Title", "GIN-PDF-RW v008 — Prohlížeč a editor PDF");
+            cs.Add("Title", "GIN-PDF-RW v009 — Prohlížeč a editor PDF");
             cs.Add("Open", "📂 Otevřít (Ctrl+O)");
             cs.Add("Save", "💾 Uložit (Ctrl+S)");
             cs.Add("Print", "🖨️ Tisk (Ctrl+P)");
@@ -335,7 +335,7 @@ namespace GinPdfRw
             cs.Add("ModeEditor", "✏️ Upravit");
             cs.Add("Fullscreen", "⛶ Celá obrazovka (F11)");
             cs.Add("Restore", "⛶ Do okna (Esc)");
-            cs.Add("FitWidth", "Na šířku");
+            cs.Add("FitWidth", "Na stránku");
             cs.Add("ToolText", "🔤 Text");
             cs.Add("ToolCheck", "☑ Zatržítko (✓)");
             cs.Add("ToolImage", "🖼 Razítko / Obrázek");
@@ -427,7 +427,7 @@ namespace GinPdfRw
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v008";
+            Title = "GIN-PDF-RW v009";
             Width = 1240;
             Height = 880;
             MinWidth = 800;
@@ -487,7 +487,7 @@ namespace GinPdfRw
             btnZoomOut = CreateBtn("➖", delegate { AdjustZoom(-0.05); }); // 5% step!
             txtZoom = new TextBlock { Text = "100%", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 6, 0) };
             btnZoomIn = CreateBtn("➕", delegate { AdjustZoom(0.05); });  // 5% step!
-            btnFit = CreateBtn("Fit Width", delegate { DoFitWidth(); });
+            btnFit = CreateBtn("Fit Page", delegate { DoFitPage(); });
 
             centerGroup.Children.Add(btnPrev);
             centerGroup.Children.Add(txtPage);
@@ -622,7 +622,19 @@ namespace GinPdfRw
             };
 
             docScroll.SizeChanged += delegate {
-                if (isFitWidth) DoFitWidth();
+                if (isFitMode) DoFitPage();
+            };
+
+            // Mouse wheel: Scroll up/down flips to previous/next PDF file in folder (or zoom when Ctrl is pressed)
+            docScroll.PreviewMouseWheel += delegate(object s, MouseWheelEventArgs e) {
+                if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
+                    AdjustZoom(e.Delta > 0 ? 0.05 : -0.05);
+                    e.Handled = true;
+                } else if (!string.IsNullOrEmpty(docPath)) {
+                    if (e.Delta > 0) OpenPreviousFile();
+                    else if (e.Delta < 0) OpenNextFile();
+                    e.Handled = true;
+                }
             };
 
             pageGrid.Children.Add(pdfView);
@@ -643,7 +655,7 @@ namespace GinPdfRw
             sbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             statusText = new TextBlock { Text = "Ready", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
-            verText = new TextBlock { Text = "GIN-PDF-RW v008 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
+            verText = new TextBlock { Text = "GIN-PDF-RW v009 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
 
             Grid.SetColumn(statusText, 0);
             Grid.SetColumn(verText, 1);
@@ -655,18 +667,21 @@ namespace GinPdfRw
 
             Content = rootGrid;
 
-            // Hotkeys
+            // Hotkeys & Navigation
             KeyDown += delegate(object s, KeyEventArgs e) {
-                if (isFullscreen) {
-                    if (e.Key == Key.F11) {
-                        ToggleFullscreen();
-                        e.Handled = true;
-                        return;
-                    } else if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control && 
-                               (e.Key == Key.O || e.Key == Key.S || e.Key == Key.P)) {
-                        // Allow file open / save / print shortcuts to execute directly
-                    } else {
-                        // ANY KEY (Escape, Space, Enter, arrows, etc.) exits fullscreen to maximized view!
+                if (e.Key == Key.PageUp) {
+                    OpenPreviousFile();
+                    e.Handled = true;
+                    return;
+                }
+                if (e.Key == Key.PageDown || e.Key == Key.Space) {
+                    OpenNextFile();
+                    e.Handled = true;
+                    return;
+                }
+
+                if (e.Key == Key.Escape || e.Key == Key.Return || e.Key == Key.Enter) {
+                    if (isFullscreen) {
                         ExitFullscreenToWindow();
                         e.Handled = true;
                         return;
@@ -676,10 +691,10 @@ namespace GinPdfRw
                 if (e.Key == Key.F11) {
                     ToggleFullscreen();
                     e.Handled = true;
-                } else if (e.Key == Key.Escape) {
-                    ExitFullscreenToWindow();
-                    e.Handled = true;
-                } else if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
+                    return;
+                }
+
+                if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
                     if (e.Key == Key.O) { OpenFileDialog(); e.Handled = true; }
                     else if (e.Key == Key.S) { SaveFileDialog(); e.Handled = true; }
                     else if (e.Key == Key.P) { ExecutePrint(); e.Handled = true; }
@@ -783,7 +798,7 @@ namespace GinPdfRw
             btnFullscreen.Content = T("Restore");
             toolbar.Visibility = Visibility.Collapsed; // Hidden initially in fullscreen!
             statusBar.Visibility = Visibility.Collapsed;
-            Dispatcher.BeginInvoke(new Action(DoFitWidth), System.Windows.Threading.DispatcherPriority.Background);
+            Dispatcher.BeginInvoke(new Action(DoFitPage), System.Windows.Threading.DispatcherPriority.Background);
         }
 
         private void ExitFullscreenToWindow()
@@ -794,7 +809,7 @@ namespace GinPdfRw
             btnFullscreen.Content = T("Fullscreen");
             toolbar.Visibility = Visibility.Visible;
             statusBar.Visibility = Visibility.Visible;
-            Dispatcher.BeginInvoke(new Action(DoFitWidth), System.Windows.Threading.DispatcherPriority.Background);
+            Dispatcher.BeginInvoke(new Action(DoFitPage), System.Windows.Threading.DispatcherPriority.Background);
         }
 
         private void ToggleFullscreen()
@@ -803,26 +818,72 @@ namespace GinPdfRw
             else EnterFullscreen();
         }
 
-        private void ToggleToolbarPopup()
+        private void DoFitPage()
         {
-            toolbar.Visibility = (toolbar.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
-            statusBar.Visibility = toolbar.Visibility;
-        }
-
-        private void DoFitWidth()
-        {
-            isFitWidth = true;
+            isFitMode = true;
             double availWidth = docScroll.ViewportWidth;
-            if (availWidth <= 50) availWidth = docScroll.ActualWidth;
-            if (availWidth <= 50) availWidth = ActualWidth - 50;
-            if (availWidth <= 50) availWidth = SystemParameters.PrimaryScreenWidth - 50;
+            double availHeight = docScroll.ViewportHeight;
 
-            if (availWidth > 100 && baseDocWidth > 0)
+            if (availWidth <= 50) availWidth = docScroll.ActualWidth;
+            if (availWidth <= 50) availWidth = ActualWidth - 40;
+            if (availWidth <= 50) availWidth = SystemParameters.PrimaryScreenWidth - 40;
+
+            if (availHeight <= 50) availHeight = docScroll.ActualHeight;
+            if (availHeight <= 50) availHeight = ActualHeight - 80;
+            if (availHeight <= 50) availHeight = SystemParameters.PrimaryScreenHeight - 80;
+
+            if (availWidth > 100 && availHeight > 100 && baseDocWidth > 0 && baseDocHeight > 0)
             {
-                zoom = Math.Max(0.2, (availWidth - 30) / baseDocWidth);
+                double scaleX = Math.Max(0.1, (availWidth - 24) / baseDocWidth);
+                double scaleY = Math.Max(0.1, (availHeight - 24) / baseDocHeight);
+                zoom = Math.Min(scaleX, scaleY);
                 txtZoom.Text = string.Format("{0:P0}", zoom);
                 ApplyZoomToPage();
             }
+        }
+
+        private void OpenNextFile()
+        {
+            NavigateFile(1);
+        }
+
+        private void OpenPreviousFile()
+        {
+            NavigateFile(-1);
+        }
+
+        private void NavigateFile(int direction)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(docPath) || !File.Exists(docPath)) return;
+                string dir = Path.GetDirectoryName(docPath);
+                if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir)) return;
+
+                string[] files = Directory.GetFiles(dir, "*.pdf");
+                if (files == null || files.Length <= 1) return;
+
+                Array.Sort(files, StringComparer.OrdinalIgnoreCase);
+                int idx = -1;
+                for (int i = 0; i < files.Length; i++)
+                {
+                    if (string.Equals(files[i], docPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        idx = i;
+                        break;
+                    }
+                }
+
+                if (idx >= 0)
+                {
+                    int nextIdx = idx + direction;
+                    if (nextIdx >= files.Length) nextIdx = 0;
+                    else if (nextIdx < 0) nextIdx = files.Length - 1;
+
+                    OpenPdf(files[nextIdx]);
+                }
+            }
+            catch {}
         }
 
         private void ApplyZoomToPage()
@@ -833,7 +894,7 @@ namespace GinPdfRw
 
         private void AdjustZoom(double delta)
         {
-            isFitWidth = false; // User manually zooming
+            isFitMode = false; // User manually zooming
             zoom = Math.Max(0.2, Math.Min(5.0, zoom + delta));
             txtZoom.Text = string.Format("{0:P0}", zoom);
             ApplyZoomToPage();
@@ -974,7 +1035,7 @@ namespace GinPdfRw
                     baseDocWidth = bi.PixelWidth;
                     baseDocHeight = bi.PixelHeight;
 
-                    if (isFitWidth) DoFitWidth();
+                    if (isFitMode) DoFitPage();
                     else ApplyZoomToPage();
                     return;
                 }
@@ -984,85 +1045,115 @@ namespace GinPdfRw
 
         private void RenderWelcomeSheet()
         {
-            baseDocWidth = 794;
-            baseDocHeight = 1123;
+            baseDocWidth = 1588;
+            baseDocHeight = 2246;
             var bmp = new Bitmap((int)baseDocWidth, (int)baseDocHeight);
             using (var g = Graphics.FromImage(bmp))
             {
                 g.Clear(System.Drawing.Color.White);
-                using (var brushDark = new SolidBrush(System.Drawing.Color.FromArgb(30, 30, 46)))
-                using (var brushGray = new SolidBrush(System.Drawing.Color.FromArgb(100, 100, 120)))
-                using (var fontHeader = new System.Drawing.Font("Segoe UI", 24, System.Drawing.FontStyle.Bold))
-                using (var fontSub = new System.Drawing.Font("Segoe UI", 12, System.Drawing.FontStyle.Regular))
-                using (var fontBody = new System.Drawing.Font("Segoe UI", 11, System.Drawing.FontStyle.Regular))
-                using (var pen = new System.Drawing.Pen(System.Drawing.Color.FromArgb(200, 200, 215), 1))
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+
+                using (var brushDark = new SolidBrush(System.Drawing.Color.FromArgb(24, 24, 37)))
+                using (var brushAccent = new SolidBrush(System.Drawing.Color.FromArgb(0, 102, 204)))
+                using (var brushGray = new SolidBrush(System.Drawing.Color.FromArgb(100, 105, 125)))
+                using (var fontHeader = new System.Drawing.Font("Segoe UI", 36, System.Drawing.FontStyle.Bold))
+                using (var fontSub = new System.Drawing.Font("Segoe UI", 16, System.Drawing.FontStyle.Regular))
+                using (var fontSection = new System.Drawing.Font("Segoe UI", 18, System.Drawing.FontStyle.Bold))
+                using (var fontBody = new System.Drawing.Font("Segoe UI", 14, System.Drawing.FontStyle.Regular))
+                using (var penLine = new System.Drawing.Pen(System.Drawing.Color.FromArgb(220, 225, 235), 2))
+                using (var penAccent = new System.Drawing.Pen(System.Drawing.Color.FromArgb(0, 102, 204), 4))
                 {
-                    string subTitle, welcome;
+                    g.DrawLine(penAccent, 100, 100, 300, 100);
+                    g.DrawString("GIN-PDF-RW", fontHeader, brushDark, 100, 120);
+
+                    string subTitle, secHeader, welcome, footerText;
                     if (currentLang == "ru")
                     {
                         subTitle = "Быстрый просмотр и редактор PDF с открытым исходным кодом";
+                        secHeader = "Добро пожаловать в GIN-PDF-RW v009!";
                         welcome = 
-                            "Добро пожаловать в GIN-PDF-RW v008!\n\n" +
-                            "Основные возможности:\n" +
-                            "• Полноэкранный режим по умолчанию (любая клавиша или клик мыши — переход в окно)\n" +
-                            "• Развернутое на весь экран окно со стандартными кнопками и меню\n" +
-                            "• Плавный зум с шагом 5% (+/-) и автоматическое растягивание по ширине\n" +
+                            "Основные возможности программы:\n\n" +
+                            "• Полноэкранный режим по умолчанию (максимальная площадь просмотра документа)\n" +
+                            "• Навигация колесом мыши: скролл вперед/назад переключает PDF-файлы в папке\n" +
+                            "• Быстрые клавиши PageUp, PageDown и Пробел (Space) для смены файлов в каталоге\n" +
+                            "• Клавиши Escape и Enter: плавный выход из полноэкранного режима в развернутое окно\n" +
+                            "• Идеальное вмещение страниц (Fit Page): документ полностью виден на экране без искажений\n" +
+                            "• Плавный зум с шагом 5% (+/-) и поддержка жестов масштабирования\n" +
                             "• 3 темы оформления: Светлая [День], Нейтральная [Облако], Тёмная [Ночь]\n" +
-                            "• Высококонтрастный интерфейс и полная поддержка UTF-8\n" +
-                            "• Аппаратный движок рендеринга PDF WinRT (Windows.Data.Pdf)\n" +
-                            "• Интерактивные AcroForms (галочки и текстовые поля) и цифровая подпись\n\n" +
-                            "Нажмите «Открыть (Ctrl+O)» для выбора вашего PDF-документа.";
+                            "• Аппаратный движок рендеринга PDF WinRT (DirectX Windows.Data.Pdf)\n" +
+                            "• Интерактивные AcroForms (галочки и текстовые поля) и цифровая подпись\n" +
+                            "• Высококонтрастный интерфейс и полная поддержка UTF-8";
+                        footerText = "Нажмите «Открыть (Ctrl+O)» для выбора вашего PDF-документа.";
                     }
                     else if (currentLang == "uk")
                     {
                         subTitle = "Швидкий перегляд та редактор PDF з відкритим кодом";
+                        secHeader = "Ласкаво просимо до GIN-PDF-RW v009!";
                         welcome = 
-                            "Ласкаво просимо до GIN-PDF-RW v008!\n\n" +
-                            "Основні можливості:\n" +
-                            "• Повноекранний режим за замовчуванням (будь-яка клавіша або клік миші — перехід у вікно)\n" +
-                            "• Розгорнуте на весь екран вікно зі стандартними кнопками та меню\n" +
-                            "• Плавний зум з кроком 5% (+/-) та автоматичне розтягування по ширині\n" +
+                            "Основні можливості програми:\n\n" +
+                            "• Повноекранний режим за замовчуванням (максимальна площа перегляду)\n" +
+                            "• Навігація коліщатком миші: скрол вперед/назад перемикає PDF-файли в папці\n" +
+                            "• Швидкі клавіші PageUp, PageDown та Пробіл (Space) для зміни файлів у каталозі\n" +
+                            "• Клавіші Escape та Enter: вихід з повного екрана у розгорнуте вікно\n" +
+                            "• Ідеальне вміщення сторінок (Fit Page): документ повністю видно на екрані без спотворень\n" +
+                            "• Плавний зум з кроком 5% (+/-) та підтримка жестів масштабування\n" +
                             "• 3 теми оформлення: Світла [День], Нейтральна [Хмара], Темна [Ніч]\n" +
-                            "• Висококонтрастний інтерфейс і повна підтримка UTF-8\n" +
                             "• Апаратний рушій рендерингу PDF WinRT (Windows.Data.Pdf)\n" +
-                            "• Інтерактивні AcroForms (позначки та текстові поля) і цифровий підпис\n\n" +
-                            "Натисніть «Відкрити (Ctrl+O)» для вибору вашого PDF-документа.";
+                            "• Інтерактивні AcroForms (позначки та текстові поля) і цифровий підпис\n" +
+                            "• Висококонтрастний інтерфейс і повна підтримка UTF-8";
+                        footerText = "Натисніть «Відкрити (Ctrl+O)» для вибору вашого PDF-документа.";
                     }
                     else if (currentLang == "cs")
                     {
                         subTitle = "Rychlý prohlížeč a editor PDF s otevřeným zdrojovým kódem";
+                        secHeader = "Vítejte v GIN-PDF-RW v009!";
                         welcome = 
-                            "Vítejte v GIN-PDF-RW v008!\n\n" +
-                            "Klíčové funkce:\n" +
-                            "• Režim celé obrazovky jako výchozí (stisknutí libovolné klávesy přejde do okna)\n" +
-                            "• Maximalizované okno se standardními tlačítky a panelem nabídek\n" +
-                            "• Plynulé přiblížení po 5 % (+/-) a automatické přizpůsobení na celou šířku\n" +
+                            "Hlavní funkce programu:\n\n" +
+                            "• Režim celé obrazovky jako výchozí (maximální plocha pro čtení)\n" +
+                            "• Navigace kolečkem myši: rolování vpřed/vzad přepíná PDF soubory ve složce\n" +
+                            "• Klávesy PageUp, PageDown a Mezerník (Space) pro přepínání souborů v adresáři\n" +
+                            "• Klávesy Escape a Enter: plynulý návrat z celé obrazovky do maximalizovaného okna\n" +
+                            "• Přizpůsobení na stránku (Fit Page): dokument je celý viditelný na obrazovce bez zkreslení\n" +
+                            "• Plynulé přiblížení po 5 % (+/-) a ovládání zoomu\n" +
                             "• 3 motivy vzhledu: Světlý [Den], Neutrální šedý [Oblak], Tmavý [Noc]\n" +
-                            "• Vysoce kontrastní rozhraní a plná podpora UTF-8\n" +
-                            "• Hardwarově akcelerované vykreslování PDF WinRT\n" +
-                            "• Interaktivní AcroForms (zaškrtávací pole a text) a digitální podpis\n\n" +
-                            "Klikněte na «Otevřít (Ctrl+O)» pro otevření PDF dokumentu.";
+                            "• Hardwarově akcelerované vykreslování PDF WinRT (DirectX)\n" +
+                            "• Interaktivní AcroForms (zaškrtávací pole a text) a digitální podpis\n" +
+                            "• Vysoce kontrastní rozhraní a plná podpora UTF-8";
+                        footerText = "Klikněte na «Otevřít (Ctrl+O)» pro otevření vašeho PDF dokumentu.";
                     }
                     else
                     {
                         subTitle = "High-Performance Open Source PDF Reader & Editor";
+                        secHeader = "Welcome to GIN-PDF-RW v009!";
                         welcome = 
-                            "Welcome to GIN-PDF-RW v008!\n\n" +
-                            "Key Features:\n" +
-                            "• Fullscreen by Default (Press Any Key or Left Click to restore Maximized View)\n" +
-                            "• Maximized Window with Standard Title Bar & Accessible Top/Bottom Toolbars\n" +
-                            "• Smooth 5% Zoom on +/- and Auto Fit to Width\n" +
-                            "• 3 Themes: Day [Light], Neutral Cloud [Gray], Night [Dark]\n" +
-                            "• High-Contrast UI & Multilingual Localization (EN, RU, UK, CS, DE, FR, ES, IT, PL, TR, ZH, JA)\n" +
-                            "• Native Windows WinRT PDF Hardware Rendering Engine\n" +
-                            "• AcroForms Interactive Fill & Sign + X.509 Cryptographic Signatures\n\n" +
-                            "Click 'Open (Ctrl+O)' to open your PDF documents.";
+                            "Key Application Features:\n\n" +
+                            "• Borderless Fullscreen by Default (Expansive distraction-free reading mode)\n" +
+                            "• Mouse Wheel Navigation: Scroll up/down to flip through PDF files in folder\n" +
+                            "• Quick navigation keys: PageUp, PageDown, and Space to switch documents\n" +
+                            "• Escape and Enter keys: Smoothly restore to Maximized window with full toolbars\n" +
+                            "• Automatic Fit Page: Document fits 100% inside screen height & width without distortion\n" +
+                            "• Smooth 5% Zoom on +/- and precision mouse wheel zoom (Ctrl + Wheel)\n" +
+                            "• 3-Way Theme Switcher: Day [Light], Neutral Cloud [Slate Gray], Night [Dark]\n" +
+                            "• Native Windows WinRT PDF Hardware Rendering Engine (DirectX)\n" +
+                            "• Interactive AcroForms Fill & Sign with X.509 Cryptographic Digital Signatures\n" +
+                            "• High-Contrast UI & Universal UTF-8 Localization";
+                        footerText = "Click 'Open (Ctrl+O)' to open your PDF documents.";
                     }
 
-                    g.DrawString("GIN-PDF-RW", fontHeader, brushDark, 60, 80);
-                    g.DrawString(subTitle, fontSub, brushGray, 60, 125);
-                    g.DrawLine(pen, 60, 160, 734, 160);
-                    g.DrawString(welcome, fontBody, brushDark, new RectangleF(60, 190, 674, 500));
+                    g.DrawString(subTitle, fontSub, brushGray, 100, 185);
+                    g.DrawLine(penLine, 100, 230, 1488, 230);
+
+                    g.DrawString(secHeader, fontSection, brushDark, 100, 270);
+                    g.DrawString(welcome, fontBody, brushDark, new RectangleF(100, 340, 1388, 1400));
+
+                    g.DrawLine(penLine, 100, 1850, 1488, 1850);
+                    using (var fontFoot = new System.Drawing.Font("Segoe UI", 15, System.Drawing.FontStyle.Bold))
+                    {
+                        g.DrawString(footerText, fontFoot, brushAccent, 100, 1890);
+                    }
                 }
             }
 
@@ -1078,7 +1169,7 @@ namespace GinPdfRw
             bmp.Dispose();
 
             pdfView.Source = bi;
-            if (isFitWidth) DoFitWidth();
+            if (isFitMode) DoFitPage();
             else ApplyZoomToPage();
         }
 
@@ -1160,7 +1251,7 @@ namespace GinPdfRw
             Title = fileName + " — " + T("Title");
             txtPage.Text = T("PageOf", currentPage, totalPages);
             overlayCanvas.Children.Clear();
-            isFitWidth = true; // Automatically fit to width!
+            isFitMode = true; // Automatically fit page completely in screen!
             RefreshView();
         }
 

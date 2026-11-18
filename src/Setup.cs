@@ -10,12 +10,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
 
-[assembly: AssemblyTitle("GIN-PDF-RW_v008_Setup")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v008_Setup")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v009_Setup")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v009_Setup")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.008.0.0")]
-[assembly: AssemblyVersion("0.008.0.0")]
+[assembly: AssemblyFileVersion("0.009.0.0")]
+[assembly: AssemblyVersion("0.009.0.0")]
 
 namespace GinPdfRwSetup
 {
@@ -84,7 +84,7 @@ namespace GinPdfRwSetup
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v008 Setup";
+            Title = "GIN-PDF-RW v009 Setup";
             Width = 580;
             Height = 540;
             MinWidth = 580;
@@ -104,7 +104,7 @@ namespace GinPdfRwSetup
             // 1. Header in English
             var headerStack = new StackPanel { Margin = new Thickness(0, 0, 0, 16) };
             var txtTitle = new TextBlock {
-                Text = "Install GIN-PDF-RW v008?",
+                Text = "Install GIN-PDF-RW v009?",
                 FontSize = 22,
                 FontWeight = FontWeights.Bold,
                 Foreground = new SolidColorBrush(Color.FromRgb(137, 180, 250))
@@ -295,10 +295,10 @@ namespace GinPdfRwSetup
                 RegisterUninstall(targetUninstall, targetDir);
 
                 string successMsg;
-                if (selectedLang == "ru") successMsg = "GIN-PDF-RW v008 успешно установлен на ваш компьютер!\nПолноэкранный режим и режим по ширине активированы.";
-                else if (selectedLang == "uk") successMsg = "GIN-PDF-RW v008 успішно встановлено на ваш комп'ютер!\nПовноекранний режим та режим по ширині активовано.";
-                else if (selectedLang == "cs") successMsg = "GIN-PDF-RW v008 byl úspěšně nainstalován na váš počítač!\nRežim celé obrazovky a na šířku byl aktivován.";
-                else successMsg = "GIN-PDF-RW v008 has been successfully installed!\nDefault fullscreen & Fit-Width enabled.";
+                if (selectedLang == "ru") successMsg = "GIN-PDF-RW v009 успешно установлен на ваш компьютер!\nПолноэкранный режим и вмещение страницы активированы.";
+                else if (selectedLang == "uk") successMsg = "GIN-PDF-RW v009 успішно встановлено на ваш комп'ютер!\nПовноекранний режим та вміщення сторінки активовано.";
+                else if (selectedLang == "cs") successMsg = "GIN-PDF-RW v009 byl úspěšně nainstalován na váš počítač!\nRežim celé obrazovky a na stránku byl aktivován.";
+                else successMsg = "GIN-PDF-RW v009 has been successfully installed!\nDefault fullscreen & Fit-Page enabled.";
 
                 MessageBox.Show(successMsg, "GIN-PDF-RW Setup", MessageBoxButton.OK, MessageBoxImage.Information);
 
@@ -371,7 +371,7 @@ namespace GinPdfRwSetup
                     try
                     {
                         string linkPath = Path.Combine(d, "GIN-PDF-RW.lnk");
-                        CreateShortcutFile(linkPath, targetExe, workDir, "GIN-PDF-RW v008 by VladiMIR+AI");
+                        CreateShortcutFile(linkPath, targetExe, workDir, "GIN-PDF-RW v009 by VladiMIR+AI");
                     }
                     catch { }
                 }
@@ -414,8 +414,8 @@ namespace GinPdfRwSetup
                 {
                     if (key != null)
                     {
-                        key.SetValue("DisplayName", "GIN-PDF-RW v008 [VladiMIR+AI]");
-                        key.SetValue("DisplayVersion", "v008");
+                        key.SetValue("DisplayName", "GIN-PDF-RW v009 [VladiMIR+AI]");
+                        key.SetValue("DisplayVersion", "v009");
                         key.SetValue("Publisher", "VladiMIR+AI");
                         key.SetValue("DisplayIcon", Path.Combine(installDir, "GIN-PDF-RW.exe") + ",0");
                         key.SetValue("UninstallString", "\"" + uninstallExe + "\"");
