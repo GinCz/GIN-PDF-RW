@@ -1,7 +1,7 @@
 {
   "name": "GIN-PDF-RW",
-  "current_version": "v010",
-  "release_name": "GIN-PDF-RW v010 - Left Drag Panning & Mouse Wheel Fullscreen Toggle",
+  "current_version": "v011",
+  "release_name": "GIN-PDF-RW v011 - Theme Persistence & High-Contrast Language Switcher",
   "author": "Vladimir Bulantsev (@GinCz)",
   "copyright": "VladiMIR+AI",
   "license": "MIT",

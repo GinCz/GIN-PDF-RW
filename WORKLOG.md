@@ -1,5 +1,24 @@
 # Worklog - GIN-PDF-RW
 
+## 2026-11-19 - v011 Theme Persistence Across Restarts & High-Contrast Language Switcher
+
+- **Target:** Implement fixes requested by Vladimir:
+  1. Fix theme resetting: When switching to Evening/Cloud or Night mode, closing and opening the program was previously resetting back to Day mode. The chosen theme must now be saved and restored across sessions.
+  2. Fix language switcher visibility: In Evening/Cloud and Night modes, the language switcher on the right side of the toolbar had white text on a white background, making it unreadable. The language dropdown must now dynamically adapt its background, foreground, border, and popup items to match the active theme with razor-sharp contrast.
+- **Repository:** `https://github.com/GinCz/GIN-PDF-RW`
+- **Actions:**
+  - Updated `src/App.cs`:
+    - Added `DetectDefaultTheme()` and `SaveTheme()` persisting theme preferences across Windows Registry (`HKCU\Software\GIN-PDF-RW\Theme`), `%APPDATA%\GIN-PDF-RW\theme.cfg`, and application root `theme.cfg`.
+    - Added `SaveLanguage()` persisting user language selection when chosen from the toolbar dropdown.
+    - Updated `MainWindow` constructor to load the user's remembered theme on startup instead of hardcoding Day mode.
+    - Replaced default Windows Aero ComboBox template for `cmbLang` with a clean custom WPF `ControlTemplate` and `ItemContainerStyle` that properly binds and updates `Background`, `Foreground`, `BorderBrush`, and item highlights according to Day, Evening/Cloud, and Night color palettes.
+    - Added visual active indicator (`Opacity = 1.0` vs `0.6`) for theme buttons (☀️ Day, ☁️ Cloud, 🌙 Night).
+    - Updated version metadata to `0.011.0.0` (`GIN-PDF-RW_v011`).
+  - Updated `src/Setup.cs` and `src/Uninstall.cs` version metadata to `0.011.0.0` (`GIN-PDF-RW_v011`).
+  - Compiled binaries: `GIN-PDF-RW.exe`, `Uninstall.exe`, and `GIN-PDF-RW_v011_Setup.exe`.
+  - Delivered installer to `D:\MEGA\DOCS\desktop\GIN-PDF-RW_v011_Setup.exe` (retaining strictly 2 latest versions: `v010` and `v011`).
+  - Updated `version.json`, `README.md`, and `WORKLOG.md`.
+
 ## 2026-11-18 - v010 Left-Click Drag Panning, Mouse Wheel Scroll & Cyclical Fullscreen Toggle
 
 - **Target:** Deliver refined navigation requested by Vladimir:

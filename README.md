@@ -1,7 +1,7 @@
 # GIN-PDF-RW
 
 **High-Performance, Distraction-Free Open Source PDF Reader & Editor**  
-*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v010` | *Standard:* UTF-8
+*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v011` | *Standard:* UTF-8
 
 ---
 
@@ -11,8 +11,17 @@
 
 ---
 
-## ⚡ Highlights in `v010`
+## ⚡ Highlights in `v011`
 
+* **Persistent Theme Memory (Cross-Session Preservation):**
+  * Switching between Day (☀️), Evening/Cloud (☁️), and Night (🌙) themes is now persistently saved to Windows Registry (`HKCU\Software\GIN-PDF-RW\Theme`), `%APPDATA%\GIN-PDF-RW\theme.cfg`, and application root.
+  * Closing and reopening the application reliably preserves the user's selected theme instead of resetting back to Day mode.
+* **High-Contrast Theme-Adaptive Language Switcher:**
+  * Custom WPF `ControlTemplate` and item container style for the top-right language dropdown (`cmbLang`).
+  * Seamlessly adapts its button background, foreground typography, borders, drop-down popup, and hover highlights to Day, Evening/Cloud, and Night modes.
+  * Completely eliminates the white-on-white text readability defect when operating in Evening or Night themes.
+* **Persistent Language Selection:**
+  * Switching languages via the toolbar dropdown instantly saves the preference to registry and configuration files, preserving the user's selection permanently.
 * **Left-Click Drag Panning (Hand Tool):** When zoomed in or when document content exceeds the viewport, click and drag with the left mouse button to smoothly pan and glide across the document up, down, left, and right.
 * **Scroll Wheel Click (Middle Click) & Enter Cyclical Fullscreen Toggle:**
   * Clicking down on the mouse wheel button itself (middle click) or pressing `Enter` cyclically switches between borderless fullscreen reading mode and normal maximized window mode with full toolbar menu visible.
@@ -29,7 +38,7 @@
 * **High-Definition, Razor-Sharp Welcome Sheet:**
   * High-resolution 200 DPI canvas (1588x2246) with ClearType anti-aliasing for crystal-clear readability without any blur or fuzziness.
   * Localized in Russian, Ukrainian, Czech, and English.
-* **Day Mode by Default:** Clean, high-contrast light theme enabled by default for optimal readability.
+* **Day Mode by Default:** Clean, high-contrast light theme enabled by default on pristine install.
 * **Fully Localized Uninstaller (`Uninstall.exe`):**
   * Automatically detects installation language from Windows Registry (`HKCU\Software\GIN-PDF-RW\Language`) or configuration files.
   * Displays prompts, dialogs, buttons, and confirmations in the user's language across 12 languages.
@@ -38,7 +47,7 @@
   * ☁️ **Neutral Cloud Mode (Center):** Soft balanced slate-gray theme for reduced eye strain.
   * 🌙 **Night Mode:** Deep Catppuccin Mocha dark theme for night reading.
 * **Real Native WinRT PDF Rendering Engine:** Integrated GPU-accelerated rendering using Windows 10/11 DirectX WinRT (`Windows.Data.Pdf`) for instant page rasterization.
-* **Standalone Setup Wizard (`GIN-PDF-RW_v010_Setup.exe`):**
+* **Standalone Setup Wizard (`GIN-PDF-RW_v011_Setup.exe`):**
   * Self-extracts `GIN-PDF-RW.exe`, `Uninstall.exe`, and `app.ico` into `C:\Program Files\GIN-PDF-RW\`.
   * Auto-associates `.pdf` files and creates Desktop shortcuts.
 * **Interactive AcroForms Engine:** Clickable checkboxes with instant `✓` ticks and editable text fields.
@@ -52,4 +61,4 @@
 ## 📦 Download
 
 Get the standalone installer directly from GitHub Releases:
-* ⚙️ **[GIN-PDF-RW_v010_Setup.exe (GitHub Release v010)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v010)**
+* ⚙️ **[GIN-PDF-RW_v011_Setup.exe (GitHub Release v011)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v011)**

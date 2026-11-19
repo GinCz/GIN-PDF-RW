@@ -13,13 +13,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-[assembly: AssemblyTitle("GIN-PDF-RW_v010")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v010")]
-[assembly: AssemblyDescription("GIN-PDF-RW_v010")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v011")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v011")]
+[assembly: AssemblyDescription("GIN-PDF-RW_v011")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.010.0.0")]
-[assembly: AssemblyVersion("0.010.0.0")]
+[assembly: AssemblyFileVersion("0.011.0.0")]
+[assembly: AssemblyVersion("0.011.0.0")]
 
 namespace GinPdfRw
 {
@@ -244,8 +244,9 @@ namespace GinPdfRw
         {
             InitLocalization();
             DetectDefaultLanguage(explicitLang);
+            string savedTheme = DetectDefaultTheme();
             BuildUi();
-            ApplyTheme("Day"); // Default Day (Light) theme as requested!
+            ApplyTheme(savedTheme); // Restores remembered theme (Day, Cloud, or Night)
             UpdateStrings();
 
             // Set Fullscreen by default as requested
@@ -272,7 +273,7 @@ namespace GinPdfRw
         private void InitLocalization()
         {
             var en = new Dictionary<string, string>();
-            en.Add("Title", "GIN-PDF-RW v010 — Zen PDF Reader & Editor");
+            en.Add("Title", "GIN-PDF-RW v011 — Zen PDF Reader & Editor");
             en.Add("Open", "📂 Open (Ctrl+O)");
             en.Add("Save", "💾 Save (Ctrl+S)");
             en.Add("Print", "🖨️ Print (Ctrl+P)");
@@ -296,7 +297,7 @@ namespace GinPdfRw
             loc.Add("en", en);
 
             var ru = new Dictionary<string, string>();
-            ru.Add("Title", "GIN-PDF-RW v010 — Просмотр и редактор PDF");
+            ru.Add("Title", "GIN-PDF-RW v011 — Просмотр и редактор PDF");
             ru.Add("Open", "📂 Открыть (Ctrl+O)");
             ru.Add("Save", "💾 Сохранить (Ctrl+S)");
             ru.Add("Print", "🖨️ Печать (Ctrl+P)");
@@ -320,7 +321,7 @@ namespace GinPdfRw
             loc.Add("ru", ru);
 
             var uk = new Dictionary<string, string>();
-            uk.Add("Title", "GIN-PDF-RW v010 — Перегляд і редактор PDF");
+            uk.Add("Title", "GIN-PDF-RW v011 — Перегляд і редактор PDF");
             uk.Add("Open", "📂 Відкрити (Ctrl+O)");
             uk.Add("Save", "💾 Зберегти (Ctrl+S)");
             uk.Add("Print", "🖨️ Друк (Ctrl+P)");
@@ -344,7 +345,7 @@ namespace GinPdfRw
             loc.Add("uk", uk);
 
             var cs = new Dictionary<string, string>();
-            cs.Add("Title", "GIN-PDF-RW v010 — Prohlížeč a editor PDF");
+            cs.Add("Title", "GIN-PDF-RW v011 — Prohlížeč a editor PDF");
             cs.Add("Open", "📂 Otevřít (Ctrl+O)");
             cs.Add("Save", "💾 Uložit (Ctrl+S)");
             cs.Add("Print", "🖨️ Tisk (Ctrl+P)");
@@ -434,6 +435,128 @@ namespace GinPdfRw
             else currentLang = "en";
         }
 
+        private string DetectDefaultTheme()
+        {
+            // 1. Registry HKCU\Software\GIN-PDF-RW\Theme
+            try
+            {
+                using (var k = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\GIN-PDF-RW"))
+                {
+                    if (k != null)
+                    {
+                        string regTheme = (k.GetValue("Theme") as string ?? "").Trim();
+                        if (regTheme == "Day" || regTheme == "Cloud" || regTheme == "Night")
+                        {
+                            return regTheme;
+                        }
+                    }
+                }
+            }
+            catch {}
+
+            // 2. Base directory theme.cfg
+            try
+            {
+                string cfg = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "theme.cfg");
+                if (File.Exists(cfg))
+                {
+                    string saved = File.ReadAllText(cfg).Trim();
+                    if (saved == "Day" || saved == "Cloud" || saved == "Night")
+                    {
+                        return saved;
+                    }
+                }
+            }
+            catch {}
+
+            // 3. %APPDATA%\GIN-PDF-RW\theme.cfg
+            try
+            {
+                string appDataCfg = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), 
+                    "GIN-PDF-RW", "theme.cfg");
+                if (File.Exists(appDataCfg))
+                {
+                    string saved = File.ReadAllText(appDataCfg).Trim();
+                    if (saved == "Day" || saved == "Cloud" || saved == "Night")
+                    {
+                        return saved;
+                    }
+                }
+            }
+            catch {}
+
+            return "Day";
+        }
+
+        private void SaveTheme(string theme)
+        {
+            if (string.IsNullOrEmpty(theme)) return;
+
+            // 1. Registry
+            try
+            {
+                using (var k = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"Software\GIN-PDF-RW"))
+                {
+                    if (k != null)
+                    {
+                        k.SetValue("Theme", theme);
+                    }
+                }
+            }
+            catch {}
+
+            // 2. %APPDATA%\GIN-PDF-RW\theme.cfg
+            try
+            {
+                string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GIN-PDF-RW");
+                if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+                File.WriteAllText(Path.Combine(dir, "theme.cfg"), theme);
+            }
+            catch {}
+
+            // 3. Base directory theme.cfg
+            try
+            {
+                File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "theme.cfg"), theme);
+            }
+            catch {}
+        }
+
+        private void SaveLanguage(string lang)
+        {
+            if (string.IsNullOrEmpty(lang)) return;
+
+            // 1. Registry
+            try
+            {
+                using (var k = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"Software\GIN-PDF-RW"))
+                {
+                    if (k != null)
+                    {
+                        k.SetValue("Language", lang);
+                    }
+                }
+            }
+            catch {}
+
+            // 2. %APPDATA%\GIN-PDF-RW\language.cfg
+            try
+            {
+                string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GIN-PDF-RW");
+                if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+                File.WriteAllText(Path.Combine(dir, "language.cfg"), lang);
+            }
+            catch {}
+
+            // 3. Base directory language.cfg
+            try
+            {
+                File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "language.cfg"), lang);
+            }
+            catch {}
+        }
+
         private string T(string key, params object[] args)
         {
             if (!loc.ContainsKey(currentLang)) currentLang = "en";
@@ -444,7 +567,7 @@ namespace GinPdfRw
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v010";
+            Title = "GIN-PDF-RW v011";
             Width = 1240;
             Height = 880;
             MinWidth = 800;
@@ -541,11 +664,120 @@ namespace GinPdfRw
             // Language ComboBox
             cmbLang = new ComboBox {
                 Width = 76,
+                Height = 28,
                 Margin = new Thickness(6, 0, 0, 0),
                 FontSize = 11,
                 FontWeight = FontWeights.Bold,
-                VerticalContentAlignment = VerticalAlignment.Center
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Cursor = System.Windows.Input.Cursors.Hand
             };
+
+            try {
+                string cbTemplateXaml = @"
+<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation'
+                 xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
+                 TargetType='ComboBox'>
+    <Grid>
+        <ToggleButton Name='ToggleButton'
+                      Focusable='False'
+                      Background='{TemplateBinding Background}'
+                      BorderBrush='{TemplateBinding BorderBrush}'
+                      BorderThickness='{TemplateBinding BorderThickness}'
+                      Foreground='{TemplateBinding Foreground}'
+                      IsChecked='{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}'
+                      ClickMode='Press'>
+            <ToggleButton.Template>
+                <ControlTemplate TargetType='ToggleButton'>
+                    <Border Name='Border'
+                            Background='{TemplateBinding Background}'
+                            BorderBrush='{TemplateBinding BorderBrush}'
+                            BorderThickness='{TemplateBinding BorderThickness}'
+                            CornerRadius='4'>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width='*' />
+                                <ColumnDefinition Width='18' />
+                            </Grid.ColumnDefinitions>
+                            <Path Name='Arrow'
+                                  Grid.Column='1'
+                                  Fill='{TemplateBinding Foreground}'
+                                  HorizontalAlignment='Center'
+                                  VerticalAlignment='Center'
+                                  Data='M 0 0 L 4 4 L 8 0 Z' />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property='IsMouseOver' Value='True'>
+                            <Setter TargetName='Border' Property='Opacity' Value='0.85' />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </ToggleButton.Template>
+        </ToggleButton>
+        <ContentPresenter Name='ContentSite'
+                          IsHitTestVisible='False'
+                          Content='{TemplateBinding SelectionBoxItem}'
+                          ContentTemplate='{TemplateBinding SelectionBoxItemTemplate}'
+                          ContentTemplateSelector='{TemplateBinding ItemTemplateSelector}'
+                          Margin='10,0,18,0'
+                          VerticalAlignment='Center'
+                          HorizontalAlignment='Center' />
+        <Popup Name='Popup'
+               Placement='Bottom'
+               IsOpen='{TemplateBinding IsDropDownOpen}'
+               AllowsTransparency='True'
+               Focusable='False'
+               PopupAnimation='Slide'>
+            <Grid Name='DropDown'
+                  SnapsToDevicePixels='True'
+                  MinWidth='{TemplateBinding ActualWidth}'
+                  MaxHeight='{TemplateBinding MaxDropDownHeight}'>
+                <Border Name='DropDownBorder'
+                        Background='{TemplateBinding Background}'
+                        BorderBrush='{TemplateBinding BorderBrush}'
+                        BorderThickness='1'
+                        CornerRadius='4'
+                        Margin='0,2,0,0'>
+                    <ScrollViewer SnapsToDevicePixels='True'>
+                        <StackPanel IsItemsHost='True' KeyboardNavigation.DirectionalNavigation='Contained' />
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Popup>
+    </Grid>
+</ControlTemplate>";
+
+                string itemStyleXaml = @"
+<Style xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation'
+       xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
+       TargetType='ComboBoxItem'>
+    <Setter Property='Padding' Value='8,4,8,4' />
+    <Setter Property='HorizontalContentAlignment' Value='Center' />
+    <Setter Property='Cursor' Value='Hand' />
+    <Setter Property='Template'>
+        <Setter.Value>
+            <ControlTemplate TargetType='ComboBoxItem'>
+                <Border Name='ItemBorder'
+                        Background='{TemplateBinding Background}'
+                        Padding='{TemplateBinding Padding}'
+                        CornerRadius='3'>
+                    <ContentPresenter HorizontalAlignment='Center' />
+                </Border>
+                <ControlTemplate.Triggers>
+                    <Trigger Property='IsHighlighted' Value='True'>
+                        <Setter TargetName='ItemBorder' Property='Background' Value='#5E81AC' />
+                        <Setter Property='Foreground' Value='#FFFFFF' />
+                    </Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+        </Setter.Value>
+    </Setter>
+</Style>";
+
+                cmbLang.Template = (ControlTemplate)System.Windows.Markup.XamlReader.Parse(cbTemplateXaml);
+                cmbLang.ItemContainerStyle = (Style)System.Windows.Markup.XamlReader.Parse(itemStyleXaml);
+            } catch {}
+
             cmbLang.Items.Add(new ComboBoxItem { Content = "EN" });
             cmbLang.Items.Add(new ComboBoxItem { Content = "RU" });
             cmbLang.Items.Add(new ComboBoxItem { Content = "UK" });
@@ -560,6 +792,7 @@ namespace GinPdfRw
                 var item = cmbLang.SelectedItem as ComboBoxItem;
                 if (item != null) {
                     currentLang = item.Content.ToString().ToLowerInvariant();
+                    SaveLanguage(currentLang);
                     UpdateStrings();
                     if (string.IsNullOrEmpty(docPath)) RenderWelcomeSheet();
                 }
@@ -738,7 +971,7 @@ namespace GinPdfRw
             sbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             statusText = new TextBlock { Text = "Ready", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
-            verText = new TextBlock { Text = "GIN-PDF-RW v010 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
+            verText = new TextBlock { Text = "GIN-PDF-RW v011 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
 
             Grid.SetColumn(statusText, 0);
             Grid.SetColumn(verText, 1);
@@ -819,6 +1052,7 @@ namespace GinPdfRw
         private void ApplyTheme(string theme)
         {
             currentTheme = theme;
+            SaveTheme(theme);
             System.Windows.Media.Color bgWin, bgView, bgTool, brdTool, fgText, fgSub, bgBtn, fgBtn, bgTabAct, fgTabAct;
 
             if (theme == "Day")
@@ -887,14 +1121,25 @@ namespace GinPdfRw
                 }
             }
 
+            // Active theme button highlight / opacity indicator
+            if (btnThemeDay != null && btnThemeCloud != null && btnThemeNight != null) {
+                btnThemeDay.Opacity = (theme == "Day") ? 1.0 : 0.6;
+                btnThemeCloud.Opacity = (theme == "Cloud") ? 1.0 : 0.6;
+                btnThemeNight.Opacity = (theme == "Night") ? 1.0 : 0.6;
+            }
+
             // High contrast ComboBox styling (Fixing white text on white background)
-            cmbLang.Background = new SolidColorBrush(bgBtn);
-            cmbLang.Foreground = new SolidColorBrush(fgBtn);
-            foreach (var item in cmbLang.Items) {
-                var cbi = item as ComboBoxItem;
-                if (cbi != null) {
-                    cbi.Background = new SolidColorBrush(bgTool);
-                    cbi.Foreground = new SolidColorBrush(fgText);
+            if (cmbLang != null) {
+                cmbLang.Background = new SolidColorBrush(bgBtn);
+                cmbLang.Foreground = new SolidColorBrush(fgBtn);
+                cmbLang.BorderBrush = new SolidColorBrush(brdTool);
+                cmbLang.BorderThickness = new Thickness(1);
+                foreach (var item in cmbLang.Items) {
+                    var cbi = item as ComboBoxItem;
+                    if (cbi != null) {
+                        cbi.Background = new SolidColorBrush(bgBtn);
+                        cbi.Foreground = new SolidColorBrush(fgBtn);
+                    }
                 }
             }
 
@@ -1215,7 +1460,7 @@ namespace GinPdfRw
                     if (currentLang == "ru")
                     {
                         subTitle = "Быстрый просмотр и редактор PDF с открытым исходным кодом";
-                        secHeader = "Добро пожаловать в GIN-PDF-RW v010!";
+                        secHeader = "Добро пожаловать в GIN-PDF-RW v011!";
                         welcome = 
                             "Основные возможности программы:\n\n" +
                             "• Прокрутка колесом мыши: вертикальный скроллинг документа и перелистывание страниц\n" +
@@ -1234,7 +1479,7 @@ namespace GinPdfRw
                     else if (currentLang == "uk")
                     {
                         subTitle = "Швидкий перегляд та редактор PDF з відкритим кодом";
-                        secHeader = "Ласкаво просимо до GIN-PDF-RW v010!";
+                        secHeader = "Ласкаво просимо до GIN-PDF-RW v011!";
                         welcome = 
                             "Основні можливості програми:\n\n" +
                             "• Прокручування коліщатком миші: вертикальний скролінг документа та перегортання сторінок\n" +
@@ -1253,7 +1498,7 @@ namespace GinPdfRw
                     else if (currentLang == "cs")
                     {
                         subTitle = "Rychlý prohlížeč a editor PDF s otevřeným zdrojovým kódem";
-                        secHeader = "Vítejte v GIN-PDF-RW v010!";
+                        secHeader = "Vítejte v GIN-PDF-RW v011!";
                         welcome = 
                             "Hlavní funkce programu:\n\n" +
                             "• Rolování kolečkem myši: svislé posouvání dokumentu a přepínání stránek\n" +
@@ -1272,7 +1517,7 @@ namespace GinPdfRw
                     else
                     {
                         subTitle = "High-Performance Open Source PDF Reader & Editor";
-                        secHeader = "Welcome to GIN-PDF-RW v010!";
+                        secHeader = "Welcome to GIN-PDF-RW v011!";
                         welcome = 
                             "Key Application Features:\n\n" +
                             "• Mouse Wheel Scroll: Smooth vertical page scrolling and page navigation\n" +
