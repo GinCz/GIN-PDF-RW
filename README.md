@@ -1,7 +1,7 @@
 # GIN-PDF-RW
 
 **High-Performance, Distraction-Free Open Source PDF Reader & Editor**  
-*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v012` | *Standard:* UTF-8
+*Author:* Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)) | *Version:* `v013` | *Standard:* UTF-8
 
 ---
 
@@ -11,7 +11,7 @@
 
 ---
 
-## ⚡ Highlights in `v012`
+## ⚡ Highlights in `v013`
 
 * **Persistent Theme Memory (Cross-Session Preservation):**
   * Switching between Day (☀️), Evening/Cloud (☁️), and Night (🌙) themes is now persistently saved to Windows Registry (`HKCU\Software\GIN-PDF-RW\Theme`), `%APPDATA%\GIN-PDF-RW\theme.cfg`, and application root.
@@ -47,7 +47,7 @@
   * ☁️ **Neutral Cloud Mode (Center):** Soft balanced slate-gray theme for reduced eye strain.
   * 🌙 **Night Mode:** Deep Catppuccin Mocha dark theme for night reading.
 * **Real Native WinRT PDF Rendering Engine:** Integrated GPU-accelerated rendering using Windows 10/11 DirectX WinRT (`Windows.Data.Pdf`) for instant page rasterization.
-* **Standalone Setup Wizard (`GIN-PDF-RW_v012_Setup.exe`):**
+* **Standalone Setup Wizard (`GIN-PDF-RW_v013_Setup.exe`):**
   * Self-extracts `GIN-PDF-RW.exe`, `Uninstall.exe`, and `app.ico` into `C:\Program Files\GIN-PDF-RW\`.
   * Auto-associates `.pdf` files and creates Desktop shortcuts.
 * **Interactive AcroForms Engine:** Clickable checkboxes with instant `✓` ticks and editable text fields.
@@ -61,4 +61,4 @@
 ## 📦 Download
 
 Get the standalone installer directly from GitHub Releases:
-* ⚙️ **[GIN-PDF-RW_v012_Setup.exe (GitHub Release v012)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v012)**
+* ⚙️ **[GIN-PDF-RW_v013_Setup.exe (GitHub Release v013)](https://github.com/GinCz/GIN-PDF-RW/releases/tag/v013)**

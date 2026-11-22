@@ -1,5 +1,17 @@
 # Worklog - GIN-PDF-RW
 
+## 2026-11-23 - v013 Manual GitHub Update Button & Toolbar Version Badge
+
+- **Target:** Deliver manual GitHub update button requested by Vladimir:
+  1. Manual Update Button: Added top-right header button showing current version and action: `v013 (обновить)` / `v013 (Update)` / `v013 (aktualizovat)`.
+  2. Non-blocking Async Check: Clicking the button queries GitHub repository `version.json` asynchronously via `ThreadPool`. If up to date, confirms latest version; if a new version is published, displays prompt with direct 1-click release download.
+  3. Multilingual & Theme Adaptive: Seamlessly integrates into Day, Neutral Cloud, and Night theme color schemes, with full support for EN, RU, UK, and CS.
+- **Repository:** `https://github.com/GinCz/GIN-PDF-RW`
+- **Actions:**
+  - Updated `src/App.cs` with `btnUpdate`, `CheckForManualUpdate()`, and localized labels.
+  - Updated version metadata to `v013` (`0.013.0.0`) across `src/App.cs`, `src/Setup.cs`, `src/Uninstall.cs`, and `version.json`.
+  - Updated documentation in `README.md` and `WORKLOG.md`.
+
 ## 2026-11-23 - v012 Dynamic Hi-DPI Vector Re-Rendering on Zoom (Crystal-Clear Typography)
 
 - **Target:** Fix raster blurriness when zooming in (Ctrl + Mouse Wheel, + / - keys):
