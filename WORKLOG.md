@@ -1,5 +1,26 @@
 # Worklog - GIN-PDF-RW
 
+## 2026-11-23 - v014 Instant Escape Exit, 16pt Context Menu & Ultra-Crisp Dynamic Zoom
+
+- **Target:** Deliver features requested by Vladimir:
+  1. Instant Escape Close: When opening a PDF document in full view, pressing `Escape` (even after scrolling down or zooming) immediately exits and closes the entire application, unless the user explicitly switched to windowed mode.
+  2. Right-Click Context Menu (Font Size 16 with Emojis):
+     - ↷ Повернуть направо на 90°
+     - ↶ Повернуть налево на 90°
+     - ↻ Повернуть направо на 180°
+     - ↺ Повернуть налево на 180°
+     - ⇆ Перевернуть по горизонтали
+     - ⇅ Перевернуть по вертикали
+     - 🖨️ Печать
+     - ❌ Закрыть
+     Applies instantaneously across the entire document layout via dynamic `LayoutTransform`.
+  3. Ultra-Crisp Vector Re-Rasterization on Zoom: Enforced true hardware destination dimension rendering (`renderScale = Math.Max(1.0, zoom)`) with `HighQuality` scaling mode so text stays sharp and vector glyphs never blur.
+- **Repository:** `https://github.com/GinCz/GIN-PDF-RW`
+- **Actions:**
+  - Updated `src/App.cs` with `hasSwitchedToWindowMode`, right-click `ContextMenu` (16pt fonts and emojis), and vector zoom pipeline.
+  - Updated version metadata to `v014` (`0.014.0.0`) across `src/App.cs`, `src/Setup.cs`, `src/Uninstall.cs`, and `version.json`.
+  - Updated documentation in `README.md` and `WORKLOG.md`.
+
 ## 2026-11-23 - v013 Manual GitHub Update Button & Toolbar Version Badge
 
 - **Target:** Deliver manual GitHub update button requested by Vladimir:
