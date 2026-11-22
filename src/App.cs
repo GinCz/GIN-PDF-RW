@@ -13,13 +13,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-[assembly: AssemblyTitle("GIN-PDF-RW_v011")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v011")]
-[assembly: AssemblyDescription("GIN-PDF-RW_v011")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v012")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v012")]
+[assembly: AssemblyDescription("GIN-PDF-RW_v012")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.011.0.0")]
-[assembly: AssemblyVersion("0.011.0.0")]
+[assembly: AssemblyFileVersion("0.012.0.0")]
+[assembly: AssemblyVersion("0.012.0.0")]
 
 namespace GinPdfRw
 {
@@ -80,7 +80,7 @@ namespace GinPdfRw
             }
         }
 
-        public static byte[] RenderPage(string pdfPath, int pageIndex)
+        public static byte[] RenderPage(string pdfPath, int pageIndex, uint targetWidth = 0, uint targetHeight = 0)
         {
             try
             {
@@ -101,10 +101,30 @@ namespace GinPdfRw
                 object page = getPageMethod.Invoke(pdfDoc, new object[] { (uint)pageIndex });
 
                 object memStream = Activator.CreateInstance(memStreamType);
-
                 Type iRandomAccess = Type.GetType("Windows.Storage.Streams.IRandomAccessStream, Windows.Storage.Streams, ContentType=WindowsRuntime");
-                MethodInfo renderMethod = page.GetType().GetMethod("RenderToStreamAsync", new Type[] { iRandomAccess });
-                object asyncAction = renderMethod.Invoke(page, new object[] { memStream });
+
+                Type optionsType = Type.GetType("Windows.Data.Pdf.PdfPageRenderOptions, Windows.Data.Pdf, ContentType=WindowsRuntime");
+                object asyncAction = null;
+                if (optionsType != null && targetWidth > 0 && targetHeight > 0)
+                {
+                    object options = Activator.CreateInstance(optionsType);
+                    PropertyInfo destWProp = optionsType.GetProperty("DestinationWidth");
+                    PropertyInfo destHProp = optionsType.GetProperty("DestinationHeight");
+                    if (destWProp != null) destWProp.SetValue(options, targetWidth, null);
+                    if (destHProp != null) destHProp.SetValue(options, targetHeight, null);
+
+                    MethodInfo renderWithOptions = page.GetType().GetMethod("RenderToStreamAsync", new Type[] { iRandomAccess, optionsType });
+                    if (renderWithOptions != null)
+                    {
+                        asyncAction = renderWithOptions.Invoke(page, new object[] { memStream, options });
+                    }
+                }
+
+                if (asyncAction == null)
+                {
+                    MethodInfo renderMethod = page.GetType().GetMethod("RenderToStreamAsync", new Type[] { iRandomAccess });
+                    asyncAction = renderMethod.Invoke(page, new object[] { memStream });
+                }
                 AwaitAct(asyncAction);
 
                 PropertyInfo sizeProp = memStreamType.GetProperty("Size");
@@ -185,6 +205,9 @@ namespace GinPdfRw
 
         private double baseDocWidth = 794;
         private double baseDocHeight = 1123;
+        private double nativePageWidth = 794;
+        private double nativePageHeight = 1123;
+        private System.Windows.Threading.DispatcherTimer zoomRerenderTimer;
 
         // UI Controls
         private Grid rootGrid;
@@ -261,6 +284,13 @@ namespace GinPdfRw
                 RenderWelcomeSheet();
             }
 
+            zoomRerenderTimer = new System.Windows.Threading.DispatcherTimer();
+            zoomRerenderTimer.Interval = TimeSpan.FromMilliseconds(120);
+            zoomRerenderTimer.Tick += delegate {
+                zoomRerenderTimer.Stop();
+                RerenderAtCurrentZoom();
+            };
+
             Loaded += delegate {
                 DoFitPage();
             };
@@ -273,7 +303,7 @@ namespace GinPdfRw
         private void InitLocalization()
         {
             var en = new Dictionary<string, string>();
-            en.Add("Title", "GIN-PDF-RW v011 — Zen PDF Reader & Editor");
+            en.Add("Title", "GIN-PDF-RW v012 — Zen PDF Reader & Editor");
             en.Add("Open", "📂 Open (Ctrl+O)");
             en.Add("Save", "💾 Save (Ctrl+S)");
             en.Add("Print", "🖨️ Print (Ctrl+P)");
@@ -297,7 +327,7 @@ namespace GinPdfRw
             loc.Add("en", en);
 
             var ru = new Dictionary<string, string>();
-            ru.Add("Title", "GIN-PDF-RW v011 — Просмотр и редактор PDF");
+            ru.Add("Title", "GIN-PDF-RW v012 — Просмотр и редактор PDF");
             ru.Add("Open", "📂 Открыть (Ctrl+O)");
             ru.Add("Save", "💾 Сохранить (Ctrl+S)");
             ru.Add("Print", "🖨️ Печать (Ctrl+P)");
@@ -321,7 +351,7 @@ namespace GinPdfRw
             loc.Add("ru", ru);
 
             var uk = new Dictionary<string, string>();
-            uk.Add("Title", "GIN-PDF-RW v011 — Перегляд і редактор PDF");
+            uk.Add("Title", "GIN-PDF-RW v012 — Перегляд і редактор PDF");
             uk.Add("Open", "📂 Відкрити (Ctrl+O)");
             uk.Add("Save", "💾 Зберегти (Ctrl+S)");
             uk.Add("Print", "🖨️ Друк (Ctrl+P)");
@@ -345,7 +375,7 @@ namespace GinPdfRw
             loc.Add("uk", uk);
 
             var cs = new Dictionary<string, string>();
-            cs.Add("Title", "GIN-PDF-RW v011 — Prohlížeč a editor PDF");
+            cs.Add("Title", "GIN-PDF-RW v012 — Prohlížeč a editor PDF");
             cs.Add("Open", "📂 Otevřít (Ctrl+O)");
             cs.Add("Save", "💾 Uložit (Ctrl+S)");
             cs.Add("Print", "🖨️ Tisk (Ctrl+P)");
@@ -567,7 +597,7 @@ namespace GinPdfRw
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v011";
+            Title = "GIN-PDF-RW v012";
             Width = 1240;
             Height = 880;
             MinWidth = 800;
@@ -971,7 +1001,7 @@ namespace GinPdfRw
             sbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             statusText = new TextBlock { Text = "Ready", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
-            verText = new TextBlock { Text = "GIN-PDF-RW v011 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
+            verText = new TextBlock { Text = "GIN-PDF-RW v012 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
 
             Grid.SetColumn(statusText, 0);
             Grid.SetColumn(verText, 1);
@@ -1280,6 +1310,36 @@ namespace GinPdfRw
             zoom = Math.Max(0.2, Math.Min(5.0, zoom + delta));
             txtZoom.Text = string.Format("{0:P0}", zoom);
             ApplyZoomToPage();
+            if (zoomRerenderTimer != null)
+            {
+                zoomRerenderTimer.Stop();
+                zoomRerenderTimer.Start();
+            }
+        }
+
+        private void RerenderAtCurrentZoom()
+        {
+            if (string.IsNullOrEmpty(docPath) || !File.Exists(docPath) || nativePageWidth <= 0 || nativePageHeight <= 0) return;
+            try
+            {
+                uint targetW = (uint)Math.Max(100, Math.Min(8000, Math.Round(nativePageWidth * zoom)));
+                uint targetH = (uint)Math.Max(100, Math.Min(8000, Math.Round(nativePageHeight * zoom)));
+
+                byte[] bytes = NativePdfRenderer.RenderPage(docPath, currentPage - 1, targetW, targetH);
+                if (bytes != null && bytes.Length > 0)
+                {
+                    var ms = new MemoryStream(bytes);
+                    var bi = new BitmapImage();
+                    bi.BeginInit();
+                    bi.StreamSource = ms;
+                    bi.CacheOption = BitmapCacheOption.OnLoad;
+                    bi.EndInit();
+                    bi.Freeze();
+
+                    pdfView.Source = bi;
+                }
+            }
+            catch {}
         }
 
         private void SetMode(string mode)
@@ -1407,7 +1467,10 @@ namespace GinPdfRw
         {
             if (!string.IsNullOrEmpty(docPath) && File.Exists(docPath))
             {
-                byte[] bytes = NativePdfRenderer.RenderPage(docPath, currentPage - 1);
+                uint targetW = (nativePageWidth > 0 && !isFitMode) ? (uint)Math.Round(nativePageWidth * zoom) : 0;
+                uint targetH = (nativePageHeight > 0 && !isFitMode) ? (uint)Math.Round(nativePageHeight * zoom) : 0;
+
+                byte[] bytes = NativePdfRenderer.RenderPage(docPath, currentPage - 1, targetW, targetH);
                 if (bytes != null && bytes.Length > 0)
                 {
                     var ms = new MemoryStream(bytes);
@@ -1419,8 +1482,13 @@ namespace GinPdfRw
                     bi.Freeze();
 
                     pdfView.Source = bi;
-                    baseDocWidth = bi.PixelWidth;
-                    baseDocHeight = bi.PixelHeight;
+                    if (nativePageWidth <= 0 || nativePageHeight <= 0 || targetW == 0)
+                    {
+                        nativePageWidth = bi.PixelWidth;
+                        nativePageHeight = bi.PixelHeight;
+                        baseDocWidth = bi.PixelWidth;
+                        baseDocHeight = bi.PixelHeight;
+                    }
 
                     if (isFitMode) DoFitPage();
                     else ApplyZoomToPage();
@@ -1460,7 +1528,7 @@ namespace GinPdfRw
                     if (currentLang == "ru")
                     {
                         subTitle = "Быстрый просмотр и редактор PDF с открытым исходным кодом";
-                        secHeader = "Добро пожаловать в GIN-PDF-RW v011!";
+                        secHeader = "Добро пожаловать в GIN-PDF-RW v012!";
                         welcome = 
                             "Основные возможности программы:\n\n" +
                             "• Прокрутка колесом мыши: вертикальный скроллинг документа и перелистывание страниц\n" +
@@ -1479,7 +1547,7 @@ namespace GinPdfRw
                     else if (currentLang == "uk")
                     {
                         subTitle = "Швидкий перегляд та редактор PDF з відкритим кодом";
-                        secHeader = "Ласкаво просимо до GIN-PDF-RW v011!";
+                        secHeader = "Ласкаво просимо до GIN-PDF-RW v012!";
                         welcome = 
                             "Основні можливості програми:\n\n" +
                             "• Прокручування коліщатком миші: вертикальний скролінг документа та перегортання сторінок\n" +
@@ -1498,7 +1566,7 @@ namespace GinPdfRw
                     else if (currentLang == "cs")
                     {
                         subTitle = "Rychlý prohlížeč a editor PDF s otevřeným zdrojovým kódem";
-                        secHeader = "Vítejte v GIN-PDF-RW v011!";
+                        secHeader = "Vítejte v GIN-PDF-RW v012!";
                         welcome = 
                             "Hlavní funkce programu:\n\n" +
                             "• Rolování kolečkem myši: svislé posouvání dokumentu a přepínání stránek\n" +
@@ -1517,7 +1585,7 @@ namespace GinPdfRw
                     else
                     {
                         subTitle = "High-Performance Open Source PDF Reader & Editor";
-                        secHeader = "Welcome to GIN-PDF-RW v011!";
+                        secHeader = "Welcome to GIN-PDF-RW v012!";
                         welcome = 
                             "Key Application Features:\n\n" +
                             "• Mouse Wheel Scroll: Smooth vertical page scrolling and page navigation\n" +

@@ -1,5 +1,17 @@
 # Worklog - GIN-PDF-RW
 
+## 2026-11-23 - v012 Dynamic Hi-DPI Vector Re-Rendering on Zoom (Crystal-Clear Typography)
+
+- **Target:** Fix raster blurriness when zooming in (Ctrl + Mouse Wheel, + / - keys):
+  1. Dynamic Vector Re-Rendering: Replaced static 96 DPI raster scaling with dynamic hardware vector re-rendering via WinRT `PdfPageRenderOptions` (`DestinationWidth`, `DestinationHeight`).
+  2. Sub-pixel Sharpness: Fonts, text glyphs, and line art are dynamically re-rasterized at native display/zoom resolution without pixelation, identical to Adobe Acrobat and Foxit Reader.
+  3. Debounced Render Pipeline: 120ms `zoomRerenderTimer` prevents UI stuttering during fast wheel scrolling while keeping viewports responsive.
+- **Repository:** `https://github.com/GinCz/GIN-PDF-RW`
+- **Actions:**
+  - Updated `src/App.cs` with dynamic WinRT `PdfPageRenderOptions` resolution scaling and zoom debounce timer.
+  - Updated version metadata to `v012` (`0.012.0.0`) in `src/App.cs`, `src/Setup.cs`, `src/Uninstall.cs`, and `version.json`.
+  - Updated documentation in `README.md` and `WORKLOG.md`.
+
 ## 2026-11-19 - v011 Theme Persistence Across Restarts & High-Contrast Language Switcher
 
 - **Target:** Implement fixes requested by Vladimir:
