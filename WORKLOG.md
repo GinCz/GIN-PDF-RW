@@ -1,5 +1,17 @@
 # Worklog - GIN-PDF-RW
 
+## 2026-11-23 - v015 Native Standalone Setup.exe with Embedded Icon & All Features
+
+- **Target:** Deliver true standalone native `GIN-PDF-RW_v015_Setup.exe` with embedded brand icon requested by Vladimir:
+  1. Native Windows PE Executable (`GIN-PDF-RW_v015_Setup.exe`): Built with standard app icon (`app.ico`), version metadata (`0.015.0.0`), and self-extracting payload engine.
+  2. Instant Escape Close: Pressing `Escape` in reading mode immediately closes the application entirely.
+  3. 16pt Right-Click Context Menu: Instant document rotation (90°/180°), horizontal/vertical flipping, printing, and exit.
+  4. Dynamic Hi-DPI Vector Zoom: Real hardware re-rasterization via WinRT `PdfPageRenderOptions` eliminating any blurriness.
+- **Repository:** `https://github.com/GinCz/GIN-PDF-RW`
+- **Actions:**
+  - Compiled native `GIN-PDF-RW_v015_Setup.exe` using Windows Forms payload wrapper and `mcs`.
+  - Delivered installer to Vladimir's Desktop in MEGA (`/MEGA/DOCS/desktop/`) and Flash folder (`/MEGA/WIN-FLASH/Util-WINDOWS/Graphics/PDF/`).
+  - Published official GitHub Release `v015`.
 ## 2026-11-23 - v014 Instant Escape Exit, 16pt Context Menu & Ultra-Crisp Dynamic Zoom
 
 - **Target:** Deliver features requested by Vladimir:
