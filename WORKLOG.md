@@ -1,5 +1,12 @@
 # Worklog - GIN-PDF-RW
 
+## 2026-11-23 - v018 Precompiled installer, fixes for v015-v017 install errors
+
+- **Root cause:** v015-v017 installers compiled App.cs with csc.exe on the user's PC. I only validated syntax (`mcs --parse`), never a full compile against WPF, so semantic errors shipped: CS0006 (WPF refs, v015), CS1009 (regex escape, v016), CS0103 `pageGrid` local var used from SetupContextMenu + missing System.Security.dll for X509Certificate2UI (v017).
+- **Fix:** `pageGrid` promoted to a class field; added System.Security reference.
+- **New process:** App.cs is now fully compiled on the build server against .NET 4.8 reference assemblies (NuGet Microsoft.NETFramework.ReferenceAssemblies.net48) with `mcs`; the compiled GIN-PDF-RW.exe (with icon) is embedded in Setup.exe. No compiler is needed on the target PC.
+- Delivered to MEGA Desktop + Flash PDF folder, GitHub Release v018.
+
 ## 2026-11-23 - v017 Fix CS1009 String Escape in App.cs, Native Setup.exe & All Features
 
 - **Target:** Fix CS1009 compilation error reported by Vladimir during v016 installation and deliver complete v017 package:

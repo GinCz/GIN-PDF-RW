@@ -13,13 +13,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-[assembly: AssemblyTitle("GIN-PDF-RW_v017")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v017")]
-[assembly: AssemblyDescription("GIN-PDF-RW_v017")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v018")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v018")]
+[assembly: AssemblyDescription("GIN-PDF-RW_v018")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.017.0.0")]
-[assembly: AssemblyVersion("0.017.0.0")]
+[assembly: AssemblyFileVersion("0.018.0.0")]
+[assembly: AssemblyVersion("0.018.0.0")]
 
 namespace GinPdfRw
 {
@@ -246,6 +246,7 @@ namespace GinPdfRw
         private Border pageBorder;
         private System.Windows.Controls.Image pdfView;
         private Canvas overlayCanvas;
+        private Grid pageGrid;
         private Border statusBar;
         private TextBlock statusText;
         private TextBlock verText;
@@ -308,7 +309,7 @@ namespace GinPdfRw
         private void InitLocalization()
         {
             var en = new Dictionary<string, string>();
-            en.Add("Title", "GIN-PDF-RW v017 — Zen PDF Reader & Editor");
+            en.Add("Title", "GIN-PDF-RW v018 — Zen PDF Reader & Editor");
             en.Add("Open", "📂 Open (Ctrl+O)");
             en.Add("Save", "💾 Save (Ctrl+S)");
             en.Add("Print", "🖨️ Print (Ctrl+P)");
@@ -316,9 +317,9 @@ namespace GinPdfRw
             en.Add("ModeEditor", "✏️ Editor");
             en.Add("Fullscreen", "⛶ Fullscreen (F11)");
             en.Add("Restore", "⛶ Window (Esc)");
-            en.Add("UpdateBtn", "v017 (Update)");
+            en.Add("UpdateBtn", "v018 (Update)");
             en.Add("CheckingUpdate", "Checking GitHub...");
-            en.Add("UpdateUpToDate", "You are using the latest version (v017)!");
+            en.Add("UpdateUpToDate", "You are using the latest version (v018)!");
             en.Add("UpdateAvailable", "New version {0} available on GitHub! Open download page?");
             en.Add("UpdateTitle", "GIN-PDF-RW Update");
             en.Add("FitWidth", "Fit Page");
@@ -337,7 +338,7 @@ namespace GinPdfRw
             loc.Add("en", en);
 
             var ru = new Dictionary<string, string>();
-            ru.Add("Title", "GIN-PDF-RW v017 — Просмотр и редактор PDF");
+            ru.Add("Title", "GIN-PDF-RW v018 — Просмотр и редактор PDF");
             ru.Add("Open", "📂 Открыть (Ctrl+O)");
             ru.Add("Save", "💾 Сохранить (Ctrl+S)");
             ru.Add("Print", "🖨️ Печать (Ctrl+P)");
@@ -345,9 +346,9 @@ namespace GinPdfRw
             ru.Add("ModeEditor", "✏️ Редактировать");
             ru.Add("Fullscreen", "⛶ Во весь экран (F11)");
             ru.Add("Restore", "⛶ В окно (Esc)");
-            ru.Add("UpdateBtn", "v017 (обновить)");
+            ru.Add("UpdateBtn", "v018 (обновить)");
             ru.Add("CheckingUpdate", "Проверка GitHub...");
-            ru.Add("UpdateUpToDate", "У вас установлена самая актуальная версия (v017)!");
+            ru.Add("UpdateUpToDate", "У вас установлена самая актуальная версия (v018)!");
             ru.Add("UpdateAvailable", "Доступна новая версия {0} на GitHub! Открыть страницу загрузки?");
             ru.Add("UpdateTitle", "Обновление GIN-PDF-RW");
             ru.Add("FitWidth", "По размеру");
@@ -366,7 +367,7 @@ namespace GinPdfRw
             loc.Add("ru", ru);
 
             var uk = new Dictionary<string, string>();
-            uk.Add("Title", "GIN-PDF-RW v017 — Перегляд і редактор PDF");
+            uk.Add("Title", "GIN-PDF-RW v018 — Перегляд і редактор PDF");
             uk.Add("Open", "📂 Відкрити (Ctrl+O)");
             uk.Add("Save", "💾 Зберегти (Ctrl+S)");
             uk.Add("Print", "🖨️ Друк (Ctrl+P)");
@@ -374,9 +375,9 @@ namespace GinPdfRw
             uk.Add("ModeEditor", "✏️ Редагувати");
             uk.Add("Fullscreen", "⛶ На весь екран (F11)");
             uk.Add("Restore", "⛶ У вікно (Esc)");
-            uk.Add("UpdateBtn", "v017 (оновити)");
+            uk.Add("UpdateBtn", "v018 (оновити)");
             uk.Add("CheckingUpdate", "Перевірка GitHub...");
-            uk.Add("UpdateUpToDate", "У вас встановлена найновіша версія (v017)!");
+            uk.Add("UpdateUpToDate", "У вас встановлена найновіша версія (v018)!");
             uk.Add("UpdateAvailable", "Доступна нова версія {0} на GitHub! Відкрити сторінку завантаження?");
             uk.Add("UpdateTitle", "Оновлення GIN-PDF-RW");
             uk.Add("FitWidth", "За розміром");
@@ -395,7 +396,7 @@ namespace GinPdfRw
             loc.Add("uk", uk);
 
             var cs = new Dictionary<string, string>();
-            cs.Add("Title", "GIN-PDF-RW v017 — Prohlížeč a editor PDF");
+            cs.Add("Title", "GIN-PDF-RW v018 — Prohlížeč a editor PDF");
             cs.Add("Open", "📂 Otevřít (Ctrl+O)");
             cs.Add("Save", "💾 Uložit (Ctrl+S)");
             cs.Add("Print", "🖨️ Tisk (Ctrl+P)");
@@ -403,9 +404,9 @@ namespace GinPdfRw
             cs.Add("ModeEditor", "✏️ Upravit");
             cs.Add("Fullscreen", "⛶ Celá obrazovka (F11)");
             cs.Add("Restore", "⛶ Do okna (Esc)");
-            cs.Add("UpdateBtn", "v017 (aktualizovat)");
+            cs.Add("UpdateBtn", "v018 (aktualizovat)");
             cs.Add("CheckingUpdate", "Kontrola GitHubu...");
-            cs.Add("UpdateUpToDate", "Používáte nejnovější verzi (v017)!");
+            cs.Add("UpdateUpToDate", "Používáte nejnovější verzi (v018)!");
             cs.Add("UpdateAvailable", "Na GitHubu je k dispozici nová verze {0}! Otevřít stránku stahování?");
             cs.Add("UpdateTitle", "Aktualizace GIN-PDF-RW");
             cs.Add("FitWidth", "Na stránku");
@@ -622,7 +623,7 @@ namespace GinPdfRw
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v017";
+            Title = "GIN-PDF-RW v018";
             Width = 1240;
             Height = 880;
             MinWidth = 800;
@@ -853,7 +854,7 @@ namespace GinPdfRw
                 }
             };
 
-            btnUpdate = CreateBtn("v017 (обновить)", delegate { CheckForManualUpdate(); });
+            btnUpdate = CreateBtn("v018 (обновить)", delegate { CheckForManualUpdate(); });
             btnUpdate.Margin = new Thickness(6, 0, 0, 0);
             btnUpdate.FontWeight = FontWeights.SemiBold;
             btnUpdate.ToolTip = "GitHub Update Checker";
@@ -905,7 +906,7 @@ namespace GinPdfRw
                 Background = System.Windows.Media.Brushes.White,
                 CornerRadius = new CornerRadius(2)
             };
-            var pageGrid = new Grid();
+            pageGrid = new Grid();
 
             pdfView = new System.Windows.Controls.Image { Stretch = Stretch.Uniform };
             overlayCanvas = new Canvas { Background = System.Windows.Media.Brushes.Transparent, Cursor = System.Windows.Input.Cursors.Arrow };
@@ -1036,7 +1037,7 @@ namespace GinPdfRw
             sbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             statusText = new TextBlock { Text = "Ready", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
-            verText = new TextBlock { Text = "GIN-PDF-RW v017 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
+            verText = new TextBlock { Text = "GIN-PDF-RW v018 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
 
             Grid.SetColumn(statusText, 0);
             Grid.SetColumn(verText, 1);
@@ -1634,7 +1635,7 @@ namespace GinPdfRw
                     if (currentLang == "ru")
                     {
                         subTitle = "Быстрый просмотр и редактор PDF с открытым исходным кодом";
-                        secHeader = "Добро пожаловать в GIN-PDF-RW v017!";
+                        secHeader = "Добро пожаловать в GIN-PDF-RW v018!";
                         welcome = 
                             "Основные возможности программы:\n\n" +
                             "• Прокрутка колесом мыши: вертикальный скроллинг документа и перелистывание страниц\n" +
@@ -1653,7 +1654,7 @@ namespace GinPdfRw
                     else if (currentLang == "uk")
                     {
                         subTitle = "Швидкий перегляд та редактор PDF з відкритим кодом";
-                        secHeader = "Ласкаво просимо до GIN-PDF-RW v017!";
+                        secHeader = "Ласкаво просимо до GIN-PDF-RW v018!";
                         welcome = 
                             "Основні можливості програми:\n\n" +
                             "• Прокручування коліщатком миші: вертикальний скролінг документа та перегортання сторінок\n" +
@@ -1672,7 +1673,7 @@ namespace GinPdfRw
                     else if (currentLang == "cs")
                     {
                         subTitle = "Rychlý prohlížeč a editor PDF s otevřeným zdrojovým kódem";
-                        secHeader = "Vítejte v GIN-PDF-RW v017!";
+                        secHeader = "Vítejte v GIN-PDF-RW v018!";
                         welcome = 
                             "Hlavní funkce programu:\n\n" +
                             "• Rolování kolečkem myši: svislé posouvání dokumentu a přepínání stránek\n" +
@@ -1691,7 +1692,7 @@ namespace GinPdfRw
                     else
                     {
                         subTitle = "High-Performance Open Source PDF Reader & Editor";
-                        secHeader = "Welcome to GIN-PDF-RW v017!";
+                        secHeader = "Welcome to GIN-PDF-RW v018!";
                         welcome = 
                             "Key Application Features:\n\n" +
                             "• Mouse Wheel Scroll: Smooth vertical page scrolling and page navigation\n" +
@@ -1828,7 +1829,7 @@ namespace GinPdfRw
                         return;
                     }
 
-                    if (string.Equals(latestVer, "v017", StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(latestVer, "v018", StringComparison.OrdinalIgnoreCase))
                     {
                         MessageBox.Show(T("UpdateUpToDate"), T("UpdateTitle"), MessageBoxButton.OK, MessageBoxImage.Information);
                     }
