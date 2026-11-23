@@ -1,5 +1,13 @@
 # Worklog - GIN-PDF-RW
 
+## 2026-11-23 - v021 Edit existing text, insert/move/resize images
+
+- New **Edit Text** tool: PdfPig (bundled DLLs: PdfPig, Core, Fonts, Tokenization, Tokens + System.Memory/Buffers/Numerics.Vectors/Unsafe/ValueTuple/Bcl.HashCode) extracts word boxes; words are grouped into lines; clicking a line puts an opaque white TextBox over it. Extraction verified under mono on a sample PDF; WPF part compile-checked only.
+- Libraries ship in `libs.zip` (embedded resource of Setup.exe) and are unpacked next to GIN-PDF-RW.exe; `AssemblyResolve` loads them by simple name (no binding redirects needed).
+- **Images**: `ImageBox` (drag to move, corner thumb resizes with aspect ratio locked, Delete removes); implemented for Stamp/Image button (previous version was a stub).
+- Overlay now lives in a Viewbox with logical page units, so edits stay aligned when zooming; edits are kept per page and baked into every page on save.
+- Text typing keys (+, -, Enter, Delete) no longer trigger window hotkeys while a text box has focus; Esc in editor deselects tool.
+
 ## 2026-11-23 - v020 Undo/Redo, Save, Save As, Save & Exit, Cancel
 
 - Top toolbar: Open, Save, Save As, Print. Editor bar: Undo, Redo (Ctrl+Z / Ctrl+Y) plus Save & Exit and Cancel; localized EN/RU/UK/CS.

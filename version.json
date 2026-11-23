@@ -1,13 +1,13 @@
 {
   "name": "GIN-PDF-RW",
-  "current_version": "v020",
-  "release_name": "GIN-PDF-RW v020 - Undo/Redo, Save, Save As, Save & Exit, Cancel",
-  "version_number": "0.020.0.0",
+  "current_version": "v021",
+  "release_name": "GIN-PDF-RW v021 - Edit Existing Text, Insert Move Resize Images",
+  "version_number": "0.021.0.0",
   "release_date": "2026-11-23",
   "author": "Vladimir Bulantsev (@GinCz)",
   "copyright": "VladiMIR+AI",
   "license": "MIT",
   "encoding": "UTF-8",
-  "download_url": "https://github.com/GinCz/GIN-PDF-RW/releases/download/v020/GIN-PDF-RW_v020_Setup.exe",
+  "download_url": "https://github.com/GinCz/GIN-PDF-RW/releases/download/v021/GIN-PDF-RW_v021_Setup.exe",
   "repository": "https://github.com/GinCz/GIN-PDF-RW"
 }

@@ -13,13 +13,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-[assembly: AssemblyTitle("GIN-PDF-RW_v020")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v020")]
-[assembly: AssemblyDescription("GIN-PDF-RW_v020")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v021")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v021")]
+[assembly: AssemblyDescription("GIN-PDF-RW_v021")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.020.0.0")]
-[assembly: AssemblyVersion("0.020.0.0")]
+[assembly: AssemblyFileVersion("0.021.0.0")]
+[assembly: AssemblyVersion("0.021.0.0")]
 
 namespace GinPdfRw
 {
@@ -28,6 +28,14 @@ namespace GinPdfRw
         [STAThread]
         public static void Main(string[] args)
         {
+            AppDomain.CurrentDomain.AssemblyResolve += delegate(object sender, ResolveEventArgs ea) {
+                try {
+                    string n = new AssemblyName(ea.Name).Name;
+                    string f = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, n + ".dll");
+                    if (File.Exists(f)) return Assembly.LoadFrom(f);
+                } catch {}
+                return null;
+            };
             var app = new Application();
             string initialFile = null;
             string explicitLang = null;
@@ -225,6 +233,11 @@ namespace GinPdfRw
         private Button btnSaveExit;
         private Button btnCancel;
         private List<UIElement> redoStack = new List<UIElement>();
+        private Dictionary<int, List<UIElement>> pageEdits = new Dictionary<int, List<UIElement>>();
+        private Dictionary<int, PdfPageText> textCache = new Dictionary<int, PdfPageText>();
+        private Viewbox overlayHost;
+        private Button toolEdit;
+        private bool textEngineWarned = false;
         private Button btnPrint;
         private Button btnModeReader;
         private Button btnModeEditor;
@@ -315,7 +328,7 @@ namespace GinPdfRw
         private void InitLocalization()
         {
             var en = new Dictionary<string, string>();
-            en.Add("Title", "GIN-PDF-RW v020 — Zen PDF Reader & Editor");
+            en.Add("Title", "GIN-PDF-RW v021 — Zen PDF Reader & Editor");
             en.Add("Open", "📂 Open (Ctrl+O)");
             en.Add("Save", "💾 Save (Ctrl+S)");
             en.Add("Print", "🖨️ Print (Ctrl+P)");
@@ -323,9 +336,9 @@ namespace GinPdfRw
             en.Add("ModeEditor", "✏️ Editor");
             en.Add("Fullscreen", "⛶ Fullscreen (F11)");
             en.Add("Restore", "⛶ Window (Esc)");
-            en.Add("UpdateBtn", "v020 (Update)");
+            en.Add("UpdateBtn", "v021 (Update)");
             en.Add("CheckingUpdate", "Checking GitHub...");
-            en.Add("UpdateUpToDate", "You are using the latest version (v020)!");
+            en.Add("UpdateUpToDate", "You are using the latest version (v021)!");
             en.Add("UpdateAvailable", "New version {0} available on GitHub! Open download page?");
             en.Add("UpdateTitle", "GIN-PDF-RW Update");
             en.Add("FitWidth", "Fit Page");
@@ -354,10 +367,13 @@ namespace GinPdfRw
             en.Add("Redo", "↪ Redo (Ctrl+Y)");
             en.Add("SaveExit", "✔ Save & Exit");
             en.Add("Cancel", "✖ Cancel");
+            en.Add("ToolEdit", "✏ Edit Text");
+            en.Add("ClickToEdit", "Click on existing text to edit it.");
+            en.Add("NoTextHere", "No text found here (scanned page?).");
             loc.Add("en", en);
 
             var ru = new Dictionary<string, string>();
-            ru.Add("Title", "GIN-PDF-RW v020 — Просмотр и редактор PDF");
+            ru.Add("Title", "GIN-PDF-RW v021 — Просмотр и редактор PDF");
             ru.Add("Open", "📂 Открыть (Ctrl+O)");
             ru.Add("Save", "💾 Сохранить (Ctrl+S)");
             ru.Add("Print", "🖨️ Печать (Ctrl+P)");
@@ -365,9 +381,9 @@ namespace GinPdfRw
             ru.Add("ModeEditor", "✏️ Редактировать");
             ru.Add("Fullscreen", "⛶ Во весь экран (F11)");
             ru.Add("Restore", "⛶ В окно (Esc)");
-            ru.Add("UpdateBtn", "v020 (обновить)");
+            ru.Add("UpdateBtn", "v021 (обновить)");
             ru.Add("CheckingUpdate", "Проверка GitHub...");
-            ru.Add("UpdateUpToDate", "У вас установлена самая актуальная версия (v020)!");
+            ru.Add("UpdateUpToDate", "У вас установлена самая актуальная версия (v021)!");
             ru.Add("UpdateAvailable", "Доступна новая версия {0} на GitHub! Открыть страницу загрузки?");
             ru.Add("UpdateTitle", "Обновление GIN-PDF-RW");
             ru.Add("FitWidth", "По размеру");
@@ -396,10 +412,13 @@ namespace GinPdfRw
             ru.Add("Redo", "↪ Вперёд (Ctrl+Y)");
             ru.Add("SaveExit", "✔ Сохранить и выйти");
             ru.Add("Cancel", "✖ Отмена");
+            ru.Add("ToolEdit", "✏ Править текст");
+            ru.Add("ClickToEdit", "Кликните по тексту документа, чтобы его изменить.");
+            ru.Add("NoTextHere", "Здесь нет текста (скан?).");
             loc.Add("ru", ru);
 
             var uk = new Dictionary<string, string>();
-            uk.Add("Title", "GIN-PDF-RW v020 — Перегляд і редактор PDF");
+            uk.Add("Title", "GIN-PDF-RW v021 — Перегляд і редактор PDF");
             uk.Add("Open", "📂 Відкрити (Ctrl+O)");
             uk.Add("Save", "💾 Зберегти (Ctrl+S)");
             uk.Add("Print", "🖨️ Друк (Ctrl+P)");
@@ -407,9 +426,9 @@ namespace GinPdfRw
             uk.Add("ModeEditor", "✏️ Редагувати");
             uk.Add("Fullscreen", "⛶ На весь екран (F11)");
             uk.Add("Restore", "⛶ У вікно (Esc)");
-            uk.Add("UpdateBtn", "v020 (оновити)");
+            uk.Add("UpdateBtn", "v021 (оновити)");
             uk.Add("CheckingUpdate", "Перевірка GitHub...");
-            uk.Add("UpdateUpToDate", "У вас встановлена найновіша версія (v020)!");
+            uk.Add("UpdateUpToDate", "У вас встановлена найновіша версія (v021)!");
             uk.Add("UpdateAvailable", "Доступна нова версія {0} на GitHub! Відкрити сторінку завантаження?");
             uk.Add("UpdateTitle", "Оновлення GIN-PDF-RW");
             uk.Add("FitWidth", "За розміром");
@@ -438,10 +457,13 @@ namespace GinPdfRw
             uk.Add("Redo", "↪ Вперед (Ctrl+Y)");
             uk.Add("SaveExit", "✔ Зберегти і вийти");
             uk.Add("Cancel", "✖ Скасувати");
+            uk.Add("ToolEdit", "✏ Редагувати текст");
+            uk.Add("ClickToEdit", "Клікніть по тексту документа, щоб його змінити.");
+            uk.Add("NoTextHere", "Тут немає тексту (скан?).");
             loc.Add("uk", uk);
 
             var cs = new Dictionary<string, string>();
-            cs.Add("Title", "GIN-PDF-RW v020 — Prohlížeč a editor PDF");
+            cs.Add("Title", "GIN-PDF-RW v021 — Prohlížeč a editor PDF");
             cs.Add("Open", "📂 Otevřít (Ctrl+O)");
             cs.Add("Save", "💾 Uložit (Ctrl+S)");
             cs.Add("Print", "🖨️ Tisk (Ctrl+P)");
@@ -449,9 +471,9 @@ namespace GinPdfRw
             cs.Add("ModeEditor", "✏️ Upravit");
             cs.Add("Fullscreen", "⛶ Celá obrazovka (F11)");
             cs.Add("Restore", "⛶ Do okna (Esc)");
-            cs.Add("UpdateBtn", "v020 (aktualizovat)");
+            cs.Add("UpdateBtn", "v021 (aktualizovat)");
             cs.Add("CheckingUpdate", "Kontrola GitHubu...");
-            cs.Add("UpdateUpToDate", "Používáte nejnovější verzi (v020)!");
+            cs.Add("UpdateUpToDate", "Používáte nejnovější verzi (v021)!");
             cs.Add("UpdateAvailable", "Na GitHubu je k dispozici nová verze {0}! Otevřít stránku stahování?");
             cs.Add("UpdateTitle", "Aktualizace GIN-PDF-RW");
             cs.Add("FitWidth", "Na stránku");
@@ -480,6 +502,9 @@ namespace GinPdfRw
             cs.Add("Redo", "↪ Vpřed (Ctrl+Y)");
             cs.Add("SaveExit", "✔ Uložit a ukončit");
             cs.Add("Cancel", "✖ Zrušit");
+            cs.Add("ToolEdit", "✏ Upravit text");
+            cs.Add("ClickToEdit", "Klikněte na existující text a upravte jej.");
+            cs.Add("NoTextHere", "Zde není žádný text (sken?).");
             loc.Add("cs", cs);
         }
 
@@ -681,7 +706,7 @@ namespace GinPdfRw
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v020";
+            Title = "GIN-PDF-RW v021";
             Width = 1240;
             Height = 880;
             MinWidth = 800;
@@ -914,7 +939,7 @@ namespace GinPdfRw
                 }
             };
 
-            btnUpdate = CreateBtn("v020 (обновить)", delegate { CheckForManualUpdate(); });
+            btnUpdate = CreateBtn("v021 (обновить)", delegate { CheckForManualUpdate(); });
             btnUpdate.Margin = new Thickness(6, 0, 0, 0);
             btnUpdate.FontWeight = FontWeights.SemiBold;
             btnUpdate.ToolTip = "GitHub Update Checker";
@@ -938,6 +963,7 @@ namespace GinPdfRw
 
             var ebStack = new StackPanel { Orientation = Orientation.Horizontal };
             toolText = CreateBtn("🔤 Add Text", delegate { SelectTool("Text"); });
+            toolEdit = CreateBtn("✏ Edit Text", delegate { SelectTool("EditText"); });
             toolCheck = CreateBtn("☑ Checkmark (✓)", delegate { SelectTool("Checkmark"); });
             toolImage = CreateBtn("🖼 Stamp / Image", delegate { InsertImageDialog(); });
             toolSign = CreateBtn("✍ Draw Sign", delegate { DrawSignDialog(); });
@@ -952,6 +978,7 @@ namespace GinPdfRw
             ebStack.Children.Add(btnUndo);
             ebStack.Children.Add(btnRedo);
             ebStack.Children.Add(CreateSep());
+            ebStack.Children.Add(toolEdit);
             ebStack.Children.Add(toolText);
             ebStack.Children.Add(toolCheck);
             ebStack.Children.Add(toolImage);
@@ -983,12 +1010,15 @@ namespace GinPdfRw
 
             overlayCanvas.MouseDown += delegate(object s, MouseButtonEventArgs e) {
                 var pos = e.GetPosition(overlayCanvas);
+                ImageBox.DeselectAll();
                 if (activeTool == "Checkmark") {
-                    AddInteractiveField("Check", pos.X / zoom, pos.Y / zoom, 20, 20, "CheckBox", "", true);
-                    statusText.Text = string.Format("Checkmark placed at ({0:F0}, {1:F0})", pos.X, pos.Y);
+                    AddInteractiveField("Check", pos.X, pos.Y, 20, 20, "CheckBox", "", true);
+                    redoStack.Clear();
                 } else if (activeTool == "Text") {
-                    AddInteractiveField("Text", pos.X / zoom, pos.Y / zoom, 180, 24, "Text", "Sample Text", false);
-                    statusText.Text = string.Format("Text field placed at ({0:F0}, {1:F0})", pos.X, pos.Y);
+                    AddInteractiveField("Text", pos.X, pos.Y, 180, 24, "Text", "Sample Text", false);
+                    redoStack.Clear();
+                } else if (activeTool == "EditText") {
+                    EditTextAt(pos);
                 }
             };
 
@@ -998,7 +1028,8 @@ namespace GinPdfRw
                     if (!IsChildOfScrollBar(e.OriginalSource as DependencyObject) &&
                         !(e.OriginalSource is TextBox) &&
                         !(e.OriginalSource is Button) &&
-                        !(e.OriginalSource is CheckBox)) {
+                        !(e.OriginalSource is CheckBox) &&
+                        !ImageBox.IsInside(e.OriginalSource as DependencyObject)) {
                         isDragging = true;
                         dragStartMousePoint = e.GetPosition(docScroll);
                         dragStartHorizontalOffset = docScroll.HorizontalOffset;
@@ -1086,7 +1117,10 @@ namespace GinPdfRw
             };
 
             pageGrid.Children.Add(pdfView);
-            pageGrid.Children.Add(overlayCanvas);
+            overlayHost = new Viewbox { Stretch = Stretch.Fill, Child = overlayCanvas };
+            overlayCanvas.Width = baseDocWidth;
+            overlayCanvas.Height = baseDocHeight;
+            pageGrid.Children.Add(overlayHost);
             pageBorder.Child = pageGrid;
             ApplyPageTransforms();
 
@@ -1107,7 +1141,7 @@ namespace GinPdfRw
             sbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             statusText = new TextBlock { Text = "Ready", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
-            verText = new TextBlock { Text = "GIN-PDF-RW v020 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
+            verText = new TextBlock { Text = "GIN-PDF-RW v021 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
 
             Grid.SetColumn(statusText, 0);
             Grid.SetColumn(verText, 1);
@@ -1121,6 +1155,25 @@ namespace GinPdfRw
 
             // Hotkeys & Navigation
             KeyDown += delegate(object s, KeyEventArgs e) {
+                bool inText = (e.OriginalSource is TextBox) || (Keyboard.FocusedElement is TextBox);
+                if (inText) {
+                    bool ctl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+                    if (!ctl) return;
+                    if (e.Key == Key.Z || e.Key == Key.Y || e.Key == Key.A || e.Key == Key.C || e.Key == Key.V || e.Key == Key.X) return;
+                }
+                if (e.Key == Key.Delete && ImageBox.Current != null) {
+                    UIElement del = ImageBox.Current;
+                    ImageBox.DeselectAll();
+                    if (overlayCanvas.Children.Contains(del)) { overlayCanvas.Children.Remove(del); redoStack.Add(del); }
+                    e.Handled = true;
+                    return;
+                }
+                if (e.Key == Key.Escape && currentMode == "Editor") {
+                    if (activeTool != "None") SelectTool(activeTool);
+                    ImageBox.DeselectAll();
+                    e.Handled = true;
+                    return;
+                }
                 // PageUp / PageDown switches to previous/next file in folder
                 if (e.Key == Key.PageUp) {
                     OpenPreviousFile();
@@ -1255,7 +1308,7 @@ namespace GinPdfRw
             txtZoom.Foreground = new SolidColorBrush(fgSub);
 
             // Style all standard buttons
-            Button[] btns = new Button[] { btnOpen, btnSave, btnSaveAs, btnUndo, btnRedo, btnSaveExit, btnCancel, btnPrint, btnPrev, btnNext, btnZoomOut, btnZoomIn, btnFit, btnFullscreen, btnThemeDay, btnThemeCloud, btnThemeNight, toolText, toolCheck, toolImage, toolSign, btnUpdate };
+            Button[] btns = new Button[] { btnOpen, btnSave, btnSaveAs, toolEdit, btnUndo, btnRedo, btnSaveExit, btnCancel, btnPrint, btnPrev, btnNext, btnZoomOut, btnZoomIn, btnFit, btnFullscreen, btnThemeDay, btnThemeCloud, btnThemeNight, toolText, toolCheck, toolImage, toolSign, btnUpdate };
             foreach (var b in btns) {
                 if (b != null) {
                     b.Background = new SolidColorBrush(bgBtn);
@@ -1401,6 +1454,8 @@ namespace GinPdfRw
         {
             pageBorder.Width = baseDocWidth * zoom;
             pageBorder.Height = baseDocHeight * zoom;
+            if (overlayCanvas != null) { overlayCanvas.Width = baseDocWidth; overlayCanvas.Height = baseDocHeight; }
+            if (overlayCanvas != null) foreach (UIElement ue in overlayCanvas.Children) { ImageBox ib = ue as ImageBox; if (ib != null) ib.UpdateHandle(zoom); }
             if (docScroll != null && container != null)
             {
                 double availW = docScroll.ViewportWidth > 0 ? docScroll.ViewportWidth : docScroll.ActualWidth;
@@ -1557,35 +1612,23 @@ namespace GinPdfRw
 
         private void SelectTool(string tool)
         {
-            if (activeTool == tool)
+            activeTool = (activeTool == tool) ? "None" : tool;
+            if (overlayCanvas != null)
+                overlayCanvas.Cursor = activeTool == "None" ? Cursors.Arrow : (activeTool == "EditText" ? Cursors.IBeam : Cursors.Cross);
+            bool day = currentTheme == "Day";
+            System.Windows.Media.Brush offBg = new SolidColorBrush(day ? System.Windows.Media.Color.FromRgb(230, 234, 242) : System.Windows.Media.Color.FromRgb(49, 50, 68));
+            System.Windows.Media.Brush offFg = new SolidColorBrush(day ? System.Windows.Media.Color.FromRgb(24, 24, 37) : System.Windows.Media.Color.FromRgb(205, 214, 244));
+            System.Windows.Media.Brush onBg = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250));
+            System.Windows.Media.Brush onFg = new SolidColorBrush(System.Windows.Media.Color.FromRgb(17, 17, 27));
+            Button[] tools = new Button[] { toolEdit, toolText, toolCheck };
+            string[] names = new string[] { "EditText", "Text", "Checkmark" };
+            for (int i = 0; i < tools.Length; i++)
             {
-                activeTool = "None";
-                if (overlayCanvas != null) overlayCanvas.Cursor = Cursors.Arrow;
-                toolText.Background = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(230, 234, 242)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
-                toolCheck.Background = toolText.Background;
-                txtToolTip.Text = "";
+                bool on = activeTool == names[i];
+                tools[i].Background = on ? onBg : offBg;
+                tools[i].Foreground = on ? onFg : offFg;
             }
-            else
-            {
-                activeTool = tool;
-                if (overlayCanvas != null) overlayCanvas.Cursor = Cursors.Cross;
-                if (tool == "Text")
-                {
-                    toolText.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250));
-                    toolText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(17, 17, 27));
-                    toolCheck.Background = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(230, 234, 242)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
-                    toolCheck.Foreground = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(24, 24, 37)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244));
-                    txtToolTip.Text = T("ClickToPlace");
-                }
-                else if (tool == "Checkmark")
-                {
-                    toolCheck.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(137, 180, 250));
-                    toolCheck.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(17, 17, 27));
-                    toolText.Background = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(230, 234, 242)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(49, 50, 68));
-                    toolText.Foreground = (currentTheme == "Day") ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(24, 24, 37)) : new SolidColorBrush(System.Windows.Media.Color.FromRgb(205, 214, 244));
-                    txtToolTip.Text = T("ClickToPlace");
-                }
-            }
+            txtToolTip.Text = activeTool == "None" ? "" : (activeTool == "EditText" ? T("ClickToEdit") : T("ClickToPlace"));
         }
 
         private Button CreateTabBtn(string label, bool isActive)
@@ -1632,6 +1675,7 @@ namespace GinPdfRw
             if (docScroll != null) SetupContextMenu();
             btnModeReader.Content = T("ModeReader");
             btnModeEditor.Content = T("ModeEditor");
+            toolEdit.Content = T("ToolEdit");
             toolText.Content = T("ToolText");
             toolCheck.Content = T("ToolCheck");
             toolImage.Content = T("ToolImage");
@@ -1713,7 +1757,7 @@ namespace GinPdfRw
                     if (currentLang == "ru")
                     {
                         subTitle = "Быстрый просмотр и редактор PDF с открытым исходным кодом";
-                        secHeader = "Добро пожаловать в GIN-PDF-RW v020!";
+                        secHeader = "Добро пожаловать в GIN-PDF-RW v021!";
                         welcome = 
                             "Основные возможности программы:\n\n" +
                             "• Прокрутка колесом мыши: вертикальный скроллинг документа и перелистывание страниц\n" +
@@ -1732,7 +1776,7 @@ namespace GinPdfRw
                     else if (currentLang == "uk")
                     {
                         subTitle = "Швидкий перегляд та редактор PDF з відкритим кодом";
-                        secHeader = "Ласкаво просимо до GIN-PDF-RW v020!";
+                        secHeader = "Ласкаво просимо до GIN-PDF-RW v021!";
                         welcome = 
                             "Основні можливості програми:\n\n" +
                             "• Прокручування коліщатком миші: вертикальний скролінг документа та перегортання сторінок\n" +
@@ -1751,7 +1795,7 @@ namespace GinPdfRw
                     else if (currentLang == "cs")
                     {
                         subTitle = "Rychlý prohlížeč a editor PDF s otevřeným zdrojovým kódem";
-                        secHeader = "Vítejte v GIN-PDF-RW v020!";
+                        secHeader = "Vítejte v GIN-PDF-RW v021!";
                         welcome = 
                             "Hlavní funkce programu:\n\n" +
                             "• Rolování kolečkem myši: svislé posouvání dokumentu a přepínání stránek\n" +
@@ -1770,7 +1814,7 @@ namespace GinPdfRw
                     else
                     {
                         subTitle = "High-Performance Open Source PDF Reader & Editor";
-                        secHeader = "Welcome to GIN-PDF-RW v020!";
+                        secHeader = "Welcome to GIN-PDF-RW v021!";
                         welcome = 
                             "Key Application Features:\n\n" +
                             "• Mouse Wheel Scroll: Smooth vertical page scrolling and page navigation\n" +
@@ -1822,8 +1866,8 @@ namespace GinPdfRw
             if (type == "CheckBox")
             {
                 var cb = new CheckBox {
-                    Width = w * zoom,
-                    Height = h * zoom,
+                    Width = w,
+                    Height = h,
                     IsChecked = isChecked,
                     Cursor = System.Windows.Input.Cursors.Hand,
                     BorderBrush = System.Windows.Media.Brushes.Black,
@@ -1832,25 +1876,25 @@ namespace GinPdfRw
                 cb.Click += delegate {
                     statusText.Text = string.Format("Checkbox '{0}' toggled: {1}", name, cb.IsChecked);
                 };
-                Canvas.SetLeft(cb, x * zoom);
-                Canvas.SetTop(cb, y * zoom);
+                Canvas.SetLeft(cb, x);
+                Canvas.SetTop(cb, y);
                 overlayCanvas.Children.Add(cb);
             }
             else if (type == "Text")
             {
                 var tb = new TextBox {
-                    Width = w * zoom,
-                    Height = h * zoom,
+                    Width = w,
+                    Height = h,
                     Text = val,
-                    FontSize = Math.Max(10, 12 * zoom),
+                    FontSize = 12,
                     Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(40, 0, 120, 215)),
                     BorderBrush = System.Windows.Media.Brushes.Transparent,
                     Padding = new Thickness(2)
                 };
                 tb.GotFocus += delegate { tb.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(100, 255, 255, 180)); };
                 tb.LostFocus += delegate { tb.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(40, 0, 120, 215)); };
-                Canvas.SetLeft(tb, x * zoom);
-                Canvas.SetTop(tb, y * zoom);
+                Canvas.SetLeft(tb, x);
+                Canvas.SetTop(tb, y);
                 overlayCanvas.Children.Add(tb);
             }
         }
@@ -1907,7 +1951,7 @@ namespace GinPdfRw
                         return;
                     }
 
-                    if (string.Equals(latestVer, "v020", StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(latestVer, "v021", StringComparison.OrdinalIgnoreCase))
                     {
                         MessageBox.Show(T("UpdateUpToDate"), T("UpdateTitle"), MessageBoxButton.OK, MessageBoxImage.Information);
                     }
@@ -1945,9 +1989,92 @@ namespace GinPdfRw
             Title = fileName + " — " + T("Title");
             txtPage.Text = T("PageOf", currentPage, totalPages);
             overlayCanvas.Children.Clear();
+            pageEdits.Clear();
+            textCache.Clear();
+            redoStack.Clear();
             isFitMode = true; // Automatically fit page completely in screen!
             hasSwitchedToWindowMode = false;
             RefreshView();
+        }
+
+        private bool HasAnyEdits()
+        {
+            return overlayCanvas.Children.Count > 0 || pageEdits.Count > 0;
+        }
+
+        private void StashEdits(int page)
+        {
+            var l = new List<UIElement>();
+            foreach (UIElement ue in overlayCanvas.Children) l.Add(ue);
+            if (l.Count > 0) pageEdits[page] = l; else pageEdits.Remove(page);
+            overlayCanvas.Children.Clear();
+        }
+
+        private void RestoreEdits(int page)
+        {
+            overlayCanvas.Children.Clear();
+            List<UIElement> l;
+            if (pageEdits.TryGetValue(page, out l))
+            {
+                foreach (UIElement ue in l) overlayCanvas.Children.Add(ue);
+                pageEdits.Remove(page);
+            }
+            redoStack.Clear();
+        }
+
+        private PdfPageText GetPageText(int pageIndex)
+        {
+            PdfPageText t;
+            if (textCache.TryGetValue(pageIndex, out t)) return t;
+            try { t = TextExtract.Extract(docPath, pageIndex); }
+            catch (Exception ex)
+            {
+                if (!textEngineWarned) { textEngineWarned = true; MessageBox.Show("Text engine error: " + ex.Message, "GIN-PDF-RW", MessageBoxButton.OK, MessageBoxImage.Warning); }
+                return null;
+            }
+            textCache[pageIndex] = t;
+            return t;
+        }
+
+        private void EditTextAt(System.Windows.Point pos)
+        {
+            if (string.IsNullOrEmpty(docPath) || !File.Exists(docPath)) return;
+            PdfPageText pt = GetPageText(currentPage - 1);
+            if (pt == null || pt.PageWidth <= 0 || pt.PageHeight <= 0) return;
+            double sx = baseDocWidth / pt.PageWidth, sy = baseDocHeight / pt.PageHeight;
+            PdfTextLine hit = null;
+            foreach (PdfTextLine ln in pt.Lines)
+            {
+                double padV = ln.H * 0.35 + 2;
+                if (pos.X >= ln.X * sx - 3 && pos.X <= (ln.X + ln.W) * sx + 3 &&
+                    pos.Y >= (ln.Y - padV) * sy && pos.Y <= (ln.Y + ln.H + padV) * sy) { hit = ln; break; }
+            }
+            if (hit == null) { statusText.Text = T("NoTextHere"); return; }
+            double pad = Math.Max(1.5, hit.H * 0.30);
+            var tb = new TextBox {
+                Text = hit.Text,
+                FontFamily = new System.Windows.Media.FontFamily("Arial"),
+                FontSize = Math.Max(6, hit.FontPt * sx),
+                Foreground = System.Windows.Media.Brushes.Black,
+                Background = System.Windows.Media.Brushes.White,
+                BorderBrush = System.Windows.Media.Brushes.Transparent,
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(0),
+                VerticalContentAlignment = VerticalAlignment.Center,
+                MinWidth = hit.W * sx + 6,
+                Height = (hit.H + pad * 2) * sy,
+                AcceptsReturn = false
+            };
+            tb.GotFocus += delegate { tb.BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 120, 215)); };
+            tb.LostFocus += delegate { tb.BorderBrush = System.Windows.Media.Brushes.Transparent; };
+            Canvas.SetLeft(tb, hit.X * sx - 1);
+            Canvas.SetTop(tb, (hit.Y - pad) * sy);
+            overlayCanvas.Children.Add(tb);
+            redoStack.Clear();
+            tb.UpdateLayout();
+            tb.Focus();
+            Keyboard.Focus(tb);
+            tb.CaretIndex = tb.Text.Length;
         }
 
         private void UndoEdit()
@@ -1971,6 +2098,7 @@ namespace GinPdfRw
         private void CancelEditing()
         {
             overlayCanvas.Children.Clear();
+            pageEdits.Clear();
             redoStack.Clear();
             SetMode("Reader");
         }
@@ -1999,7 +2127,7 @@ namespace GinPdfRw
             {
                 string src = System.IO.Path.GetFullPath(docPath);
                 string dst = System.IO.Path.GetFullPath(path);
-                if (overlayCanvas.Children.Count == 0)
+                if (!HasAnyEdits())
                 {
                     if (!string.Equals(src, dst, StringComparison.OrdinalIgnoreCase)) File.Copy(src, dst, true);
                 }
@@ -2025,6 +2153,16 @@ namespace GinPdfRw
         // Renders every page (edits baked into the current page) and writes a PDF made of JPEG page images.
         private byte[] BuildFlattenedPdf()
         {
+            ImageBox.DeselectAll();
+            Keyboard.ClearFocus();
+            int savedPage = currentPage;
+            StashEdits(savedPage);
+            try { return BuildFlattenedPdfCore(); }
+            finally { RestoreEdits(savedPage); ApplyZoomToPage(); }
+        }
+
+        private byte[] BuildFlattenedPdfCore()
+        {
             var jpgs = new List<byte[]>();
             var wh = new List<int[]>();
             for (int p = 0; p < totalPages; p++)
@@ -2045,8 +2183,11 @@ namespace GinPdfRw
                     {
                         g.Clear(System.Drawing.Color.White);
                         g.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
-                        if (p == currentPage - 1 && overlayCanvas.Children.Count > 0 && overlayCanvas.ActualWidth > 0)
+                        RestoreEdits(p + 1);
+                        if (overlayCanvas.Children.Count > 0)
                         {
+                            overlayCanvas.Width = pw; overlayCanvas.Height = ph;
+                            overlayHost.UpdateLayout();
                             var dv = new DrawingVisual();
                             using (var dc = dv.RenderOpen())
                             {
@@ -2063,6 +2204,7 @@ namespace GinPdfRw
                                 using (var ob = new System.Drawing.Bitmap(oms)) g.DrawImage(ob, 0, 0, bmp.Width, bmp.Height);
                             }
                         }
+                        StashEdits(p + 1);
                     }
                     var codec = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders();
                     System.Drawing.Imaging.ImageCodecInfo jpg = null;
@@ -2143,14 +2285,36 @@ namespace GinPdfRw
 
         private void InsertImageDialog()
         {
+            if (string.IsNullOrEmpty(docPath)) return;
             var ofd = new System.Windows.Forms.OpenFileDialog {
-                Filter = "Images (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp",
+                Filter = "Images (*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.bmp;*.gif",
                 Title = "Insert Stamp or Image"
             };
-            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            if (ofd.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
+            try
             {
-                statusText.Text = "Image selected: " + System.IO.Path.GetFileName(ofd.FileName);
-                MessageBox.Show("Image selected! Click anywhere on document to place stamp.", "GIN-PDF-RW", MessageBoxButton.OK, MessageBoxImage.Information);
+                var bi = new BitmapImage();
+                bi.BeginInit();
+                bi.UriSource = new Uri(ofd.FileName);
+                bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.EndInit();
+                bi.Freeze();
+                double w = Math.Min(bi.Width, baseDocWidth * 0.4);
+                var box = new ImageBox(bi, w);
+                double scale = baseDocWidth > 0 && pageBorder.Width > 0 ? pageBorder.Width / baseDocWidth : 1;
+                double x = Math.Max(0, docScroll.HorizontalOffset / scale) + 40;
+                double y = Math.Max(0, docScroll.VerticalOffset / scale) + 40;
+                Canvas.SetLeft(box, x);
+                Canvas.SetTop(box, y);
+                overlayCanvas.Children.Add(box);
+                redoStack.Clear();
+                box.UpdateHandle(zoom);
+                box.Select();
+                statusText.Text = "Image placed: drag to move, drag the corner handle to resize (aspect kept), Delete to remove.";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Image Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -2162,7 +2326,9 @@ namespace GinPdfRw
         private void PrevPage()
         {
             if (currentPage > 1) {
+                StashEdits(currentPage);
                 currentPage--;
+                RestoreEdits(currentPage);
                 txtPage.Text = T("PageOf", currentPage, totalPages);
                 RefreshView();
             }
@@ -2171,10 +2337,112 @@ namespace GinPdfRw
         private void NextPage()
         {
             if (currentPage < totalPages) {
+                StashEdits(currentPage);
                 currentPage++;
+                RestoreEdits(currentPage);
                 txtPage.Text = T("PageOf", currentPage, totalPages);
                 RefreshView();
             }
+        }
+    }
+
+    public class ImageBox : Grid
+    {
+        public static ImageBox Current;
+        private readonly double aspect;
+        private readonly System.Windows.Controls.Image img;
+        private readonly Border frame;
+        private readonly System.Windows.Controls.Primitives.Thumb handle;
+        private bool dragging;
+        private System.Windows.Point dragStart;
+        private double startLeft, startTop;
+
+        public ImageBox(BitmapSource src, double width)
+        {
+            aspect = src.PixelWidth / (double)src.PixelHeight;
+            Width = width;
+            Height = width / aspect;
+            img = new System.Windows.Controls.Image { Source = src, Stretch = Stretch.Fill, Cursor = Cursors.SizeAll };
+            RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
+            frame = new Border { BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 120, 215)), BorderThickness = new Thickness(1), IsHitTestVisible = false, Visibility = Visibility.Collapsed };
+            handle = new System.Windows.Controls.Primitives.Thumb {
+                Width = 14, Height = 14,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 120, 215)),
+                Cursor = Cursors.SizeNWSE,
+                Visibility = Visibility.Collapsed
+            };
+            Children.Add(img);
+            Children.Add(frame);
+            Children.Add(handle);
+
+            handle.DragDelta += delegate(object s, System.Windows.Controls.Primitives.DragDeltaEventArgs e) {
+                double nw = Math.Max(16, Width + e.HorizontalChange);
+                Width = nw;
+                Height = nw / aspect;
+                e.Handled = true;
+            };
+            img.MouseLeftButtonDown += delegate(object s, MouseButtonEventArgs e) {
+                Select();
+                var parent = Parent as UIElement;
+                if (parent == null) return;
+                dragging = true;
+                dragStart = e.GetPosition(parent);
+                startLeft = double.IsNaN(Canvas.GetLeft(this)) ? 0 : Canvas.GetLeft(this);
+                startTop = double.IsNaN(Canvas.GetTop(this)) ? 0 : Canvas.GetTop(this);
+                img.CaptureMouse();
+                e.Handled = true;
+            };
+            img.MouseMove += delegate(object s, MouseEventArgs e) {
+                if (!dragging) return;
+                var parent = Parent as UIElement;
+                if (parent == null) return;
+                var p = e.GetPosition(parent);
+                Canvas.SetLeft(this, startLeft + p.X - dragStart.X);
+                Canvas.SetTop(this, startTop + p.Y - dragStart.Y);
+                e.Handled = true;
+            };
+            img.MouseLeftButtonUp += delegate(object s, MouseButtonEventArgs e) {
+                if (dragging) { dragging = false; img.ReleaseMouseCapture(); e.Handled = true; }
+            };
+        }
+
+        public void UpdateHandle(double zoom)
+        {
+            double z = zoom <= 0 ? 1 : zoom;
+            handle.Width = 14 / z;
+            handle.Height = 14 / z;
+            handle.Margin = new Thickness(0, 0, -7 / z, -7 / z);
+            frame.BorderThickness = new Thickness(1 / z);
+        }
+
+        public void Select()
+        {
+            if (Current != null && Current != this) Current.SetSelected(false);
+            Current = this;
+            SetSelected(true);
+        }
+
+        private void SetSelected(bool on)
+        {
+            frame.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
+            handle.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public static void DeselectAll()
+        {
+            if (Current != null) { Current.SetSelected(false); Current = null; }
+        }
+
+        public static bool IsInside(DependencyObject d)
+        {
+            while (d != null)
+            {
+                if (d is ImageBox) return true;
+                d = (d is Visual || d is System.Windows.Media.Media3D.Visual3D) ? VisualTreeHelper.GetParent(d) : LogicalTreeHelper.GetParent(d);
+            }
+            return false;
         }
     }
 }
