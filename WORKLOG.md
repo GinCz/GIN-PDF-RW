@@ -1,5 +1,11 @@
 # Worklog - GIN-PDF-RW
 
+## 2026-11-23 - v019 Localized context menu, Uninstall.exe restored
+
+- Right-click menu now uses localization keys (EN/RU/UK/CS) and is rebuilt on language change (`UpdateStrings` -> `SetupContextMenu`).
+- v018 installer omitted Uninstall.exe (regression, my mistake). Restored: precompiled `Uninstall.exe` (src/Uninstall.cs, with icon) is embedded in Setup and written to `C:\Program Files\GIN-PDF-RW\Uninstall.exe`; registry UninstallString points to it. Uninstaller also removes HKLM uninstall key and `.pdf` handler `GIN.PDF.Document`.
+- Full compile of App.cs and Uninstall.cs against .NET 4.8 reference assemblies before every release.
+
 ## 2026-11-23 - v018 Precompiled installer, fixes for v015-v017 install errors
 
 - **Root cause:** v015-v017 installers compiled App.cs with csc.exe on the user's PC. I only validated syntax (`mcs --parse`), never a full compile against WPF, so semantic errors shipped: CS0006 (WPF refs, v015), CS1009 (regex escape, v016), CS0103 `pageGrid` local var used from SetupContextMenu + missing System.Security.dll for X509Certificate2UI (v017).

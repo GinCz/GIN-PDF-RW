@@ -1,13 +1,13 @@
 {
   "name": "GIN-PDF-RW",
-  "current_version": "v018",
-  "release_name": "GIN-PDF-RW v018 - Precompiled Installer (no compiler needed), fixes pageGrid & System.Security build errors",
-  "version_number": "0.018.0.0",
+  "current_version": "v019",
+  "release_name": "GIN-PDF-RW v019 - Localized Context Menu, Uninstall.exe restored",
+  "version_number": "0.019.0.0",
   "release_date": "2026-11-23",
   "author": "Vladimir Bulantsev (@GinCz)",
   "copyright": "VladiMIR+AI",
   "license": "MIT",
   "encoding": "UTF-8",
-  "download_url": "https://github.com/GinCz/GIN-PDF-RW/releases/download/v018/GIN-PDF-RW_v018_Setup.exe",
+  "download_url": "https://github.com/GinCz/GIN-PDF-RW/releases/download/v019/GIN-PDF-RW_v019_Setup.exe",
   "repository": "https://github.com/GinCz/GIN-PDF-RW"
 }
