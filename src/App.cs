@@ -13,13 +13,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-[assembly: AssemblyTitle("GIN-PDF-RW_v019")]
-[assembly: AssemblyProduct("GIN-PDF-RW_v019")]
-[assembly: AssemblyDescription("GIN-PDF-RW_v019")]
+[assembly: AssemblyTitle("GIN-PDF-RW_v020")]
+[assembly: AssemblyProduct("GIN-PDF-RW_v020")]
+[assembly: AssemblyDescription("GIN-PDF-RW_v020")]
 [assembly: AssemblyCompany("VladiMIR+AI")]
 [assembly: AssemblyCopyright("VladiMIR+AI")]
-[assembly: AssemblyFileVersion("0.019.0.0")]
-[assembly: AssemblyVersion("0.019.0.0")]
+[assembly: AssemblyFileVersion("0.020.0.0")]
+[assembly: AssemblyVersion("0.020.0.0")]
 
 namespace GinPdfRw
 {
@@ -219,6 +219,12 @@ namespace GinPdfRw
         private Border editorBar;
         private Button btnOpen;
         private Button btnSave;
+        private Button btnSaveAs;
+        private Button btnUndo;
+        private Button btnRedo;
+        private Button btnSaveExit;
+        private Button btnCancel;
+        private List<UIElement> redoStack = new List<UIElement>();
         private Button btnPrint;
         private Button btnModeReader;
         private Button btnModeEditor;
@@ -309,7 +315,7 @@ namespace GinPdfRw
         private void InitLocalization()
         {
             var en = new Dictionary<string, string>();
-            en.Add("Title", "GIN-PDF-RW v019 — Zen PDF Reader & Editor");
+            en.Add("Title", "GIN-PDF-RW v020 — Zen PDF Reader & Editor");
             en.Add("Open", "📂 Open (Ctrl+O)");
             en.Add("Save", "💾 Save (Ctrl+S)");
             en.Add("Print", "🖨️ Print (Ctrl+P)");
@@ -317,9 +323,9 @@ namespace GinPdfRw
             en.Add("ModeEditor", "✏️ Editor");
             en.Add("Fullscreen", "⛶ Fullscreen (F11)");
             en.Add("Restore", "⛶ Window (Esc)");
-            en.Add("UpdateBtn", "v019 (Update)");
+            en.Add("UpdateBtn", "v020 (Update)");
             en.Add("CheckingUpdate", "Checking GitHub...");
-            en.Add("UpdateUpToDate", "You are using the latest version (v019)!");
+            en.Add("UpdateUpToDate", "You are using the latest version (v020)!");
             en.Add("UpdateAvailable", "New version {0} available on GitHub! Open download page?");
             en.Add("UpdateTitle", "GIN-PDF-RW Update");
             en.Add("FitWidth", "Fit Page");
@@ -343,10 +349,15 @@ namespace GinPdfRw
             en.Add("CmFlipV", "⇅ Flip vertically");
             en.Add("CmPrint", "🖨️ Print");
             en.Add("CmClose", "❌ Close");
+            en.Add("SaveAs", "💾 Save As (Ctrl+Shift+S)");
+            en.Add("Undo", "↩ Undo (Ctrl+Z)");
+            en.Add("Redo", "↪ Redo (Ctrl+Y)");
+            en.Add("SaveExit", "✔ Save & Exit");
+            en.Add("Cancel", "✖ Cancel");
             loc.Add("en", en);
 
             var ru = new Dictionary<string, string>();
-            ru.Add("Title", "GIN-PDF-RW v019 — Просмотр и редактор PDF");
+            ru.Add("Title", "GIN-PDF-RW v020 — Просмотр и редактор PDF");
             ru.Add("Open", "📂 Открыть (Ctrl+O)");
             ru.Add("Save", "💾 Сохранить (Ctrl+S)");
             ru.Add("Print", "🖨️ Печать (Ctrl+P)");
@@ -354,9 +365,9 @@ namespace GinPdfRw
             ru.Add("ModeEditor", "✏️ Редактировать");
             ru.Add("Fullscreen", "⛶ Во весь экран (F11)");
             ru.Add("Restore", "⛶ В окно (Esc)");
-            ru.Add("UpdateBtn", "v019 (обновить)");
+            ru.Add("UpdateBtn", "v020 (обновить)");
             ru.Add("CheckingUpdate", "Проверка GitHub...");
-            ru.Add("UpdateUpToDate", "У вас установлена самая актуальная версия (v019)!");
+            ru.Add("UpdateUpToDate", "У вас установлена самая актуальная версия (v020)!");
             ru.Add("UpdateAvailable", "Доступна новая версия {0} на GitHub! Открыть страницу загрузки?");
             ru.Add("UpdateTitle", "Обновление GIN-PDF-RW");
             ru.Add("FitWidth", "По размеру");
@@ -380,10 +391,15 @@ namespace GinPdfRw
             ru.Add("CmFlipV", "⇅ Перевернуть по вертикали");
             ru.Add("CmPrint", "🖨️ Печать");
             ru.Add("CmClose", "❌ Закрыть");
+            ru.Add("SaveAs", "💾 Сохранить как (Ctrl+Shift+S)");
+            ru.Add("Undo", "↩ Назад (Ctrl+Z)");
+            ru.Add("Redo", "↪ Вперёд (Ctrl+Y)");
+            ru.Add("SaveExit", "✔ Сохранить и выйти");
+            ru.Add("Cancel", "✖ Отмена");
             loc.Add("ru", ru);
 
             var uk = new Dictionary<string, string>();
-            uk.Add("Title", "GIN-PDF-RW v019 — Перегляд і редактор PDF");
+            uk.Add("Title", "GIN-PDF-RW v020 — Перегляд і редактор PDF");
             uk.Add("Open", "📂 Відкрити (Ctrl+O)");
             uk.Add("Save", "💾 Зберегти (Ctrl+S)");
             uk.Add("Print", "🖨️ Друк (Ctrl+P)");
@@ -391,9 +407,9 @@ namespace GinPdfRw
             uk.Add("ModeEditor", "✏️ Редагувати");
             uk.Add("Fullscreen", "⛶ На весь екран (F11)");
             uk.Add("Restore", "⛶ У вікно (Esc)");
-            uk.Add("UpdateBtn", "v019 (оновити)");
+            uk.Add("UpdateBtn", "v020 (оновити)");
             uk.Add("CheckingUpdate", "Перевірка GitHub...");
-            uk.Add("UpdateUpToDate", "У вас встановлена найновіша версія (v019)!");
+            uk.Add("UpdateUpToDate", "У вас встановлена найновіша версія (v020)!");
             uk.Add("UpdateAvailable", "Доступна нова версія {0} на GitHub! Відкрити сторінку завантаження?");
             uk.Add("UpdateTitle", "Оновлення GIN-PDF-RW");
             uk.Add("FitWidth", "За розміром");
@@ -417,10 +433,15 @@ namespace GinPdfRw
             uk.Add("CmFlipV", "⇅ Перевернути по вертикалі");
             uk.Add("CmPrint", "🖨️ Друк");
             uk.Add("CmClose", "❌ Закрити");
+            uk.Add("SaveAs", "💾 Зберегти як (Ctrl+Shift+S)");
+            uk.Add("Undo", "↩ Назад (Ctrl+Z)");
+            uk.Add("Redo", "↪ Вперед (Ctrl+Y)");
+            uk.Add("SaveExit", "✔ Зберегти і вийти");
+            uk.Add("Cancel", "✖ Скасувати");
             loc.Add("uk", uk);
 
             var cs = new Dictionary<string, string>();
-            cs.Add("Title", "GIN-PDF-RW v019 — Prohlížeč a editor PDF");
+            cs.Add("Title", "GIN-PDF-RW v020 — Prohlížeč a editor PDF");
             cs.Add("Open", "📂 Otevřít (Ctrl+O)");
             cs.Add("Save", "💾 Uložit (Ctrl+S)");
             cs.Add("Print", "🖨️ Tisk (Ctrl+P)");
@@ -428,9 +449,9 @@ namespace GinPdfRw
             cs.Add("ModeEditor", "✏️ Upravit");
             cs.Add("Fullscreen", "⛶ Celá obrazovka (F11)");
             cs.Add("Restore", "⛶ Do okna (Esc)");
-            cs.Add("UpdateBtn", "v019 (aktualizovat)");
+            cs.Add("UpdateBtn", "v020 (aktualizovat)");
             cs.Add("CheckingUpdate", "Kontrola GitHubu...");
-            cs.Add("UpdateUpToDate", "Používáte nejnovější verzi (v019)!");
+            cs.Add("UpdateUpToDate", "Používáte nejnovější verzi (v020)!");
             cs.Add("UpdateAvailable", "Na GitHubu je k dispozici nová verze {0}! Otevřít stránku stahování?");
             cs.Add("UpdateTitle", "Aktualizace GIN-PDF-RW");
             cs.Add("FitWidth", "Na stránku");
@@ -454,6 +475,11 @@ namespace GinPdfRw
             cs.Add("CmFlipV", "⇅ Převrátit svisle");
             cs.Add("CmPrint", "🖨️ Tisk");
             cs.Add("CmClose", "❌ Zavřít");
+            cs.Add("SaveAs", "💾 Uložit jako (Ctrl+Shift+S)");
+            cs.Add("Undo", "↩ Zpět (Ctrl+Z)");
+            cs.Add("Redo", "↪ Vpřed (Ctrl+Y)");
+            cs.Add("SaveExit", "✔ Uložit a ukončit");
+            cs.Add("Cancel", "✖ Zrušit");
             loc.Add("cs", cs);
         }
 
@@ -655,7 +681,7 @@ namespace GinPdfRw
 
         private void BuildUi()
         {
-            Title = "GIN-PDF-RW v019";
+            Title = "GIN-PDF-RW v020";
             Width = 1240;
             Height = 880;
             MinWidth = 800;
@@ -684,10 +710,12 @@ namespace GinPdfRw
             // Left Group
             var leftGroup = new StackPanel { Orientation = Orientation.Horizontal };
             btnOpen = CreateBtn("📂 Open", delegate { OpenFileDialog(); });
-            btnSave = CreateBtn("💾 Save", delegate { SaveFileDialog(); });
+            btnSave = CreateBtn("💾 Save", delegate { SaveCurrent(); });
             btnPrint = CreateBtn("🖨️ Print", delegate { ExecutePrint(); });
             leftGroup.Children.Add(btnOpen);
+            btnSaveAs = CreateBtn("💾 Save As", delegate { SaveAsDialog(); });
             leftGroup.Children.Add(btnSave);
+            leftGroup.Children.Add(btnSaveAs);
             leftGroup.Children.Add(btnPrint);
             leftGroup.Children.Add(CreateSep());
             Grid.SetColumn(leftGroup, 0);
@@ -886,7 +914,7 @@ namespace GinPdfRw
                 }
             };
 
-            btnUpdate = CreateBtn("v019 (обновить)", delegate { CheckForManualUpdate(); });
+            btnUpdate = CreateBtn("v020 (обновить)", delegate { CheckForManualUpdate(); });
             btnUpdate.Margin = new Thickness(6, 0, 0, 0);
             btnUpdate.FontWeight = FontWeights.SemiBold;
             btnUpdate.ToolTip = "GitHub Update Checker";
@@ -915,13 +943,23 @@ namespace GinPdfRw
             toolSign = CreateBtn("✍ Draw Sign", delegate { DrawSignDialog(); });
             toolCert = CreateBtn("🔏 X.509 Sign", delegate { ExecuteDigitalSign(); });
 
+            btnUndo = CreateBtn("↩ Undo", delegate { UndoEdit(); });
+            btnRedo = CreateBtn("↪ Redo", delegate { RedoEdit(); });
+            btnSaveExit = CreateBtn("✔ Save & Exit", delegate { if (SaveCurrent()) Close(); });
+            btnCancel = CreateBtn("✖ Cancel", delegate { CancelEditing(); });
             txtToolTip = new TextBlock { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 0, 0), FontStyle = FontStyles.Italic };
 
+            ebStack.Children.Add(btnUndo);
+            ebStack.Children.Add(btnRedo);
+            ebStack.Children.Add(CreateSep());
             ebStack.Children.Add(toolText);
             ebStack.Children.Add(toolCheck);
             ebStack.Children.Add(toolImage);
             ebStack.Children.Add(toolSign);
             ebStack.Children.Add(toolCert);
+            ebStack.Children.Add(CreateSep());
+            ebStack.Children.Add(btnSaveExit);
+            ebStack.Children.Add(btnCancel);
             ebStack.Children.Add(txtToolTip);
             editorBar.Child = ebStack;
             Grid.SetRow(editorBar, 1);
@@ -1069,7 +1107,7 @@ namespace GinPdfRw
             sbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             statusText = new TextBlock { Text = "Ready", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
-            verText = new TextBlock { Text = "GIN-PDF-RW v019 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
+            verText = new TextBlock { Text = "GIN-PDF-RW v020 [VladiMIR+AI] | UTF-8", FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
 
             Grid.SetColumn(statusText, 0);
             Grid.SetColumn(verText, 1);
@@ -1137,7 +1175,9 @@ namespace GinPdfRw
 
                 if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
                     if (e.Key == Key.O) { OpenFileDialog(); e.Handled = true; }
-                    else if (e.Key == Key.S) { SaveFileDialog(); e.Handled = true; }
+                    else if (e.Key == Key.S) { if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) SaveAsDialog(); else SaveCurrent(); e.Handled = true; }
+                    else if (e.Key == Key.Z) { UndoEdit(); e.Handled = true; }
+                    else if (e.Key == Key.Y) { RedoEdit(); e.Handled = true; }
                     else if (e.Key == Key.P) { ExecutePrint(); e.Handled = true; }
                 }
             };
@@ -1215,7 +1255,7 @@ namespace GinPdfRw
             txtZoom.Foreground = new SolidColorBrush(fgSub);
 
             // Style all standard buttons
-            Button[] btns = new Button[] { btnOpen, btnSave, btnPrint, btnPrev, btnNext, btnZoomOut, btnZoomIn, btnFit, btnFullscreen, btnThemeDay, btnThemeCloud, btnThemeNight, toolText, toolCheck, toolImage, toolSign, btnUpdate };
+            Button[] btns = new Button[] { btnOpen, btnSave, btnSaveAs, btnUndo, btnRedo, btnSaveExit, btnCancel, btnPrint, btnPrev, btnNext, btnZoomOut, btnZoomIn, btnFit, btnFullscreen, btnThemeDay, btnThemeCloud, btnThemeNight, toolText, toolCheck, toolImage, toolSign, btnUpdate };
             foreach (var b in btns) {
                 if (b != null) {
                     b.Background = new SolidColorBrush(bgBtn);
@@ -1597,6 +1637,11 @@ namespace GinPdfRw
             toolImage.Content = T("ToolImage");
             toolSign.Content = T("ToolSign");
             toolCert.Content = T("ToolCert");
+            btnSaveAs.Content = T("SaveAs");
+            btnUndo.Content = T("Undo");
+            btnRedo.Content = T("Redo");
+            btnSaveExit.Content = T("SaveExit");
+            btnCancel.Content = T("Cancel");
             btnFit.Content = T("FitWidth");
             txtPage.Text = T("PageOf", currentPage, totalPages);
             if (string.IsNullOrEmpty(docPath)) statusText.Text = T("Ready");
@@ -1668,7 +1713,7 @@ namespace GinPdfRw
                     if (currentLang == "ru")
                     {
                         subTitle = "Быстрый просмотр и редактор PDF с открытым исходным кодом";
-                        secHeader = "Добро пожаловать в GIN-PDF-RW v019!";
+                        secHeader = "Добро пожаловать в GIN-PDF-RW v020!";
                         welcome = 
                             "Основные возможности программы:\n\n" +
                             "• Прокрутка колесом мыши: вертикальный скроллинг документа и перелистывание страниц\n" +
@@ -1687,7 +1732,7 @@ namespace GinPdfRw
                     else if (currentLang == "uk")
                     {
                         subTitle = "Швидкий перегляд та редактор PDF з відкритим кодом";
-                        secHeader = "Ласкаво просимо до GIN-PDF-RW v019!";
+                        secHeader = "Ласкаво просимо до GIN-PDF-RW v020!";
                         welcome = 
                             "Основні можливості програми:\n\n" +
                             "• Прокручування коліщатком миші: вертикальний скролінг документа та перегортання сторінок\n" +
@@ -1706,7 +1751,7 @@ namespace GinPdfRw
                     else if (currentLang == "cs")
                     {
                         subTitle = "Rychlý prohlížeč a editor PDF s otevřeným zdrojovým kódem";
-                        secHeader = "Vítejte v GIN-PDF-RW v019!";
+                        secHeader = "Vítejte v GIN-PDF-RW v020!";
                         welcome = 
                             "Hlavní funkce programu:\n\n" +
                             "• Rolování kolečkem myši: svislé posouvání dokumentu a přepínání stránek\n" +
@@ -1725,7 +1770,7 @@ namespace GinPdfRw
                     else
                     {
                         subTitle = "High-Performance Open Source PDF Reader & Editor";
-                        secHeader = "Welcome to GIN-PDF-RW v019!";
+                        secHeader = "Welcome to GIN-PDF-RW v020!";
                         welcome = 
                             "Key Application Features:\n\n" +
                             "• Mouse Wheel Scroll: Smooth vertical page scrolling and page navigation\n" +
@@ -1862,7 +1907,7 @@ namespace GinPdfRw
                         return;
                     }
 
-                    if (string.Equals(latestVer, "v019", StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(latestVer, "v020", StringComparison.OrdinalIgnoreCase))
                     {
                         MessageBox.Show(T("UpdateUpToDate"), T("UpdateTitle"), MessageBoxButton.OK, MessageBoxImage.Information);
                     }
@@ -1905,18 +1950,164 @@ namespace GinPdfRw
             RefreshView();
         }
 
-        private void SaveFileDialog()
+        private void UndoEdit()
         {
+            int n = overlayCanvas.Children.Count;
+            if (n == 0) return;
+            UIElement el = overlayCanvas.Children[n - 1];
+            overlayCanvas.Children.RemoveAt(n - 1);
+            redoStack.Add(el);
+        }
+
+        private void RedoEdit()
+        {
+            int n = redoStack.Count;
+            if (n == 0) return;
+            UIElement el = redoStack[n - 1];
+            redoStack.RemoveAt(n - 1);
+            overlayCanvas.Children.Add(el);
+        }
+
+        private void CancelEditing()
+        {
+            overlayCanvas.Children.Clear();
+            redoStack.Clear();
+            SetMode("Reader");
+        }
+
+        private bool SaveCurrent()
+        {
+            if (string.IsNullOrEmpty(docPath) || !File.Exists(docPath)) return SaveAsDialog();
+            return SaveTo(docPath);
+        }
+
+        private bool SaveAsDialog()
+        {
+            if (string.IsNullOrEmpty(docPath) || !File.Exists(docPath)) return false;
             var sfd = new System.Windows.Forms.SaveFileDialog {
-                Filter = "PDF Documents (*.pdf)|*.pdf|All Files (*.*)|*.*",
-                Title = "Save PDF",
-                FileName = string.IsNullOrEmpty(docPath) ? "Document_signed.pdf" : System.IO.Path.GetFileNameWithoutExtension(docPath) + "_signed.pdf"
+                Filter = "PDF Documents (*.pdf)|*.pdf",
+                Title = "Save PDF As",
+                FileName = System.IO.Path.GetFileName(docPath)
             };
-            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            if (sfd.ShowDialog() != System.Windows.Forms.DialogResult.OK) return false;
+            return SaveTo(sfd.FileName);
+        }
+
+        private bool SaveTo(string path)
+        {
+            try
             {
-                statusText.Text = T("Saved", sfd.FileName);
-                MessageBox.Show(T("Saved", sfd.FileName), "GIN-PDF-RW", MessageBoxButton.OK, MessageBoxImage.Information);
+                string src = System.IO.Path.GetFullPath(docPath);
+                string dst = System.IO.Path.GetFullPath(path);
+                if (overlayCanvas.Children.Count == 0)
+                {
+                    if (!string.Equals(src, dst, StringComparison.OrdinalIgnoreCase)) File.Copy(src, dst, true);
+                }
+                else
+                {
+                    byte[] pdf = BuildFlattenedPdf();
+                    if (pdf == null) { MessageBox.Show("Save failed: cannot render pages.", "GIN-PDF-RW", MessageBoxButton.OK, MessageBoxImage.Error); return false; }
+                    string tmp = dst + ".tmp";
+                    File.WriteAllBytes(tmp, pdf);
+                    if (File.Exists(dst)) File.Delete(dst);
+                    File.Move(tmp, dst);
+                }
+                statusText.Text = T("Saved", dst);
+                return true;
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+        }
+
+        // Renders every page (edits baked into the current page) and writes a PDF made of JPEG page images.
+        private byte[] BuildFlattenedPdf()
+        {
+            var jpgs = new List<byte[]>();
+            var wh = new List<int[]>();
+            for (int p = 0; p < totalPages; p++)
+            {
+                byte[] probe = NativePdfRenderer.RenderPage(docPath, p, 0, 0);
+                if (probe == null) return null;
+                int pw, ph;
+                using (var pms = new MemoryStream(probe)) using (var pb = new System.Drawing.Bitmap(pms)) { pw = pb.Width; ph = pb.Height; }
+                double k = 2000.0 / pw;
+                uint tw = (uint)Math.Round(pw * k), th = (uint)Math.Round(ph * k);
+                byte[] png = NativePdfRenderer.RenderPage(docPath, p, tw, th);
+                if (png == null) return null;
+                using (var ms = new MemoryStream(png))
+                using (var bmp = new System.Drawing.Bitmap(ms))
+                using (var canvasBmp = new System.Drawing.Bitmap(bmp.Width, bmp.Height))
+                {
+                    using (var g = System.Drawing.Graphics.FromImage(canvasBmp))
+                    {
+                        g.Clear(System.Drawing.Color.White);
+                        g.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
+                        if (p == currentPage - 1 && overlayCanvas.Children.Count > 0 && overlayCanvas.ActualWidth > 0)
+                        {
+                            var dv = new DrawingVisual();
+                            using (var dc = dv.RenderOpen())
+                            {
+                                dc.DrawRectangle(new VisualBrush(overlayCanvas), null, new System.Windows.Rect(0, 0, bmp.Width, bmp.Height));
+                            }
+                            var rtb = new RenderTargetBitmap(bmp.Width, bmp.Height, 96, 96, PixelFormats.Pbgra32);
+                            rtb.Render(dv);
+                            var enc = new PngBitmapEncoder();
+                            enc.Frames.Add(BitmapFrame.Create(rtb));
+                            using (var oms = new MemoryStream())
+                            {
+                                enc.Save(oms);
+                                oms.Position = 0;
+                                using (var ob = new System.Drawing.Bitmap(oms)) g.DrawImage(ob, 0, 0, bmp.Width, bmp.Height);
+                            }
+                        }
+                    }
+                    var codec = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders();
+                    System.Drawing.Imaging.ImageCodecInfo jpg = null;
+                    foreach (var c in codec) if (c.MimeType == "image/jpeg") jpg = c;
+                    var ep = new System.Drawing.Imaging.EncoderParameters(1);
+                    ep.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 92L);
+                    using (var jms = new MemoryStream())
+                    {
+                        canvasBmp.Save(jms, jpg, ep);
+                        jpgs.Add(jms.ToArray());
+                    }
+                    wh.Add(new int[] { canvasBmp.Width, canvasBmp.Height });
+                }
+            }
+
+            var outMs = new MemoryStream();
+            var offsets = new List<long>();
+            Action<string> w = delegate(string t) { byte[] b = Encoding.ASCII.GetBytes(t); outMs.Write(b, 0, b.Length); };
+            Action<int> beginObj = delegate(int id) { offsets.Add(outMs.Position); w(id + " 0 obj\n"); };
+            w("%PDF-1.4\n");
+            int n = jpgs.Count;
+            beginObj(1); w("<< /Type /Catalog /Pages 2 0 R >>\nendobj\n");
+            var kids = new StringBuilder();
+            for (int i = 0; i < n; i++) kids.Append((3 + i * 3) + " 0 R ");
+            beginObj(2); w("<< /Type /Pages /Count " + n + " /Kids [" + kids + "] >>\nendobj\n");
+            for (int i = 0; i < n; i++)
+            {
+                int pageId = 3 + i * 3, contId = pageId + 1, imgId = pageId + 2;
+                double wPt = 595.28, hPt = 595.28 * wh[i][1] / wh[i][0];
+                string wS = wPt.ToString("0.##", CultureInfo.InvariantCulture), hS = hPt.ToString("0.##", CultureInfo.InvariantCulture);
+                beginObj(pageId);
+                w("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + wS + " " + hS + "] /Resources << /XObject << /Im0 " + imgId + " 0 R >> >> /Contents " + contId + " 0 R >>\nendobj\n");
+                string cs = "q " + wS + " 0 0 " + hS + " 0 0 cm /Im0 Do Q";
+                beginObj(contId);
+                w("<< /Length " + cs.Length + " >>\nstream\n" + cs + "\nendstream\nendobj\n");
+                beginObj(imgId);
+                w("<< /Type /XObject /Subtype /Image /Width " + wh[i][0] + " /Height " + wh[i][1] + " /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " + jpgs[i].Length + " >>\nstream\n");
+                outMs.Write(jpgs[i], 0, jpgs[i].Length);
+                w("\nendstream\nendobj\n");
+            }
+            long xref = outMs.Position;
+            w("xref\n0 " + (offsets.Count + 1) + "\n0000000000 65535 f \n");
+            foreach (long o in offsets) w(o.ToString("0000000000") + " 00000 n \n");
+            w("trailer\n<< /Size " + (offsets.Count + 1) + " /Root 1 0 R >>\nstartxref\n" + xref + "\n%%EOF\n");
+            return outMs.ToArray();
         }
 
         private void ExecuteDigitalSign()

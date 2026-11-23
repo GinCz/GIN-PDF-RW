@@ -1,5 +1,12 @@
 # Worklog - GIN-PDF-RW
 
+## 2026-11-23 - v020 Undo/Redo, Save, Save As, Save & Exit, Cancel
+
+- Top toolbar: Open, Save, Save As, Print. Editor bar: Undo, Redo (Ctrl+Z / Ctrl+Y) plus Save & Exit and Cancel; localized EN/RU/UK/CS.
+- Save/Save As: with no edits the original PDF is copied losslessly; with edits the pages are rendered (2000 px wide) with the overlay baked into the current page and written as a JPEG-page PDF (text is no longer selectable in the saved copy).
+- Limitation: edits are tracked for the page currently shown; Undo/Redo operates on overlay objects in order of addition.
+- Full compile against .NET 4.8 reference assemblies before release.
+
 ## 2026-11-23 - v019 Localized context menu, Uninstall.exe restored
 
 - Right-click menu now uses localization keys (EN/RU/UK/CS) and is rebuilt on language change (`UpdateStrings` -> `SetupContextMenu`).

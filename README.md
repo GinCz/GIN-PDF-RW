@@ -1,7 +1,7 @@
 # GIN-PDF-RW — High-Performance Zen PDF Reader & Editor
 
 [![Latest Release](https://img.shields.io/github/v/release/GinCz/GIN-PDF-RW?color=89B4FA&label=Latest%20Version&logo=github&style=for-the-badge)](https://github.com/GinCz/GIN-PDF-RW/releases/latest)
-[![Direct Download](https://img.shields.io/badge/Download-Latest%20Installer%20(1--Click)-a6e3a1?style=for-the-badge&logo=windows&logoColor=1e1e2e)](https://github.com/GinCz/GIN-PDF-RW/releases/download/v019/GIN-PDF-RW_v019_Setup.exe)
+[![Direct Download](https://img.shields.io/badge/Download-Latest%20Installer%20(1--Click)-a6e3a1?style=for-the-badge&logo=windows&logoColor=1e1e2e)](https://github.com/GinCz/GIN-PDF-RW/releases/download/v020/GIN-PDF-RW_v020_Setup.exe)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011%20(x64%2Farm64)-89b4fa?style=for-the-badge&logo=windows)](https://github.com/GinCz/GIN-PDF-RW)
 [![License](https://img.shields.io/badge/License-MIT-f9e2af?style=for-the-badge)](LICENSE)
 [![Author](https://img.shields.io/badge/Author-Vladimir%20Bulantsev%20(@GinCz)-cba6f7?style=for-the-badge&logo=github)](https://github.com/GinCz)
@@ -16,7 +16,7 @@ Get the official latest release directly without complicated package managers or
 
 | Release Package | Type | Target Architecture | Direct Link |
 | :--- | :--- | :--- | :--- |
-| **`GIN-PDF-RW_v019_Setup.exe`** | Standalone Native GUI Installer with Icon | Windows 10 / 11 (x64, x86, ARM64) | [📥 Download Now (1-Click)](https://github.com/GinCz/GIN-PDF-RW/releases/download/v019/GIN-PDF-RW_v019_Setup.exe) |
+| **`GIN-PDF-RW_v020_Setup.exe`** | Standalone Native GUI Installer with Icon | Windows 10 / 11 (x64, x86, ARM64) | [📥 Download Now (1-Click)](https://github.com/GinCz/GIN-PDF-RW/releases/download/v020/GIN-PDF-RW_v020_Setup.exe) |
 | **All Releases & History** | GitHub Release Archive | All versions & changelogs | [📦 View All Releases](https://github.com/GinCz/GIN-PDF-RW/releases) |
 
 ---
@@ -55,7 +55,7 @@ All transforms execute via hardware GPU acceleration across all pages simultaneo
 - Zero cloud uploads: complete on-device cryptographic security and GDPR compliance.
 
 ### 🔄 On-Demand GitHub Version Checker
-- Integrated non-intrusive `v019 (обновить)` toolbar button to verify new releases on GitHub without unsolicited background network polls.
+- Integrated non-intrusive `v020 (обновить)` toolbar button to verify new releases on GitHub without unsolicited background network polls.
 
 ---
 
@@ -65,7 +65,7 @@ All transforms execute via hardware GPU acceleration across all pages simultaneo
 - **Prerequisites:** .NET Framework 4.8 (pre-installed by default on Windows 10 and 11).
 - **Zero Dependencies:** Pure standalone portable architecture. No external runtimes or heavy bloated frameworks needed.
 
-Simply download and launch **`GIN-PDF-RW_v019_Setup.exe`**.
+Simply download and launch **`GIN-PDF-RW_v020_Setup.exe`**.
 
 ---
 

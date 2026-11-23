@@ -1,13 +1,13 @@
 {
   "name": "GIN-PDF-RW",
-  "current_version": "v019",
-  "release_name": "GIN-PDF-RW v019 - Localized Context Menu, Uninstall.exe restored",
-  "version_number": "0.019.0.0",
+  "current_version": "v020",
+  "release_name": "GIN-PDF-RW v020 - Undo/Redo, Save, Save As, Save & Exit, Cancel",
+  "version_number": "0.020.0.0",
   "release_date": "2026-11-23",
   "author": "Vladimir Bulantsev (@GinCz)",
   "copyright": "VladiMIR+AI",
   "license": "MIT",
   "encoding": "UTF-8",
-  "download_url": "https://github.com/GinCz/GIN-PDF-RW/releases/download/v019/GIN-PDF-RW_v019_Setup.exe",
+  "download_url": "https://github.com/GinCz/GIN-PDF-RW/releases/download/v020/GIN-PDF-RW_v020_Setup.exe",
   "repository": "https://github.com/GinCz/GIN-PDF-RW"
 }
