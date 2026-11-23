@@ -1,5 +1,21 @@
 # Worklog - GIN-PDF-RW
 
+## 2026-11-23 - v017 Fix CS1009 String Escape in App.cs, Native Setup.exe & All Features
+
+- **Target:** Fix CS1009 compilation error reported by Vladimir during v016 installation and deliver complete v017 package:
+  1. Fix CS1009 Unrecognized Escape Sequence in App.cs: Corrected regex pattern string escaping (`""current_version"\s*:\s*"([^"]+)""`) on line 1809. Verified syntax via `mcs --parse src/App.cs` (0 errors).
+  2. Native Windows PE GUI Installer (`GIN-PDF-RW_v017_Setup.exe`): Standalone executable with `app.ico`, UAC elevation, dynamic WPF assembly resolution, and fallback compilation.
+  3. Instant Escape Exit: Pressing `Escape` at any time while viewing a PDF (even after scrolling down or zooming) immediately closes the entire application.
+  4. 16pt Right-Click Context Menu with Emojis: Bound to all viewport levels (rotations 90°/180°, flips, printing, exit).
+  5. Dynamic Hi-DPI Vector Zoom: Real hardware re-rasterization on zoom eliminating blur and matching Adobe Acrobat Pro quality.
+- **Repository:** `https://github.com/GinCz/GIN-PDF-RW`
+- **Actions:**
+  - Compiled native `GIN-PDF-RW_v017_Setup.exe` using `mcs` with embedded icon `app.ico`.
+  - Delivered installer to Vladimir's Desktop in MEGA (`/MEGA/DOCS/desktop/`) and Flash folder (`/MEGA/WIN-FLASH/Util-WINDOWS/Graphics/PDF/`).
+  - Published official GitHub Release `v017` with attached installer asset.
+  - Purged obsolete `v015` in MEGA, keeping strictly latest 2 versions (`v016` and `v017`).
+  - Sent Telegram notification to Vladimir (@GinCz).
+
 ## 2026-11-23 - v016 Native Setup.exe with WPF Reference Fix, Escape Exit & 16pt Context Menu
 
 - **Target:** Deliver true standalone native `GIN-PDF-RW_v016_Setup.exe` with brand icon resolving all build and runtime issues:

@@ -1,13 +1,13 @@
 {
   "name": "GIN-PDF-RW",
-  "current_version": "v016",
-  "release_name": "GIN-PDF-RW v016 - Native Setup.exe with WPF Reference Fix, Instant Escape Close & 16pt Context Menu",
-  "version_number": "0.016.0.0",
+  "current_version": "v017",
+  "release_name": "GIN-PDF-RW v017 - Native Setup.exe with Escape Exit, 16pt Context Menu & Dynamic Hi-DPI Zoom",
+  "version_number": "0.017.0.0",
   "release_date": "2026-11-23",
   "author": "Vladimir Bulantsev (@GinCz)",
   "copyright": "VladiMIR+AI",
   "license": "MIT",
   "encoding": "UTF-8",
-  "download_url": "https://github.com/GinCz/GIN-PDF-RW/releases/download/v016/GIN-PDF-RW_v016_Setup.exe",
+  "download_url": "https://github.com/GinCz/GIN-PDF-RW/releases/download/v017/GIN-PDF-RW_v017_Setup.exe",
   "repository": "https://github.com/GinCz/GIN-PDF-RW"
 }
