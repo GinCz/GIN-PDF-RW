@@ -1,5 +1,21 @@
 # Worklog - GIN-PDF-RW
 
+## 2026-11-23 - v016 Native Setup.exe with WPF Reference Fix, Escape Exit & 16pt Context Menu
+
+- **Target:** Deliver true standalone native `GIN-PDF-RW_v016_Setup.exe` with brand icon resolving all build and runtime issues:
+  1. Fix CS0006 WPF Reference Error in Setup.exe: Located explicit `%SystemRoot%\Microsoft.NET\Framework64\v4.0.30319\WPF\` directory and passed explicit assembly paths (`PresentationFramework.dll`, `PresentationCore.dll`, `WindowsBase.dll`, `System.Xaml.dll`) and `/lib:` parameters to `csc.exe`, with automatic fallback to PowerShell `CSharpCodeProvider`.
+  2. Instant Escape Close: Pressing `Escape` at any time while viewing a PDF (even after scrolling or zooming) immediately terminates and closes the entire application.
+  3. 16pt Right-Click Context Menu with Emojis: Bound context menu to all viewport elements (`docScroll`, `pageBorder`, `pageGrid`, `pdfView`, `overlayCanvas`, `rootGrid`) ensuring reliable right-click menu popups with 90°/180° rotations, horizontal/vertical flips, printing, and instant close.
+  4. Dynamic Hi-DPI Vector Re-Rasterization on Zoom: Integrated 2x base multiplier and dynamic `NativePdfRenderer.RenderPage` on zoom change (`zoomRerenderTimer` debounce) ensuring crisp, razor-sharp vector typography identical to Adobe Acrobat and Foxit Reader.
+  5. Native GUI Installer (`GIN-PDF-RW_v016_Setup.exe`): Delivered as standalone PE32 executable with custom `app.ico` and standard Windows installer dialogs.
+- **Repository:** `https://github.com/GinCz/GIN-PDF-RW`
+- **Actions:**
+  - Compiled native `GIN-PDF-RW_v016_Setup.exe` using `mcs` with embedded icon `app.ico`.
+  - Delivered installer to Vladimir's Desktop in MEGA (`/MEGA/DOCS/desktop/`) and Flash folder (`/MEGA/WIN-FLASH/Util-WINDOWS/Graphics/PDF/`).
+  - Published official GitHub Release `v016` with attached installer asset.
+  - Purged obsolete releases in MEGA, keeping strictly latest 2 versions.
+  - Sent Telegram completion ping to Vladimir (@GinCz).
+
 ## 2026-11-23 - v015 Native Standalone Setup.exe with Embedded Icon & All Features
 
 - **Target:** Deliver true standalone native `GIN-PDF-RW_v015_Setup.exe` with embedded brand icon requested by Vladimir:

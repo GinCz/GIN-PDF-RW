@@ -1,10 +1,13 @@
 {
   "name": "GIN-PDF-RW",
-  "current_version": "v015",
-  "release_name": "GIN-PDF-RW v015 - Native Setup.exe with App Icon "release_name": "GIN-PDF-RW v015 - Escape Close, Context Menu "release_name": "GIN-PDF-RW v015 - Dynamic Vector Zoom & Manual GitHub Updater", Ultra-Crisp Vector Zoom", All v014 Features",
+  "current_version": "v016",
+  "release_name": "GIN-PDF-RW v016 - Native Setup.exe with WPF Reference Fix, Instant Escape Close & 16pt Context Menu",
+  "version_number": "0.016.0.0",
+  "release_date": "2026-11-23",
   "author": "Vladimir Bulantsev (@GinCz)",
   "copyright": "VladiMIR+AI",
   "license": "MIT",
   "encoding": "UTF-8",
+  "download_url": "https://github.com/GinCz/GIN-PDF-RW/releases/download/v016/GIN-PDF-RW_v016_Setup.exe",
   "repository": "https://github.com/GinCz/GIN-PDF-RW"
 }
