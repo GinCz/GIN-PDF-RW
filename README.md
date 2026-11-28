@@ -35,14 +35,14 @@ Designed for seamless document previews:
 
 ### 🖱️ 16pt Right-Click Quick Actions Context Menu
 Right-click anywhere on the document viewport to trigger a responsive, high-contrast context menu with 16pt typography and intuitive icons:
-- `↷ Rotate Right 90°` (`Повернуть направо на 90°`)
-- `↶ Rotate Left 90°` (`Повернуть налево на 90°`)
-- `↻ Rotate 180°` (`Повернуть на 180°`)
-- `↺ Rotate Left 180°` (`Повернуть налево на 180°`)
-- `⇆ Flip Horizontal` (`Отразить по горизонтали`)
-- `⇅ Flip Vertical` (`Отразить по вертикали`)
-- `🖨️ Print Document` (`Печать документа`)
-- `❌ Close Application` (`Закрыть программу`)
+- `↷ Rotate Right 90°`
+- `↶ Rotate Left 90°`
+- `↻ Rotate 180°`
+- `↺ Rotate Left 180°`
+- `⇆ Flip Horizontal`
+- `⇅ Flip Vertical`
+- `🖨️ Print Document`
+- `❌ Close Application`
 All transforms execute via hardware GPU acceleration across all pages simultaneously.
 
 ### 📝 Interactive AcroForms & Click-to-Fill Engine
@@ -60,7 +60,7 @@ All transforms execute via hardware GPU acceleration across all pages simultaneo
 - Undo / Redo (`Ctrl+Z` / `Ctrl+Y`), Save, Save As (`Ctrl+Shift+S`), Save & Exit, Cancel. Powered by [PdfPig](https://github.com/UglyToad/PdfPig) (Apache-2.0) for text positions.
 
 ### 🔄 On-Demand GitHub Version Checker
-- Integrated non-intrusive `v021 (обновить)` toolbar button to verify new releases on GitHub without unsolicited background network polls.
+- Integrated non-intrusive `v021 (Update)` toolbar button to verify new releases on GitHub without unsolicited background network polls.
 
 ---
 
@@ -88,6 +88,25 @@ Simply download and launch **`GIN-PDF-RW_v021_Setup.exe`**.
 | `Ctrl + O` | Open PDF file picker |
 | `Ctrl + S` | Save signed / edited PDF document |
 | `Ctrl + P` | Print document |
+
+---
+
+## 📋 Version History
+
+<details>
+<summary><b>Click to expand full changelog</b></summary>
+
+### v021 (Latest)
+* Added on-demand GitHub version update checker in toolbar (`v021 Update`).
+* Enhanced in-place text editing with PdfPig bounding-box coordinate detection.
+* 16pt high-contrast context menu with instant GPU-accelerated page transforms.
+* PAdES cryptographic digital signature engine with local Windows certificate store integration.
+* Portable Setup executable packaged in `releases/`.
+
+### v020
+* Initial standalone release with native WinRT hardware-accelerated PDF rasterization.
+
+</details>
 
 ---
 
