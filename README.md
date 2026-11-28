@@ -116,5 +116,5 @@ Simply download and launch **`GIN-PDF-RW_v021_Setup.exe`**.
 ---
 
 ## 📄 License
-Licensed under the [MIT License](LICENSE).  
+Licensed under the [MIT License](docs/LICENSE).  
 Copyright © 2026 Vladimir Bulantsev ([@GinCz](https://github.com/GinCz)). All rights reserved.
